@@ -1,0 +1,304 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<displays>
+<display id="e9ca7147-0139-1000-8039-0a09996c5632" type="" style="Table" enable="true">
+	<name><![CDATA[AWR-Bericht]]></name>
+	<description><![CDATA[Liefert Bericht zu einem eingegebenen und dem darauf folgenden Snapshot]]></description>
+	<tooltip><![CDATA[]]></tooltip>
+	<drillclass><![CDATA[]]></drillclass>
+	<CustomValues>
+		<TYPE>horizontal</TYPE>
+	</CustomValues>
+	<query>
+		<sql><![CDATA[-- Welche Snapshot-IDs stehen zur Verfügung?
+SELECT   snap_id,
+         snap_level,
+         to_char(begin_interval_time, 'yyyy/mm/dd hh24:mi:ss') begin_interval_time,
+         to_char(end_interval_time, 'yyyy/mm/dd hh24:mi:ss') end_interval_time,
+         to_char(flush_elapsed) flush_elapsed,
+         to_char(startup_time, 'yyyy/mm/dd hh24:mi:ss') startup_time,
+         error_count
+FROM     DBA_HIST_SNAPSHOT
+WHERE    dbid = ( select dbid from v$database )
+AND      instance_number = 1
+order by 1;]]></sql>
+		<binds>
+			<bind id="snap_id">
+				<prompt><![CDATA[snap_id]]></prompt>
+				<value><![CDATA[NULL_VALUE]]></value>
+				<bracket><![CDATA[null]]></bracket>
+			</bind>
+		</binds>
+	</query>
+		<pdf version="VERSION_1_7" compression="CONTENT">
+			<docproperty title="" author="" subject="" keywords="" />
+			<cell toppadding="2" bottompadding="2" leftpadding="2" rightpadding="2" horizontalalign="LEFT" verticalalign="TOP" wrap="true" />
+			<column>
+				<heading font="Times New Roman" size="10" style="NORMAL" color="-16777216" rowshading="-1" labeling="FIRST_PAGE" />
+				<footing font="Times New Roman" size="10" style="NORMAL" color="-16777216" rowshading="-1" labeling="NONE" />
+				<blob blob="NONE" zip="false" />
+			</column>
+			<table font="Times New Roman" size="10" style="NORMAL" color="-16777216" userowshading="false" oddrowshading="-1" evenrowshading="-1" showborders="true" spacingbefore="12" spacingafter="12" horizontalalign="LEFT" />
+			<header enable="false" generatedate="false">
+				<data>
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				null																																																																																																																																																																																																</data>
+			</header>
+			<footer enable="false" generatedate="false">
+				<data value="null" />
+			</footer>
+			<security enable="false" useopenpassword="false" openpassword="" encryption="EXCLUDE_METADATA">
+				<permission enable="false" permissionpassword="" allowcopying="true" allowprinting="true" allowupdating="false" allowaccessdevices="true" />
+			</security>
+			<pagesetup papersize="LETTER" orientation="1" measurement="in" margintop="1.0" marginbottom="1.0" marginleft="1.0" marginright="1.0" />
+		</pdf>
+	<display id="" type="" style="plsql-dbms_output" enable="true">
+		<name><![CDATA[HTML-Report]]></name>
+		<description><![CDATA[]]></description>
+		<tooltip><![CDATA[]]></tooltip>
+		<drillclass><![CDATA[]]></drillclass>
+		<CustomValues>
+		</CustomValues>
+		<query>
+			<sql><![CDATA[DECLARE
+  sn_id NUMBER := :SNAP_ID;
+BEGIN
+  dbms_output.enable(NULL);
+  FOR c IN(
+Select *
+from table(dbms_workload_repository.awr_report_html(
+         ( select dbid from v$database ),
+         1,          -- Instance number (meistens 1)
+         sn_id,      -- Starting snapshot
+         ( SELECT MIN( snap_id ) FROM dba_hist_snapshot WHERE snap_id > sn_id ),    -- Ending snapshot
+         0           -- Optionen (8 für ADDM-Bericht)
+     ))
+  ) LOOP
+    dbms_output.put_line( c.output );
+  END LOOP;
+END;]]></sql>
+			<binds>
+				<bind id="SNAP_ID">
+					<prompt><![CDATA[SNAP_ID]]></prompt>
+					<tooltip><![CDATA[SNAP_ID]]></tooltip>
+					<value><![CDATA[NULL_VALUE]]></value>
+					<bracket><![CDATA[null]]></bracket>
+				</bind>
+			</binds>
+		</query>
+			<pdf version="VERSION_1_7" compression="CONTENT">
+				<docproperty title="" author="" subject="" keywords="" />
+				<cell toppadding="2" bottompadding="2" leftpadding="2" rightpadding="2" horizontalalign="LEFT" verticalalign="TOP" wrap="true" />
+				<column>
+					<heading font="Times New Roman" size="10" style="NORMAL" color="-16777216" rowshading="-1" labeling="FIRST_PAGE" />
+					<footing font="Times New Roman" size="10" style="NORMAL" color="-16777216" rowshading="-1" labeling="NONE" />
+					<blob blob="NONE" zip="false" />
+				</column>
+				<table font="Times New Roman" size="10" style="NORMAL" color="-16777216" userowshading="false" oddrowshading="-1" evenrowshading="-1" showborders="true" spacingbefore="12" spacingafter="12" horizontalalign="LEFT" />
+				<header enable="false" generatedate="false">
+					<data>
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					null																																																																																																																																																																																																																																											</data>
+				</header>
+				<footer enable="false" generatedate="false">
+					<data value="null" />
+				</footer>
+				<security enable="false" useopenpassword="false" openpassword="" encryption="EXCLUDE_METADATA">
+					<permission enable="false" permissionpassword="" allowcopying="true" allowprinting="true" allowupdating="false" allowaccessdevices="true" />
+				</security>
+				<pagesetup papersize="LETTER" orientation="1" measurement="in" margintop="1.0" marginbottom="1.0" marginleft="1.0" marginright="1.0" />
+			</pdf>
+	</display>
+	<display id="" type="" style="plsql-dbms_output" enable="true">
+		<name><![CDATA[Text-Report]]></name>
+		<description><![CDATA[]]></description>
+		<tooltip><![CDATA[]]></tooltip>
+		<drillclass><![CDATA[]]></drillclass>
+		<CustomValues>
+		</CustomValues>
+		<query>
+			<sql><![CDATA[DECLARE
+  sn_id NUMBER := :SNAP_ID;
+BEGIN
+  dbms_output.enable(NULL);
+  dbms_output.put_line('<pre>');
+  FOR c IN(
+		SELECT *
+		FROM TABLE(dbms_workload_repository.awr_report_text(
+		         ( SELECT dbid FROM v$database ),
+		         1,          -- Instance number (meistens 1)
+		         sn_id,      -- Starting snapshot
+		         ( SELECT MIN( snap_id ) FROM dba_hist_snapshot WHERE snap_id > sn_id ),    -- Ending snapshot
+		         0           -- Optionen (8 für ADDM-Bericht)
+		     ))
+		  )
+  LOOP
+    dbms_output.put_line( c.output );
+  END LOOP;
+  dbms_output.put_line('</pre>');
+END;]]></sql>
+			<binds>
+				<bind id="SNAP_ID">
+					<prompt><![CDATA[SNAP_ID]]></prompt>
+					<tooltip><![CDATA[SNAP_ID]]></tooltip>
+					<value><![CDATA[NULL_VALUE]]></value>
+					<bracket><![CDATA[null]]></bracket>
+				</bind>
+			</binds>
+		</query>
+			<pdf version="VERSION_1_7" compression="CONTENT">
+				<docproperty title="" author="" subject="" keywords="" />
+				<cell toppadding="2" bottompadding="2" leftpadding="2" rightpadding="2" horizontalalign="LEFT" verticalalign="TOP" wrap="true" />
+				<column>
+					<heading font="Times New Roman" size="10" style="NORMAL" color="-16777216" rowshading="-1" labeling="FIRST_PAGE" />
+					<footing font="Times New Roman" size="10" style="NORMAL" color="-16777216" rowshading="-1" labeling="NONE" />
+					<blob blob="NONE" zip="false" />
+				</column>
+				<table font="Times New Roman" size="10" style="NORMAL" color="-16777216" userowshading="false" oddrowshading="-1" evenrowshading="-1" showborders="true" spacingbefore="12" spacingafter="12" horizontalalign="LEFT" />
+				<header enable="false" generatedate="false">
+					<data>
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					null																																																																																																																																																																																																																							</data>
+				</header>
+				<footer enable="false" generatedate="false">
+					<data value="null" />
+				</footer>
+				<security enable="false" useopenpassword="false" openpassword="" encryption="EXCLUDE_METADATA">
+					<permission enable="false" permissionpassword="" allowcopying="true" allowprinting="true" allowupdating="false" allowaccessdevices="true" />
+				</security>
+				<pagesetup papersize="LETTER" orientation="1" measurement="in" margintop="1.0" marginbottom="1.0" marginleft="1.0" marginright="1.0" />
+			</pdf>
+	</display>
+</display>
+</displays>
