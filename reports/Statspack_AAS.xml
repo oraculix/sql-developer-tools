@@ -2,8 +2,8 @@
 <displays>
 <display id="2bb7678f-0141-1000-8001-c0a8645bff66" type="" style="Chart" enable="true">
 	<name><![CDATA[Statspack AAS]]></name>
-	<description><![CDATA[]]></description>
-	<tooltip><![CDATA[]]></tooltip>
+	<description><![CDATA[History of Average Active Sessions (AAS) and Host (OS) Load. Shows CPU cores as boundary.]]></description>
+	<tooltip><![CDATA[History of Average Active Sessions (AAS) and Host (OS) Load]]></tooltip>
 	<drillclass><![CDATA[null]]></drillclass>
 	<CustomValues>
 		<DATA_MAP_SERIES>\</DATA_MAP_SERIES>
@@ -54,24 +54,28 @@
 		<Y1AXIS_TICK_LABEL_ROTATE>HORIZONTAL</Y1AXIS_TICK_LABEL_ROTATE>
 		<Y1AXIS_REFOBJ_COUNT>0</Y1AXIS_REFOBJ_COUNT>
 		<STYLE>Default</STYLE>
-		<TITLE_TEXT>Average Active Sessions</TITLE_TEXT>
+		<TITLE_TEXT>Average Active Sessions History</TITLE_TEXT>
 		<NUMBER_FORMATS.NEGATIVE_NUMBER_FORMAT>BRACKETED</NUMBER_FORMATS.NEGATIVE_NUMBER_FORMAT>
 		<Y2AXIS_TICK_LABEL_ROTATE>HORIZONTAL</Y2AXIS_TICK_LABEL_ROTATE>
 		<XAXIS_LINE_WIDTH>THINNEST</XAXIS_LINE_WIDTH>
 		<DATA_MAP_COLUMNS>\</DATA_MAP_COLUMNS>
-		<TITLE>false</TITLE>
+		<TITLE>true</TITLE>
 		<NUMBER_FORMATS.DECIMAL_PLACES>1</NUMBER_FORMATS.DECIMAL_PLACES>
 	</CustomValues>
 	<query>
 		<sql><![CDATA[SELECT TO_CHAR( sn.snap_time, 'dd.mm. hh24:mi' ) time
-     , CASE nm.stat_name WHEN 'NUM_CPU_CORES' THEN 'CPU Cores' WHEN 'LOAD' THEN 'OS Load' ELSE nm.stat_name END AS stat_name
+     , CASE nm.stat_name
+       WHEN 'NUM_CPUS' THEN 'Log. CPUs'
+       WHEN 'LOAD' THEN 'OS Load'
+       ELSE nm.stat_name
+       END AS stat_name
      , os.value
      , sn.snap_time
   FROM stats$osstat os
      , stats$osstatname nm
      , stats$snapshot sn
  WHERE os.osstat_id = nm.osstat_id
-   AND nm.stat_name IN( 'NUM_CPU_CORES', 'LOAD' )
+   AND nm.stat_name IN( 'NUM_CPUS', 'LOAD' )
    AND sn.snap_id = os.snap_id
 UNION ALL
 SELECT time
@@ -128,7 +132,10 @@ FROM
 				
 				
 				
-				null																																																																																																</data>
+				
+				
+				
+				null																																																																																																												</data>
 			</header>
 			<footer enable="false" generatedate="false">
 				<data value="null" />
@@ -202,7 +209,10 @@ SELECT tm.snap_id, sn.snap_time, nm.stat_name
 					
 					
 					
-					null																																																																											</data>
+					
+					
+					
+					null																																																																																										</data>
 				</header>
 				<footer enable="false" generatedate="false">
 					<data value="null" />
@@ -223,7 +233,8 @@ SELECT tm.snap_id, sn.snap_time, nm.stat_name
 		</CustomValues>
 		<query>
 			<sql><![CDATA[SELECT * FROM(
-  SELECT snap_time ||' - '|| SUBSTR( LEAD( snap_time, 1 ) OVER( PARTITION BY event ORDER BY snap_id ), -5 ) AS interval
+  SELECT TO_CHAR(snap_time, 'dd.mm. hh24:mi')
+         ||' - '|| TO_CHAR( LEAD( snap_time, 1 ) OVER( PARTITION BY event ORDER BY snap_id ), 'hh24:mi' ) AS interval
        , event
        , ROUND(( LEAD( time_spent, 1 ) OVER( PARTITION BY event ORDER BY snap_id ) - time_spent ) /
          ( LEAD( snap_time, 1 ) OVER( PARTITION BY event ORDER BY snap_id ) - snap_time ) / 24 ) seconds_waited
@@ -281,7 +292,10 @@ WHERE ROWNUM < 6]]></sql>
 					
 					
 					
-					null																																																							</data>
+					
+					
+					
+					null																																																																						</data>
 				</header>
 				<footer enable="false" generatedate="false">
 					<data value="null" />
