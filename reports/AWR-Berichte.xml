@@ -4,14 +4,14 @@
 	<name><![CDATA[AWR-Bericht]]></name>
 	<description><![CDATA[Liefert Bericht zu einem eingegebenen und dem darauf folgenden Snapshot]]></description>
 	<tooltip><![CDATA[]]></tooltip>
-	<drillclass><![CDATA[]]></drillclass>
+	<drillclass><![CDATA[null]]></drillclass>
 	<CustomValues>
 		<TYPE>horizontal</TYPE>
 	</CustomValues>
 	<query>
 		<sql><![CDATA[-- Welche Snapshot-IDs stehen zur Verfügung?
 SELECT   snap_id,
-         snap_level,
+         instance_number,
          to_char(begin_interval_time, 'yyyy/mm/dd hh24:mi:ss') begin_interval_time,
          to_char(end_interval_time, 'yyyy/mm/dd hh24:mi:ss') end_interval_time,
          to_char(flush_elapsed) flush_elapsed,
@@ -19,15 +19,8 @@ SELECT   snap_id,
          error_count
 FROM     DBA_HIST_SNAPSHOT
 WHERE    dbid = ( select dbid from v$database )
-AND      instance_number = 1
+AND      instance_number = ( SELECT instance_number FROM v$instance )
 order by 1;]]></sql>
-		<binds>
-			<bind id="snap_id">
-				<prompt><![CDATA[snap_id]]></prompt>
-				<value><![CDATA[NULL_VALUE]]></value>
-				<bracket><![CDATA[null]]></bracket>
-			</bind>
-		</binds>
 	</query>
 		<pdf version="VERSION_1_7" compression="CONTENT">
 			<docproperty title="" author="" subject="" keywords="" />
@@ -87,7 +80,28 @@ order by 1;]]></sql>
 				
 				
 				
-				null																																																																																																																																																																																																</data>
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				null																																																																																																																																																																																																																																																																																				</data>
 			</header>
 			<footer enable="false" generatedate="false">
 				<data value="null" />
@@ -97,35 +111,46 @@ order by 1;]]></sql>
 			</security>
 			<pagesetup papersize="LETTER" orientation="1" measurement="in" margintop="1.0" marginbottom="1.0" marginleft="1.0" marginright="1.0" />
 		</pdf>
-	<display id="" type="" style="plsql-dbms_output" enable="true">
+	<display id="null" type="" style="plsql-dbms_output" enable="true">
 		<name><![CDATA[HTML-Report]]></name>
 		<description><![CDATA[]]></description>
 		<tooltip><![CDATA[]]></tooltip>
-		<drillclass><![CDATA[]]></drillclass>
+		<drillclass><![CDATA[null]]></drillclass>
 		<CustomValues>
 		</CustomValues>
 		<query>
 			<sql><![CDATA[DECLARE
   sn_id NUMBER := :SNAP_ID;
+  inst  NUMBER := :INSTANCE_NUMBER;
 BEGIN
   dbms_output.enable(NULL);
-  FOR c IN(
-Select *
-from table(dbms_workload_repository.awr_report_html(
-         ( select dbid from v$database ),
-         1,          -- Instance number (meistens 1)
-         sn_id,      -- Starting snapshot
-         ( SELECT MIN( snap_id ) FROM dba_hist_snapshot WHERE snap_id > sn_id ),    -- Ending snapshot
-         0           -- Optionen (8 für ADDM-Bericht)
-     ))
-  ) LOOP
-    dbms_output.put_line( c.output );
-  END LOOP;
+  IF (sn_id IS NOT NULL) THEN
+    FOR c IN(
+      Select *
+        from table(dbms_workload_repository.awr_report_html(
+           ( SELECT dbid FROM v$database ),
+           inst,
+           sn_id,      -- Starting snapshot
+           ( SELECT MIN( snap_id ) FROM dba_hist_snapshot WHERE snap_id > sn_id ),    -- Ending snapshot
+           0           -- Optionen (8 für ADDM-Bericht)
+       ))
+    ) LOOP
+      dbms_output.put_line( c.output );
+    END LOOP;
+  ELSE
+    dbms_output.put_line('Select a Snapshot');
+  END IF;
 END;]]></sql>
 			<binds>
 				<bind id="SNAP_ID">
 					<prompt><![CDATA[SNAP_ID]]></prompt>
 					<tooltip><![CDATA[SNAP_ID]]></tooltip>
+					<value><![CDATA[NULL_VALUE]]></value>
+					<bracket><![CDATA[null]]></bracket>
+				</bind>
+				<bind id="INSTANCE_NUMBER">
+					<prompt><![CDATA[INSTANCE_NUMBER]]></prompt>
+					<tooltip><![CDATA[INSTANCE_NUMBER]]></tooltip>
 					<value><![CDATA[NULL_VALUE]]></value>
 					<bracket><![CDATA[null]]></bracket>
 				</bind>
@@ -188,7 +213,28 @@ END;]]></sql>
 					
 					
 					
-					null																																																																																																																																																																																																																																											</data>
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					null																																																																																																																																																																																																																																																																																																																																																				</data>
 				</header>
 				<footer enable="false" generatedate="false">
 					<data value="null" />
@@ -199,38 +245,48 @@ END;]]></sql>
 				<pagesetup papersize="LETTER" orientation="1" measurement="in" margintop="1.0" marginbottom="1.0" marginleft="1.0" marginright="1.0" />
 			</pdf>
 	</display>
-	<display id="" type="" style="plsql-dbms_output" enable="true">
+	<display id="null" type="" style="plsql-dbms_output" enable="true">
 		<name><![CDATA[Text-Report]]></name>
 		<description><![CDATA[]]></description>
 		<tooltip><![CDATA[]]></tooltip>
-		<drillclass><![CDATA[]]></drillclass>
+		<drillclass><![CDATA[null]]></drillclass>
 		<CustomValues>
 		</CustomValues>
 		<query>
 			<sql><![CDATA[DECLARE
   sn_id NUMBER := :SNAP_ID;
+  inst  NUMBER := :INSTANCE_NUMBER;
 BEGIN
   dbms_output.enable(NULL);
   dbms_output.put_line('<pre>');
-  FOR c IN(
-		SELECT *
-		FROM TABLE(dbms_workload_repository.awr_report_text(
-		         ( SELECT dbid FROM v$database ),
-		         1,          -- Instance number (meistens 1)
-		         sn_id,      -- Starting snapshot
-		         ( SELECT MIN( snap_id ) FROM dba_hist_snapshot WHERE snap_id > sn_id ),    -- Ending snapshot
-		         0           -- Optionen (8 für ADDM-Bericht)
-		     ))
-		  )
-  LOOP
-    dbms_output.put_line( c.output );
-  END LOOP;
+  IF (sn_id IS NOT NULL) THEN
+    FOR c IN(
+      Select *
+        from table(dbms_workload_repository.awr_report_text(
+           ( SELECT dbid FROM v$database ),
+           inst,
+           sn_id,      -- Starting snapshot
+           ( SELECT MIN( snap_id ) FROM dba_hist_snapshot WHERE snap_id > sn_id ),    -- Ending snapshot
+           0           -- Optionen (8 für ADDM-Bericht)
+       ))
+    ) LOOP
+      dbms_output.put_line( c.output );
+    END LOOP;
+  ELSE
+    dbms_output.put_line('Select a Snapshot');
+  END IF;
   dbms_output.put_line('</pre>');
 END;]]></sql>
 			<binds>
 				<bind id="SNAP_ID">
 					<prompt><![CDATA[SNAP_ID]]></prompt>
 					<tooltip><![CDATA[SNAP_ID]]></tooltip>
+					<value><![CDATA[NULL_VALUE]]></value>
+					<bracket><![CDATA[null]]></bracket>
+				</bind>
+				<bind id="INSTANCE_NUMBER">
+					<prompt><![CDATA[INSTANCE_NUMBER]]></prompt>
+					<tooltip><![CDATA[INSTANCE_NUMBER]]></tooltip>
 					<value><![CDATA[NULL_VALUE]]></value>
 					<bracket><![CDATA[null]]></bracket>
 				</bind>
@@ -289,7 +345,28 @@ END;]]></sql>
 					
 					
 					
-					null																																																																																																																																																																																																																							</data>
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					null																																																																																																																																																																																																																																																																																																																																</data>
 				</header>
 				<footer enable="false" generatedate="false">
 					<data value="null" />

@@ -77,6 +77,8 @@
  WHERE os.osstat_id = nm.osstat_id
    AND nm.stat_name IN( 'NUM_CPUS', 'LOAD' )
    AND sn.snap_id = os.snap_id
+   AND sn.instance_number = ( SELECT instance_number FROM v$instance )
+   AND os.instance_number = sn.instance_number
 UNION ALL
 SELECT time
      , 'AAS' AS stat_name
@@ -94,6 +96,8 @@ FROM
    WHERE tm.stat_id = nm.stat_id
      AND nm.stat_name = 'DB time'
      AND sn.snap_id = tm.snap_id
+     AND sn.instance_number = ( SELECT instance_number FROM v$instance )
+     AND tm.instance_number = sn.instance_number
 )
  WHERE value_diff >= 0
  ORDER BY snap_time, stat_name]]></sql>
@@ -135,7 +139,13 @@ FROM
 				
 				
 				
-				null																																																																																																												</data>
+				
+				
+				
+				
+				
+				
+				null																																																																																																																																				</data>
 			</header>
 			<footer enable="false" generatedate="false">
 				<data value="null" />
@@ -170,6 +180,7 @@ SELECT tm.snap_id, sn.snap_time, nm.stat_name
      ---, ( SELECT snap_id, snap_time FROM STATS$SNAPSHOT WHERE TO_CHAR( snap_time, 'dd.mm. hh24:mi' ) >= '20.01. 22:00' AND ROWNUM < 3 ) sn
  WHERE tm.STAT_ID = nm.STAT_ID
    AND tm.SNAP_ID = sn.SNAP_ID
+   AND sn.instance_number = ( SELECT instance_number FROM v$instance )
    AND TO_CHAR( sn.snap_time, 'dd.mm. hh24:mi' ) >= :TIME
 )
  WHERE TO_CHAR( snap_time, 'dd.mm. hh24:mi' ) = :TIME
@@ -212,7 +223,13 @@ SELECT tm.snap_id, sn.snap_time, nm.stat_name
 					
 					
 					
-					null																																																																																										</data>
+					
+					
+					
+					
+					
+					
+					null																																																																																																																								</data>
 				</header>
 				<footer enable="false" generatedate="false">
 					<data value="null" />
@@ -247,6 +264,7 @@ SELECT tm.snap_id, sn.snap_time, nm.stat_name
       WHERE   TRUNC( snap_time, 'mi' ) BETWEEN TO_DATE( :TIME, 'dd.mm. hh24:mi' )
               AND ( SELECT MIN( snap_time ) FROM stats$snapshot WHERE TRUNC( snap_time, 'mi' ) > TO_DATE( :TIME, 'dd.mm. hh24:mi' ) )
         AND   wait_class# != 6
+        AND   instance_number = ( SELECT instance_number FROM v$instance )
    
               UNION ALL
    
@@ -258,6 +276,7 @@ SELECT tm.snap_id, sn.snap_time, nm.stat_name
       WHERE   TRUNC( snap_time, 'mi' ) BETWEEN TO_DATE( :TIME, 'dd.mm. hh24:mi' )
               AND ( SELECT MIN( snap_time ) FROM stats$snapshot WHERE TRUNC( snap_time, 'mi' ) > TO_DATE( :TIME, 'dd.mm. hh24:mi' ) )
         AND   name = 'CPU used by this session'
+        AND   instance_number = ( SELECT instance_number FROM v$instance )
   )
   ORDER BY seconds_waited DESC NULLS LAST
 )
@@ -295,7 +314,13 @@ WHERE ROWNUM < 6]]></sql>
 					
 					
 					
-					null																																																																						</data>
+					
+					
+					
+					
+					
+					
+					null																																																																																																				</data>
 				</header>
 				<footer enable="false" generatedate="false">
 					<data value="null" />

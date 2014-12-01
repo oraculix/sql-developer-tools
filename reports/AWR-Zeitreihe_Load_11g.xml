@@ -4,7 +4,7 @@
 	<name><![CDATA[AWR-Zeitreihe: Load (11g)]]></name>
 	<description><![CDATA[]]></description>
 	<tooltip><![CDATA[]]></tooltip>
-	<drillclass><![CDATA[null]]></drillclass>
+	<drillclass><![CDATA[]]></drillclass>
 	<CustomValues>
 		<LEGEND>true</LEGEND>
 		<LEGEND_LOCATION>AUTOMATIC</LEGEND_LOCATION>
@@ -47,13 +47,15 @@
 	</CustomValues>
 	<query>
 		<sql><![CDATA[SELECT TO_CHAR( sn.end_interval_time, 'yyyy-mm-dd hh24:mi' ) AS sn_time
-     , lc1.metric_name, ROUND( lc1.average, 2 ) "Average"
+     , lc1.metric_name
+     , ROUND( lc1.average, 2 ) "Average"
   FROM sys.dba_hist_sysmetric_summary lc1
      , sys.dba_hist_snapshot sn
  WHERE lc1.snap_id = sn.snap_id
    AND lc1.metric_id IN (2147, 2135) -- s. v$metricname
    AND lc1.dbid = sn.dbid
    AND lc1.instance_number = sn.instance_number
+   AND lc1.instance_number = ( SELECT instance_number FROM v$instance )
    --AND sn.snap_id IN (&snapshotlist)
    --AND sn.startup_time = ( SELECT MAX(startup_time) FROM sys.dba_hist_snapshot )
 UNION ALL
@@ -64,6 +66,7 @@ SELECT TO_CHAR( sn.end_interval_time, 'yyyy-mm-dd hh24:mi' ) AS sn_time
      , sys.dba_hist_parameter par
  WHERE par.snap_id = sn.snap_id
    AND par.parameter_name = 'cpu_count'
+   AND sn.instance_number = ( SELECT instance_number FROM v$instance )
    --AND sn.snap_id IN (&snapshotlist)
    --AND sn.startup_time = ( SELECT MAX(startup_time) FROM sys.dba_hist_snapshot )
 ORDER BY 1, 2]]></sql>
@@ -139,7 +142,20 @@ ORDER BY 1, 2]]></sql>
 				
 				
 				
-				null																																																																																																																																																																																																																																																				</data>
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				null																																																																																																																																																																																																																																																																																																								</data>
 			</header>
 			<footer enable="false" generatedate="false">
 				<data value="null" />
@@ -149,11 +165,11 @@ ORDER BY 1, 2]]></sql>
 			</security>
 			<pagesetup papersize="LETTER" orientation="1" measurement="in" margintop="1.0" marginbottom="1.0" marginleft="1.0" marginright="1.0" />
 		</pdf>
-	<display id="null" type="" style="Table" enable="true">
+	<display id="" type="" style="Table" enable="true">
 		<name><![CDATA[Info]]></name>
 		<description><![CDATA[]]></description>
 		<tooltip><![CDATA[]]></tooltip>
-		<drillclass><![CDATA[null]]></drillclass>
+		<drillclass><![CDATA[]]></drillclass>
 		<CustomValues>
 			<TYPE>horizontal</TYPE>
 		</CustomValues>
@@ -192,6 +208,7 @@ ORDER BY 1, 2]]></sql>
        , 'CPU Usage Per Sec', 'Host CPU Utilization (%)', 'Network Traffic Volume Per Sec')
    AND lc1.dbid = sn.dbid
    AND lc1.instance_number = sn.instance_number
+   AND sn.instance_number = ( SELECT instance_number FROM v$instance )
  ORDER BY lc1.metric_name]]></sql>
 			<binds>
 				<bind id="SN_TIME">
@@ -223,7 +240,20 @@ ORDER BY 1, 2]]></sql>
 					
 					
 					
-					null																																																							</data>
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					null																																																																																																																								</data>
 				</header>
 				<footer enable="false" generatedate="false">
 					<data value="null" />
@@ -234,13 +264,11 @@ ORDER BY 1, 2]]></sql>
 				<pagesetup papersize="LETTER" orientation="1" measurement="in" margintop="1.0" marginbottom="1.0" marginleft="1.0" marginright="1.0" />
 			</pdf>
 	</display>
-	<display id="null" type="" style="plsql-dbms_output" enable="true">
+	<display id="" type="" style="plsql-dbms_output" enable="true">
 		<name><![CDATA[Text-Report]]></name>
 		<description><![CDATA[]]></description>
 		<tooltip><![CDATA[]]></tooltip>
-		<drillclass><![CDATA[null]]></drillclass>
-		<CustomValues>
-		</CustomValues>
+		<drillclass><![CDATA[]]></drillclass>
 		<query>
 			<sql><![CDATA[DECLARE
   sn_id NUMBER;
@@ -248,12 +276,14 @@ ORDER BY 1, 2]]></sql>
 BEGIN
   dbms_output.enable(NULL);
   dbms_output.put_line('<pre>');
-  SELECT snap_id INTO sn_id FROM dba_hist_snapshot WHERE TO_CHAR( end_interval_time, 'yyyy-mm-dd hh24:mi' ) = sn_start;
+  SELECT snap_id INTO sn_id FROM dba_hist_snapshot
+   WHERE TO_CHAR( end_interval_time, 'yyyy-mm-dd hh24:mi' ) = sn_start
+     AND instance_number = ( SELECT instance_number FROM v$instance );
   FOR c IN(
 		SELECT *
 		FROM TABLE(dbms_workload_repository.awr_report_text(
 		         ( SELECT dbid FROM v$database ),
-		         1,          -- Instance number (meistens 1)
+		         ( SELECT instance_number FROM v$instance ),
 		         ( SELECT MAX( snap_id ) FROM dba_hist_snapshot WHERE snap_id < sn_id ), -- Starting snapshot
 		         sn_id,      -- Ending snapshot
 		         0           -- Optionen (8 für ADDM-Bericht)
@@ -326,7 +356,20 @@ END;]]></sql>
 					
 					
 					
-					null																																																																																																																																																																																																																																																															</data>
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					null																																																																																																																																																																																																																																																																																																																																</data>
 				</header>
 				<footer enable="false" generatedate="false">
 					<data value="null" />
@@ -337,11 +380,11 @@ END;]]></sql>
 				<pagesetup papersize="LETTER" orientation="1" measurement="in" margintop="1.0" marginbottom="1.0" marginleft="1.0" marginright="1.0" />
 			</pdf>
 	</display>
-	<display id="null" type="" style="Table" enable="true">
+	<display id="" type="" style="Table" enable="true">
 		<name><![CDATA[HTML-Report]]></name>
 		<description><![CDATA[]]></description>
 		<tooltip><![CDATA[]]></tooltip>
-		<drillclass><![CDATA[null]]></drillclass>
+		<drillclass><![CDATA[]]></drillclass>
 		<CustomValues>
 			<TYPE>horizontal</TYPE>
 		</CustomValues>
@@ -349,7 +392,7 @@ END;]]></sql>
 			<sql><![CDATA[SELECT *
   FROM TABLE(dbms_workload_repository.awr_report_html(
 		         ( SELECT dbid FROM v$database ),
-		         1,          -- Instance number (meistens 1)
+		         ( SELECT instance_number FROM v$instance ),
 		         ( SELECT MAX( snap_id ) FROM dba_hist_snapshot WHERE TO_CHAR( end_interval_time, 'yyyy-mm-dd hh24:mi' ) < :SN_TIME ), -- Starting snapshot
 		         ( SELECT snap_id FROM dba_hist_snapshot WHERE TO_CHAR( end_interval_time, 'yyyy-mm-dd hh24:mi' ) = :SN_TIME ),      -- Ending snapshot
 		         0           -- Optionen (8 für ADDM-Bericht)
@@ -400,7 +443,20 @@ END;]]></sql>
 					
 					
 					
-					null																																																																																																																																																																															</data>
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					null																																																																																																																																																																																																																																																</data>
 				</header>
 				<footer enable="false" generatedate="false">
 					<data value="null" />
@@ -411,20 +467,18 @@ END;]]></sql>
 				<pagesetup papersize="LETTER" orientation="1" measurement="in" margintop="1.0" marginbottom="1.0" marginleft="1.0" marginright="1.0" />
 			</pdf>
 	</display>
-	<display id="null" type="" style="plsql-dbms_output" enable="true">
+	<display id="" type="" style="plsql-dbms_output" enable="true">
 		<name><![CDATA[ADDM-Report]]></name>
 		<description><![CDATA[]]></description>
 		<tooltip><![CDATA[]]></tooltip>
-		<drillclass><![CDATA[null]]></drillclass>
-		<CustomValues>
-		</CustomValues>
+		<drillclass><![CDATA[]]></drillclass>
 		<query>
 			<sql><![CDATA[DECLARE
   bid PLS_INTEGER;
   eid PLS_INTEGER;
   sn_start VARCHAR2(16) := :SN_TIME;
   id PLS_INTEGER;
-  inst_num PLS_INTEGER := 1;
+  inst_num PLS_INTEGER;
   dbid NUMBER;
   taskname VARCHAR2(100);
   descr VARCHAR2(500);
@@ -435,6 +489,7 @@ BEGIN
   dbms_output.put_line('<pre>');
   SELECT snap_id INTO eid FROM dba_hist_snapshot WHERE TO_CHAR( end_interval_time, 'yyyy-mm-dd hh24:mi' ) = sn_start;
   SELECT MAX( snap_id ) INTO bid FROM dba_hist_snapshot WHERE snap_id < eid;
+  SELECT instance_number INTO inst_num FROM v$instance;
   
   -- Run ADDM for desired snapshots
   taskname := '';
@@ -504,7 +559,20 @@ END;]]></sql>
 					
 					
 					
-					null																																																																																																																																																																										</data>
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					null																																																																																																																																																																																																																																											</data>
 				</header>
 				<footer enable="false" generatedate="false">
 					<data value="null" />

@@ -93,7 +93,20 @@
 				
 				
 				
-				null																																																																																																																																																																																																																																																												</data>
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				null																																																																																																																																																																																																																																																																																																																</data>
 			</header>
 			<footer enable="false" generatedate="false">
 				<data value="null" />
@@ -189,7 +202,20 @@
 					
 					
 					
-					null																																																																																																																																																																																																																																																</data>
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					null																																																																																																																																																																																																																																																																																																																	</data>
 				</header>
 				<footer enable="false" generatedate="false">
 					<data value="null" />
@@ -218,19 +244,12 @@
   FROM v$session_event se
      , v$session s
  WHERE s.sid = :SID
+   AND s.serial# = :SERIAL#
    AND se.sid = s.sid
 --   AND se.wait_class <> 'Idle'
 --   AND s.username IS NOT NULL
  GROUP BY s.username, se.event
  ORDER BY MAX( DECODE( se.wait_class, 'Idle', 1, 0 )), total_time_waited DESC]]></sql>
-			<binds>
-				<bind id="SID">
-					<prompt><![CDATA[SID]]></prompt>
-					<tooltip><![CDATA[SID]]></tooltip>
-					<value><![CDATA[NULL_VALUE]]></value>
-					<bracket><![CDATA[null]]></bracket>
-				</bind>
-			</binds>
 		</query>
 			<pdf version="VERSION_1_7" compression="CONTENT">
 				<docproperty title="" author="" subject="" keywords="" />
@@ -290,7 +309,20 @@
 					
 					
 					
-					null																																																																																																																																																																																																																																																</data>
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					null																																																																																																																																																																																																																																																																																																																	</data>
 				</header>
 				<footer enable="false" generatedate="false">
 					<data value="null" />
@@ -311,14 +343,6 @@
 		</CustomValues>
 		<query>
 			<sql><![CDATA[SELECT * FROM TABLE( dbms_xplan.display_cursor( NVL( :SQL_ID, 'NULL!' ), NULL, 'ALLSTATS ALL' ))]]></sql>
-			<binds>
-				<bind id="SQL_ID">
-					<prompt><![CDATA[SQL_ID]]></prompt>
-					<tooltip><![CDATA[SQL_ID]]></tooltip>
-					<value><![CDATA[NULL_VALUE]]></value>
-					<bracket><![CDATA[null]]></bracket>
-				</bind>
-			</binds>
 		</query>
 			<pdf version="VERSION_1_7" compression="CONTENT">
 				<docproperty title="" author="" subject="" keywords="" />
@@ -387,7 +411,20 @@
 					
 					
 					
-					null																																																																																																																																																																																																																																																																																													</data>
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					null																																																																																																																																																																																																																																																																																																																																																														</data>
 				</header>
 				<footer enable="false" generatedate="false">
 					<data value="null" />
@@ -406,15 +443,10 @@
 		<CustomValues>
 		</CustomValues>
 		<query>
-			<sql><![CDATA[select dbms_sqltune.report_sql_monitor( type=>'TEXT', sql_id => :SQL_ID ) from dual]]></sql>
-			<binds>
-				<bind id="SQL_ID">
-					<prompt><![CDATA[SQL_ID]]></prompt>
-					<tooltip><![CDATA[SQL_ID]]></tooltip>
-					<value><![CDATA[NULL_VALUE]]></value>
-					<bracket><![CDATA[null]]></bracket>
-				</bind>
-			</binds>
+			<sql><![CDATA[SELECT CASE WHEN :SQL_ID = '[NULL]' THEN TO_CLOB( 'SQL_ID IS NULL' )
+       ELSE dbms_sqltune.report_sql_monitor( type=>'TEXT', sql_id => :SQL_ID )
+       END AS report
+  FROM dual]]></sql>
 		</query>
 			<pdf version="VERSION_1_7" compression="CONTENT">
 				<docproperty title="" author="" subject="" keywords="" />
@@ -479,7 +511,20 @@
 					
 					
 					
-					null																																																																																																																																																																																																																																																																									</data>
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					null																																																																																																																																																																																																																																																																																																																																										</data>
 				</header>
 				<footer enable="false" generatedate="false">
 					<data value="null" />
@@ -578,7 +623,20 @@ END;]]></sql>
 					
 					
 					
-					null																																																																																																																																																																																																																																																																														</data>
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					null																																																																																																																																																																																																																																																																																																																																															</data>
 				</header>
 				<footer enable="false" generatedate="false">
 					<data value="null" />
@@ -598,7 +656,10 @@ END;]]></sql>
 			<TYPE>horizontal</TYPE>
 		</CustomValues>
 		<query>
-			<sql><![CDATA[SELECT dbms_sqltune.report_sql_monitor( type=>'EM', sql_id => :SQL_ID ) FROM dual]]></sql>
+			<sql><![CDATA[SELECT CASE WHEN :SQL_ID = '[NULL]' THEN TO_CLOB( 'SQL_ID IS NULL' )
+       ELSE dbms_sqltune.report_sql_monitor( type=>'EM', sql_id => :SQL_ID )
+       END AS report
+  FROM dual]]></sql>
 		</query>
 			<pdf version="VERSION_1_7" compression="CONTENT">
 				<docproperty title="" author="" subject="" keywords="" />
@@ -657,7 +718,20 @@ END;]]></sql>
 					
 					
 					
-					null																																																																																																																																																																																																																																											</data>
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					null																																																																																																																																																																																																																																																																																																												</data>
 				</header>
 				<footer enable="false" generatedate="false">
 					<data value="null" />
