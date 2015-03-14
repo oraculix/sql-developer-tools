@@ -1,7 +1,8 @@
-Reports for SQL Developer
-=========================
+Reports for Oracle SQL Developer
+================================
 
-Custom Reports should work from at least v3.0 on.
+See also: http://oraculix.com/2015/03/12/visualizing-statspack-performance-data-in-sql-developer/
+Custom Reports should work from at least v3.0 of SQLDev.
 
 Installation (English)
 ----------------------
@@ -24,3 +25,4 @@ zu Session und SQL
 - Scheduler_Jobs: Jobs, Run Log, Programs, Windows etc.
 - Statspack_AAS: Visualisierung der Metrik "Average Active Sessions" aus
 Statspack.
+- Statspack_LIO: Visualisierung der Metrik "Session Logical Reads" mit den Komponenten "consistent reads" und "db block gets" sowie separat "db block changes".
