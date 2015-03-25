@@ -49,9 +49,11 @@
 		<DATA_MAP_COUNT>0</DATA_MAP_COUNT>
 		<TITLE_FONT.NAME>SansSerif</TITLE_FONT.NAME>
 		<Y1AXIS_REFOBJ_VISIBLE>\</Y1AXIS_REFOBJ_VISIBLE>
+		<PLOT_SERIES_OPTIONS_LINE_WIDTH>\,THICKER,THINNER,THIN,THICKER,THICKER</PLOT_SERIES_OPTIONS_LINE_WIDTH>
 		<TITLE_FONT.SIZE>14</TITLE_FONT.SIZE>
 		<XAXIS_TICK_LABEL_ROTATE>HORIZONTAL</XAXIS_TICK_LABEL_ROTATE>
 		<Y1AXIS_TICK_LABEL_ROTATE>HORIZONTAL</Y1AXIS_TICK_LABEL_ROTATE>
+		<PLOT_SERIES_OPTIONS_COLOR>\,-16764058,-13210,-3407872,-16751002,-26368</PLOT_SERIES_OPTIONS_COLOR>
 		<Y1AXIS_REFOBJ_COUNT>0</Y1AXIS_REFOBJ_COUNT>
 		<STYLE>Default</STYLE>
 		<TITLE_TEXT>Average Active Sessions History</TITLE_TEXT>
@@ -59,13 +61,14 @@
 		<Y2AXIS_TICK_LABEL_ROTATE>HORIZONTAL</Y2AXIS_TICK_LABEL_ROTATE>
 		<XAXIS_LINE_WIDTH>THINNEST</XAXIS_LINE_WIDTH>
 		<DATA_MAP_COLUMNS>\</DATA_MAP_COLUMNS>
-		<TITLE>true</TITLE>
 		<NUMBER_FORMATS.DECIMAL_PLACES>1</NUMBER_FORMATS.DECIMAL_PLACES>
+		<TITLE>true</TITLE>
 	</CustomValues>
 	<query>
 		<sql><![CDATA[SELECT TO_CHAR( sn.snap_time, 'dd.mm. hh24:mi' ) time
      , CASE nm.stat_name
        WHEN 'NUM_CPUS' THEN 'Log. CPUs'
+       WHEN 'NUM_CPU_CORES' THEN 'CPU Cores'
        WHEN 'LOAD' THEN 'OS Load'
        ELSE nm.stat_name
        END AS stat_name
@@ -75,7 +78,7 @@
      , stats$osstatname nm
      , stats$snapshot sn
  WHERE os.osstat_id = nm.osstat_id
-   AND nm.stat_name IN( 'NUM_CPUS', 'LOAD' )
+   AND nm.stat_name IN( 'NUM_CPUS', 'LOAD', 'NUM_CPU_CORES' )
    AND sn.snap_id = os.snap_id
    AND sn.instance_number = ( SELECT instance_number FROM v$instance )
    AND os.instance_number = sn.instance_number
@@ -145,7 +148,10 @@ FROM
 				
 				
 				
-				null																																																																																																																																				</data>
+				
+				
+				
+				null																																																																																																																																																</data>
 			</header>
 			<footer enable="false" generatedate="false">
 				<data value="null" />
@@ -229,7 +235,10 @@ SELECT tm.snap_id, sn.snap_time, nm.stat_name
 					
 					
 					
-					null																																																																																																																								</data>
+					
+					
+					
+					null																																																																																																																																							</data>
 				</header>
 				<footer enable="false" generatedate="false">
 					<data value="null" />
@@ -281,14 +290,6 @@ SELECT tm.snap_id, sn.snap_time, nm.stat_name
   ORDER BY seconds_waited DESC NULLS LAST
 )
 WHERE ROWNUM < 6]]></sql>
-			<binds>
-				<bind id="TIME">
-					<prompt><![CDATA[TIME]]></prompt>
-					<tooltip><![CDATA[TIME]]></tooltip>
-					<value><![CDATA[NULL_VALUE]]></value>
-					<bracket><![CDATA[null]]></bracket>
-				</bind>
-			</binds>
 		</query>
 			<pdf version="VERSION_1_7" compression="CONTENT">
 				<docproperty title="null" author="null" subject="null" keywords="null" />
@@ -320,7 +321,10 @@ WHERE ROWNUM < 6]]></sql>
 					
 					
 					
-					null																																																																																																				</data>
+					
+					
+					
+					null																																																																																																																			</data>
 				</header>
 				<footer enable="false" generatedate="false">
 					<data value="null" />

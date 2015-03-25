@@ -25,7 +25,7 @@
 		<GRID_WIDTH>THINNER</GRID_WIDTH>
 		<Y1AXIS_TITLE>true</Y1AXIS_TITLE>
 		<GRADIENT>false</GRADIENT>
-		<Y1AXIS_LOGARITHMIC_SCALE>true</Y1AXIS_LOGARITHMIC_SCALE>
+		<Y1AXIS_LOGARITHMIC_SCALE>false</Y1AXIS_LOGARITHMIC_SCALE>
 		<TYPE>AREA_VERT_STACK</TYPE>
 		<LEGEND_ALIGNMENT>LEFT</LEGEND_ALIGNMENT>
 		<XAXIS_TITLE>false</XAXIS_TITLE>
@@ -37,7 +37,7 @@
 		<TITLE_FONT.SIZE>14</TITLE_FONT.SIZE>
 		<XAXIS_TICK_LABEL_ROTATE>HORIZONTAL</XAXIS_TICK_LABEL_ROTATE>
 		<Y1AXIS_TICK_LABEL_ROTATE>HORIZONTAL</Y1AXIS_TICK_LABEL_ROTATE>
-		<PLOT_SERIES_OPTIONS_COLOR>\,-103,-3394816,-16764058,-16751002,-16737793</PLOT_SERIES_OPTIONS_COLOR>
+		<PLOT_SERIES_OPTIONS_COLOR>\,-103,-16777063,-16764058,-16751002,-16737793</PLOT_SERIES_OPTIONS_COLOR>
 		<TITLE_FONT.UNDERLINE>false</TITLE_FONT.UNDERLINE>
 		<STYLE>Default</STYLE>
 		<PLOT_SERIES_OPTIONS_FITLINE_TYPE>\,NONE,NONE,NONE,NONE,NONE</PLOT_SERIES_OPTIONS_FITLINE_TYPE>
@@ -70,14 +70,14 @@ SELECT TO_CHAR( snap_time, 'dd.mm. hh24:mi' ) time
   FROM
      (
      SELECT sn.snap_id
-          , ( LAG( ss.value, 3 ) OVER( ORDER BY ss.snap_id, ss.name ) - ss.value ) AS value_diff
+          , ( LAG( ss.value, 2 ) OVER( ORDER BY ss.snap_id, ss.name ) - ss.value ) AS value_diff
           , sn.time_diff
           , sn.snap_time
           , ss.name stat_name
           , ( select to_number(value) from v$parameter where name='db_block_size' ) blksz
        FROM stats$sysstat ss
           , snaps sn
-      WHERE ss.name IN ('db block changes', 'db block gets', 'consistent gets') --, 'session logical reads')
+      WHERE ss.name IN ('db block gets', 'consistent gets') --, 'session logical reads')
         AND sn.snap_id = ss.snap_id
         AND ss.dbid = sn.dbid
         AND ss.instance_number = sn.instance_number
@@ -98,7 +98,9 @@ ORDER BY snap_time, stat_name DESC]]></sql>
 			<header enable="false" generatedate="false">
 				<data>
 				
-				null								</data>
+				
+				
+				null																</data>
 			</header>
 			<footer enable="false" generatedate="false">
 				<data value="null" />
