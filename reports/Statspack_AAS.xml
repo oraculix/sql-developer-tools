@@ -4,7 +4,7 @@
 	<name><![CDATA[Statspack AAS]]></name>
 	<description><![CDATA[History of Average Active Sessions (AAS) and Host (OS) Load. Shows CPU cores as boundary.]]></description>
 	<tooltip><![CDATA[History of Average Active Sessions (AAS) and Host (OS) Load]]></tooltip>
-	<drillclass><![CDATA[null]]></drillclass>
+	<drillclass><![CDATA[]]></drillclass>
 	<CustomValues>
 		<Y2AXIS_SCALE_MAXIMUM>80.0</Y2AXIS_SCALE_MAXIMUM>
 		<LEGEND_LOCATION>AUTOMATIC</LEGEND_LOCATION>
@@ -158,7 +158,10 @@ FROM
 				
 				
 				
-				null																																																																																																																																																																												</data>
+				
+				
+				
+				null																																																																																																																																																																																								</data>
 			</header>
 			<footer enable="false" generatedate="false">
 				<data value="null" />
@@ -168,11 +171,11 @@ FROM
 			</security>
 			<pagesetup papersize="LETTER" orientation="1" measurement="in" margintop="1.0" marginbottom="1.0" marginleft="1.0" marginright="1.0" />
 		</pdf>
-	<display id="null" type="" style="Table" enable="true">
+	<display id="" type="" style="Table" enable="true">
 		<name><![CDATA[Time Model]]></name>
 		<description><![CDATA[]]></description>
 		<tooltip><![CDATA[]]></tooltip>
-		<drillclass><![CDATA[null]]></drillclass>
+		<drillclass><![CDATA[]]></drillclass>
 		<CustomValues>
 			<TYPE>horizontal</TYPE>
 		</CustomValues>
@@ -251,7 +254,10 @@ SELECT tm.snap_id, sn.snap_time, nm.stat_name
 					
 					
 					
-					null																																																																																																																																																																										</data>
+					
+					
+					
+					null																																																																																																																																																																																									</data>
 				</header>
 				<footer enable="false" generatedate="false">
 					<data value="null" />
@@ -262,11 +268,11 @@ SELECT tm.snap_id, sn.snap_time, nm.stat_name
 				<pagesetup papersize="LETTER" orientation="1" measurement="in" margintop="1.0" marginbottom="1.0" marginleft="1.0" marginright="1.0" />
 			</pdf>
 	</display>
-	<display id="null" type="" style="Table" enable="true">
+	<display id="" type="" style="Table" enable="true">
 		<name><![CDATA[Top Events]]></name>
 		<description><![CDATA[]]></description>
 		<tooltip><![CDATA[]]></tooltip>
-		<drillclass><![CDATA[null]]></drillclass>
+		<drillclass><![CDATA[]]></drillclass>
 		<CustomValues>
 			<TYPE>horizontal</TYPE>
 		</CustomValues>
@@ -306,6 +312,14 @@ FROM (
  WHERE TO_CHAR( snap_time, 'dd.mm. hh24:mi' ) = :TIME
    AND ROUND( time_spent, 2 ) > 0
  ORDER BY time_spent DESC]]></sql>
+			<binds>
+				<bind id="TIME">
+					<prompt><![CDATA[TIME]]></prompt>
+					<tooltip><![CDATA[TIME]]></tooltip>
+					<value><![CDATA[NULL_VALUE]]></value>
+					<bracket><![CDATA[null]]></bracket>
+				</bind>
+			</binds>
 		</query>
 			<pdf version="VERSION_1_7" compression="CONTENT">
 				<docproperty title="null" author="null" subject="null" keywords="null" />
@@ -347,7 +361,10 @@ FROM (
 					
 					
 					
-					null																																																																																																																																																						</data>
+					
+					
+					
+					null																																																																																																																																																																					</data>
 				</header>
 				<footer enable="false" generatedate="false">
 					<data value="null" />
@@ -358,11 +375,11 @@ FROM (
 				<pagesetup papersize="LETTER" orientation="1" measurement="in" margintop="1.0" marginbottom="1.0" marginleft="1.0" marginright="1.0" />
 			</pdf>
 	</display>
-	<display id="null" type="" style="Table" enable="true">
+	<display id="" type="" style="Table" enable="true">
 		<name><![CDATA[Top SQL]]></name>
 		<description><![CDATA[]]></description>
 		<tooltip><![CDATA[]]></tooltip>
-		<drillclass><![CDATA[null]]></drillclass>
+		<drillclass><![CDATA[]]></drillclass>
 		<CustomValues>
 			<TYPE>horizontal</TYPE>
 		</CustomValues>
@@ -397,6 +414,14 @@ FROM (
 )
  WHERE TO_CHAR( snap_time, 'dd.mm. hh24:mi' ) = :TIME
  ORDER BY d_ela DESC]]></sql>
+			<binds>
+				<bind id="TIME">
+					<prompt><![CDATA[TIME]]></prompt>
+					<tooltip><![CDATA[TIME]]></tooltip>
+					<value><![CDATA[NULL_VALUE]]></value>
+					<bracket><![CDATA[null]]></bracket>
+				</bind>
+			</binds>
 		</query>
 			<pdf version="VERSION_1_7" compression="CONTENT">
 				<docproperty title="null" author="null" subject="null" keywords="null" />
@@ -414,7 +439,10 @@ FROM (
 					
 					
 					
-					null																														</data>
+					
+					
+					
+					null																																													</data>
 				</header>
 				<footer enable="false" generatedate="false">
 					<data value="null" />
@@ -424,19 +452,184 @@ FROM (
 				</security>
 				<pagesetup papersize="LETTER" orientation="1" measurement="in" margintop="1.0" marginbottom="1.0" marginleft="1.0" marginright="1.0" />
 			</pdf>
+
+
+
+  
+      <display id="" type="" style="Table" enable="true">
+      <name><![CDATA[SQL Text]]></name>
+      <description><![CDATA[]]></description>
+      <tooltip><![CDATA[]]></tooltip>
+      <drillclass><![CDATA[]]></drillclass>
+      <CustomValues>
+        <TYPE>horizontal</TYPE>
+      </CustomValues>
+      <query>
+        <sql><![CDATA[select SQL_TEXT
+        from perfstat.STATS$SQLTEXT where sql_id=:SQL_ID order by piece]]></sql>
+        <binds>
+          <bind id="SQL_ID">
+            <prompt><![CDATA[SQL_ID]]></prompt>
+            <tooltip><![CDATA[SQL_ID]]></tooltip>
+            <value><![CDATA[NULL_VALUE]]></value>
+            <bracket><![CDATA[null]]></bracket>
+          </bind>
+        </binds>
+      </query>
+        <pdf version="VERSION_1_7" compression="CONTENT">
+          <docproperty title="null" author="null" subject="null" keywords="null" />
+          <cell toppadding="2" bottompadding="2" leftpadding="2" rightpadding="2" horizontalalign="LEFT" verticalalign="TOP" wrap="true" />
+          <column>
+            <heading font="null" size="10" style="NORMAL" color="-16777216" rowshading="-1" labeling="FIRST_PAGE" />
+            <footing font="null" size="10" style="NORMAL" color="-16777216" rowshading="-1" labeling="NONE" />
+            <blob blob="NONE" zip="false" />
+          </column>
+          <table font="null" size="10" style="NORMAL" color="-16777216" userowshading="false" oddrowshading="-1" evenrowshading="-1" showborders="true" spacingbefore="12" spacingafter="12" horizontalalign="LEFT" />
+          <header enable="false" generatedate="false">
+            <data>
+            
+            
+            
+            
+            
+            
+            
+            
+            null																																													</data>
+          </header>
+          <footer enable="false" generatedate="false">
+            <data value="null" />
+          </footer>
+          <security enable="false" useopenpassword="false" openpassword="null" encryption="EXCLUDE_METADATA">
+            <permission enable="false" permissionpassword="null" allowcopying="true" allowprinting="true" allowupdating="false" allowaccessdevices="false" />
+          </security>
+          <pagesetup papersize="LETTER" orientation="1" measurement="in" margintop="1.0" marginbottom="1.0" marginleft="1.0" marginright="1.0" />
+        </pdf>
+      </display>
+
+
+
+
+
+
+      <display id="" type="" style="Table" enable="true">
+      <name><![CDATA[SQL Plan History]]></name>
+      <description><![CDATA[]]></description>
+      <tooltip><![CDATA[]]></tooltip>
+      <drillclass><![CDATA[]]></drillclass>
+      <CustomValues>
+        <TYPE>horizontal</TYPE>
+      </CustomValues>
+      <query>
+        <sql><![CDATA[select lpad(' ',1*(depth-1))||operation||' '||options "Operation"
+     , CASE WHEN id=0 THEN 'PHV: '||to_char(plan_hash_value)
+       WHEN REGEXP_SUBSTR(object_type, '[[:alpha:]\_]+\S') IN ('TABLE', 'VIEW', 'INDEX', 'PROCEDURE', 'FUNCTION', 'MAT_VIEW', 'CLUSTER')
+       THEN
+         'SQLDEV:LINK:'
+         ||object_owner
+         ||':'
+         ||REGEXP_SUBSTR( DECODE( object_type, 'CLUSTER', 'TABLE', object_type ), '[[:alpha:]\_]+\S')
+         ||':'
+         ||REGEXP_SUBSTR(object_name, '[[:alpha:]\_\$]+\S')
+         ||':oracle.dbtools.raptor.controls.grid.DefaultDrillLink'
+       ELSE
+         object_name
+       END AS "Object"
+     , lpad(decode(cardinality,null,' ',
+         decode(sign(cardinality-1000), -1, cardinality||' ',
+         decode(sign(cardinality-1000000), -1, trunc(cardinality/1000)||'K',
+         decode(sign(cardinality-1000000000), -1, trunc(cardinality/1000000)||'M',
+               trunc(cardinality/1000000000)||'G')))), 6, ' ') AS "Rows"
+     , lpad(decode(bytes,null,' ',
+         decode(sign(bytes-1024), -1, bytes||' ',
+         decode(sign(bytes-1048576), -1, trunc(bytes/1024)||'K',
+         decode(sign(bytes-1073741824), -1, trunc(bytes/1048576)||'M',
+               trunc(bytes/1073741824)||'G')))), 6, ' ') AS "Bytes"
+     , COST
+     , IO_COST
+     , lpad(decode(CPU_COST,null,' ',
+         decode(sign(CPU_COST-1000), -1, CPU_COST||' ',
+         decode(sign(CPU_COST-1000000), -1, trunc(CPU_COST/1000)||'K',
+         decode(sign(CPU_COST-1000000000), -1, trunc(CPU_COST/1000000)||'M',
+               trunc(CPU_COST/1000000000)||'G')))), 6, ' ') AS "CPU_COST"
+     , QBLOCK_NAME
+     , OTHER_TAG
+     , PARTITION_START
+     , PARTITION_STOP
+     , ACCESS_PREDICATES
+     , FILTER_PREDICATES
+     , PROJECTION
+  from stats$sql_plan
+ where plan_hash_value in (select plan_hash_value
+                             from stats$sql_plan_usage spu
+                            where spu.sql_id  = :SQL_ID
+                              and spu.plan_hash_value > 0
+                          )
+  order by plan_hash_value, id]]></sql>
+        <binds>
+          <bind id="SQL_ID">
+            <prompt><![CDATA[SQL_ID]]></prompt>
+            <tooltip><![CDATA[SQL_ID]]></tooltip>
+            <value><![CDATA[NULL_VALUE]]></value>
+            <bracket><![CDATA[null]]></bracket>
+          </bind>
+        </binds>
+      </query>
+        <pdf version="VERSION_1_7" compression="CONTENT">
+          <docproperty title="null" author="null" subject="null" keywords="null" />
+          <cell toppadding="2" bottompadding="2" leftpadding="2" rightpadding="2" horizontalalign="LEFT" verticalalign="TOP" wrap="true" />
+          <column>
+            <heading font="null" size="10" style="NORMAL" color="-16777216" rowshading="-1" labeling="FIRST_PAGE" />
+            <footing font="null" size="10" style="NORMAL" color="-16777216" rowshading="-1" labeling="NONE" />
+            <blob blob="NONE" zip="false" />
+          </column>
+          <table font="null" size="10" style="NORMAL" color="-16777216" userowshading="false" oddrowshading="-1" evenrowshading="-1" showborders="true" spacingbefore="12" spacingafter="12" horizontalalign="LEFT" />
+          <header enable="false" generatedate="false">
+            <data>
+            
+            
+            
+            
+            
+            
+            
+            
+            null																																													</data>
+          </header>
+          <footer enable="false" generatedate="false">
+            <data value="null" />
+          </footer>
+          <security enable="false" useopenpassword="false" openpassword="null" encryption="EXCLUDE_METADATA">
+            <permission enable="false" permissionpassword="null" allowcopying="true" allowprinting="true" allowupdating="false" allowaccessdevices="false" />
+          </security>
+          <pagesetup papersize="LETTER" orientation="1" measurement="in" margintop="1.0" marginbottom="1.0" marginleft="1.0" marginright="1.0" />
+        </pdf>
+    </display>
+
+
 	</display>
-	<display id="null" type="" style="Table" enable="true">
+
+  
+  
+	<display id="" type="" style="Table" enable="true">
 		<name><![CDATA[Top Segments]]></name>
 		<description><![CDATA[]]></description>
 		<tooltip><![CDATA[]]></tooltip>
-		<drillclass><![CDATA[null]]></drillclass>
+		<drillclass><![CDATA[]]></drillclass>
 		<CustomValues>
 			<TYPE>horizontal</TYPE>
 		</CustomValues>
 		<query>
 			<sql><![CDATA[select * from
 (
-select SNAP_TIME, OWNER, OBJECT_NAME, OBJECT_TYPE, TABLESPACE_NAME
+select SNAP_TIME, 'SQLDEV:LINK:'
+     ||owner
+     ||':'
+     ||object_type
+     ||':'
+     ||object_name
+     ||':oracle.dbtools.raptor.controls.grid.DefaultDrillLink' AS "Link"
+     , OWNER, OBJECT_NAME, OBJECT_TYPE, TABLESPACE_NAME
      , LOGICAL_READS - LAG( LOGICAL_READS, 1 ) OVER( PARTITION BY obj# ORDER BY snap_id ) LOGICAL_RDS
      , DB_BLOCK_CHANGES - LAG( DB_BLOCK_CHANGES, 1 ) OVER( PARTITION BY obj# ORDER BY snap_id ) DB_BLOCK_CHANGES
      , PHYSICAL_READS - LAG( PHYSICAL_READS, 1 ) OVER( PARTITION BY obj# ORDER BY snap_id ) PHYSICAL_READS
@@ -461,6 +654,14 @@ select SNAP_TIME, OWNER, OBJECT_NAME, OBJECT_TYPE, TABLESPACE_NAME
  where TO_CHAR( snap_time, 'dd.mm. hh24:mi' ) = :TIME
    and LOGICAL_RDS is not null
  order by LOGICAL_RDS desc nulls last]]></sql>
+			<binds>
+				<bind id="TIME">
+					<prompt><![CDATA[TIME]]></prompt>
+					<tooltip><![CDATA[TIME]]></tooltip>
+					<value><![CDATA[NULL_VALUE]]></value>
+					<bracket><![CDATA[null]]></bracket>
+				</bind>
+			</binds>
 		</query>
 			<pdf version="VERSION_1_7" compression="CONTENT">
 				<docproperty title="null" author="null" subject="null" keywords="null" />
@@ -474,7 +675,10 @@ select SNAP_TIME, OWNER, OBJECT_NAME, OBJECT_TYPE, TABLESPACE_NAME
 				<header enable="false" generatedate="false">
 					<data>
 					
-					null										</data>
+					
+					
+					
+					null																									</data>
 				</header>
 				<footer enable="false" generatedate="false">
 					<data value="null" />

@@ -49,7 +49,31 @@
 				
 				
 				
-				null																																																																																																												</data>
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				null																																																																																																																																																																																																												</data>
 			</header>
 			<footer enable="false" generatedate="false">
 				<data value="null" />
@@ -118,7 +142,31 @@
 					
 					
 					
-					null																																																																																																																																							</data>
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					null																																																																																																																																																																																																																																																															</data>
 				</header>
 				<footer enable="false" generatedate="false">
 					<data value="null" />
@@ -142,14 +190,6 @@
   FROM dba_autotask_job_history
  WHERE client_name = :CLIENT_NAME
  ORDER BY job_start_time DESC]]></sql>
-			<binds>
-				<bind id="CLIENT_NAME">
-					<prompt><![CDATA[CLIENT_NAME]]></prompt>
-					<tooltip><![CDATA[CLIENT_NAME]]></tooltip>
-					<value><![CDATA[NULL_VALUE]]></value>
-					<bracket><![CDATA[null]]></bracket>
-				</bind>
-			</binds>
 		</query>
 			<pdf version="VERSION_1_7" compression="CONTENT">
 				<docproperty title="" author="" subject="" keywords="" />
@@ -188,7 +228,31 @@
 					
 					
 					
-					null																																																																																																																																							</data>
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					null																																																																																																																																																																																																																																																															</data>
 				</header>
 				<footer enable="false" generatedate="false">
 					<data value="null" />
@@ -249,7 +313,31 @@
 					
 					
 					
-					null																																																																																																																																							</data>
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					null																																																																																																																																																																																																																																																															</data>
 				</header>
 				<footer enable="false" generatedate="false">
 					<data value="null" />
@@ -266,7 +354,7 @@
 		<tooltip><![CDATA[]]></tooltip>
 		<drillclass><![CDATA[null]]></drillclass>
 		<CustomValues>
-			<TYPE>horizontal</TYPE>
+			<TYPE>vertical</TYPE>
 		</CustomValues>
 		<query>
 			<sql><![CDATA[SELECT * FROM DBA_SCHEDULER_PROGRAMS
@@ -317,7 +405,31 @@
 					
 					
 					
-					null																																																																																																																																							</data>
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					null																																																																																																																																																																																																																																																															</data>
 				</header>
 				<footer enable="false" generatedate="false">
 					<data value="null" />
