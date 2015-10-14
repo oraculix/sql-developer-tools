@@ -4,7 +4,7 @@
 	<name><![CDATA[Statspack AAS 2]]></name>
 	<description><![CDATA[History of Average Active Sessions (AAS) and Host (OS) Load. Shows CPU cores as boundary.]]></description>
 	<tooltip><![CDATA[History of Average Active Sessions (AAS) and Host (OS) Load]]></tooltip>
-	<drillclass><![CDATA[]]></drillclass>
+	<drillclass><![CDATA[null]]></drillclass>
 	<CustomValues>
 		<Y2AXIS_SCALE_MAXIMUM>80.0</Y2AXIS_SCALE_MAXIMUM>
 		<LEGEND_LOCATION>AUTOMATIC</LEGEND_LOCATION>
@@ -52,6 +52,7 @@
 		<GRID>true</GRID>
 		<TITLE_FONT.WEIGHT>true</TITLE_FONT.WEIGHT>
 		<NUMBER_FORMATS.CURRENCY_SYMBOL>DOLLARS</NUMBER_FORMATS.CURRENCY_SYMBOL>
+		<Y1AXIS_SCALE_MINIMUM_AUTOMATIC>false</Y1AXIS_SCALE_MINIMUM_AUTOMATIC>
 		<Y2AXIS_SCALE_MINIMUM>10.0</Y2AXIS_SCALE_MINIMUM>
 		<THREED>false</THREED>
 		<DATA_MAP_VALUES>\</DATA_MAP_VALUES>
@@ -169,7 +170,9 @@ FROM
 				
 				
 				
-				null																																																																																																																																																																																																																				</data>
+				
+				
+				null																																																																																																																																																																																																																												</data>
 			</header>
 			<footer enable="false" generatedate="false">
 				<data value="null" />
@@ -179,11 +182,11 @@ FROM
 			</security>
 			<pagesetup papersize="LETTER" orientation="1" measurement="in" margintop="1.0" marginbottom="1.0" marginleft="1.0" marginright="1.0" />
 		</pdf>
-	<display id="" type="" style="Table" enable="true">
+	<display id="null" type="" style="Table" enable="true">
 		<name><![CDATA[Time Model]]></name>
 		<description><![CDATA[]]></description>
 		<tooltip><![CDATA[]]></tooltip>
-		<drillclass><![CDATA[]]></drillclass>
+		<drillclass><![CDATA[null]]></drillclass>
 		<CustomValues>
 			<TYPE>horizontal</TYPE>
 		</CustomValues>
@@ -274,7 +277,9 @@ FROM
 					
 					
 					
-					null																																																																																																																																																																																																																												</data>
+					
+					
+					null																																																																																																																																																																																																																																						</data>
 				</header>
 				<footer enable="false" generatedate="false">
 					<data value="null" />
@@ -285,11 +290,11 @@ FROM
 				<pagesetup papersize="LETTER" orientation="1" measurement="in" margintop="1.0" marginbottom="1.0" marginleft="1.0" marginright="1.0" />
 			</pdf>
 	</display>
-	<display id="" type="" style="Table" enable="true">
+	<display id="null" type="" style="Table" enable="true">
 		<name><![CDATA[Top Events]]></name>
 		<description><![CDATA[]]></description>
 		<tooltip><![CDATA[]]></tooltip>
-		<drillclass><![CDATA[]]></drillclass>
+		<drillclass><![CDATA[null]]></drillclass>
 		<CustomValues>
 			<TYPE>horizontal</TYPE>
 		</CustomValues>
@@ -327,6 +332,14 @@ FROM (
  WHERE snap_time = :TIME
    AND ROUND( time_spent, 2 ) > 0
  ORDER BY time_spent DESC]]></sql>
+			<binds>
+				<bind id="TIME">
+					<prompt><![CDATA[TIME]]></prompt>
+					<tooltip><![CDATA[TIME]]></tooltip>
+					<value><![CDATA[NULL_VALUE]]></value>
+					<bracket><![CDATA[null]]></bracket>
+				</bind>
+			</binds>
 		</query>
 			<pdf version="VERSION_1_7" compression="CONTENT">
 				<docproperty title="null" author="null" subject="null" keywords="null" />
@@ -378,7 +391,9 @@ FROM (
 					
 					
 					
-					null																																																																																																																																																																																																								</data>
+					
+					
+					null																																																																																																																																																																																																																		</data>
 				</header>
 				<footer enable="false" generatedate="false">
 					<data value="null" />
@@ -389,11 +404,11 @@ FROM (
 				<pagesetup papersize="LETTER" orientation="1" measurement="in" margintop="1.0" marginbottom="1.0" marginleft="1.0" marginright="1.0" />
 			</pdf>
 	</display>
-	<display id="" type="" style="Table" enable="true">
+	<display id="null" type="" style="Table" enable="true">
 		<name><![CDATA[Top SQL]]></name>
 		<description><![CDATA[]]></description>
 		<tooltip><![CDATA[]]></tooltip>
-		<drillclass><![CDATA[]]></drillclass>
+		<drillclass><![CDATA[null]]></drillclass>
 		<CustomValues>
 			<TYPE>horizontal</TYPE>
 		</CustomValues>
@@ -428,6 +443,14 @@ FROM (
 )
  WHERE TO_CHAR( snap_time, 'dd.mm. hh24:mi' ) = :TIME
  ORDER BY d_ela DESC]]></sql>
+			<binds>
+				<bind id="TIME">
+					<prompt><![CDATA[TIME]]></prompt>
+					<tooltip><![CDATA[TIME]]></tooltip>
+					<value><![CDATA[NULL_VALUE]]></value>
+					<bracket><![CDATA[null]]></bracket>
+				</bind>
+			</binds>
 		</query>
 			<pdf version="VERSION_1_7" compression="CONTENT">
 				<docproperty title="null" author="null" subject="null" keywords="null" />
@@ -455,7 +478,9 @@ FROM (
 					
 					
 					
-					null																																																																																</data>
+					
+					
+					null																																																																																										</data>
 				</header>
 				<footer enable="false" generatedate="false">
 					<data value="null" />
@@ -466,11 +491,11 @@ FROM (
 				<pagesetup papersize="LETTER" orientation="1" measurement="in" margintop="1.0" marginbottom="1.0" marginleft="1.0" marginright="1.0" />
 			</pdf>
 	</display>
-	<display id="" type="" style="Table" enable="true">
+	<display id="null" type="" style="Table" enable="true">
 		<name><![CDATA[Top Segments]]></name>
 		<description><![CDATA[]]></description>
 		<tooltip><![CDATA[]]></tooltip>
-		<drillclass><![CDATA[]]></drillclass>
+		<drillclass><![CDATA[null]]></drillclass>
 		<CustomValues>
 			<TYPE>horizontal</TYPE>
 		</CustomValues>
@@ -502,6 +527,14 @@ select TO_CHAR( snap_time, 'dd.mm. hh24:mi' ) SNAP_TIME, OWNER, OBJECT_NAME, OBJ
  where TO_CHAR( snap_time, 'dd.mm. hh24:mi' ) = :TIME
    and LOGICAL_RDS is not null
  order by LOGICAL_RDS desc nulls last]]></sql>
+			<binds>
+				<bind id="TIME">
+					<prompt><![CDATA[TIME]]></prompt>
+					<tooltip><![CDATA[TIME]]></tooltip>
+					<value><![CDATA[NULL_VALUE]]></value>
+					<bracket><![CDATA[null]]></bracket>
+				</bind>
+			</binds>
 		</query>
 			<pdf version="VERSION_1_7" compression="CONTENT">
 				<docproperty title="null" author="null" subject="null" keywords="null" />
@@ -525,7 +558,9 @@ select TO_CHAR( snap_time, 'dd.mm. hh24:mi' ) SNAP_TIME, OWNER, OBJECT_NAME, OBJ
 					
 					
 					
-					null																																																												</data>
+					
+					
+					null																																																																						</data>
 				</header>
 				<footer enable="false" generatedate="false">
 					<data value="null" />
