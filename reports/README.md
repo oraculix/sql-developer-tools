@@ -13,16 +13,18 @@ Installation (English)
 
 Installation (Deutsch)
 ----------------------
-- Im Navigator links den Reiter "Reports" auswählen
-- Rechtsklick auf Ordner "User Defined Reports" und "Open Report" anklicken
+- Im Navigator links den Reiter "Berichte" auswählen
+- Rechtsklick auf Ordner "Benutzerdefinierte Berichte" und "Bericht öffnen" anklicken
 - Eine XML-Datei mit der Report-Definition im Filesystem auswählen.
 
 Bedeutung der beiliegenden Reports:
-- Autotasks: Anzeige der installierten Autotasks mit Details (z.B.
-DBMS-Stats)
-- Longops_Gauge: Graphische Anzeige der v$session_longops mit Detailinfos
-zu Session und SQL
+- Autotasks: Anzeige der installierten Autotasks mit Details (z.B. DBMS-Stats)
+- Longops_Gauge: Graphische Anzeige der v$session_longops mit Detailinfos zu Session und SQL
 - Scheduler_Jobs: Jobs, Run Log, Programs, Windows etc.
-- Statspack_AAS: Visualisierung der Metrik "Average Active Sessions" aus
-Statspack.
+- Statspack_AAS: Visualisierung der Metrik "Average Active Sessions" aus Statspack.
+- Statspack_AAS_3Level: Visualisierung der Metrik "Average Active Sessions" aus Statspack; mit einer dritten Ebene für historische und aktuelle Ausführungspläne zu Top SQL.
+- Statspack_Host_CPU: Darstellung der CPU-Last des Servers (komplett, nicht nur Datenbank-Last).
 - Statspack_LIO: Visualisierung der Metrik "Session Logical Reads" mit den Komponenten "consistent reads" und "db block gets" sowie separat "db block changes".
+- Statspack_PIO: Visualisierung der Metriken "Session Physical Reads" und "Session Physical Writes" (Lese-/Schreibzugriffe auf die Festplatte)
+- Statspack_SysStat: Visualisierung historisierter Metriken aus V$SYSSTAT.
+- Storage_Overview: Einfacher Überblick über die DB-Größe
