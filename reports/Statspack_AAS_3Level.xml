@@ -609,7 +609,7 @@ FROM (
 
 
     <display id="null" type="" style="plsql-dbms_output" enable="true">
-      <name><![CDATA[DBMS_XPLAN History]]></name>
+      <name><![CDATA[DBMS_XPLAN Statspack History]]></name>
       <description><![CDATA[]]></description>
       <tooltip><![CDATA[]]></tooltip>
       <drillclass><![CDATA[null]]></drillclass>
@@ -659,6 +659,62 @@ BEGIN
   END IF;
   dbms_output.put_line('</pre>');
 END;]]></sql>
+        <binds>
+          <bind id="SQL_ID">
+            <prompt><![CDATA[SQL_ID]]></prompt>
+            <tooltip><![CDATA[SQL_ID]]></tooltip>
+            <value><![CDATA[NULL_VALUE]]></value>
+            <bracket><![CDATA[null]]></bracket>
+          </bind>
+          <bind id="SNAP_ID">
+            <prompt><![CDATA[SNAP_ID]]></prompt>
+            <tooltip><![CDATA[SNAP_ID]]></tooltip>
+            <value><![CDATA[NULL_VALUE]]></value>
+            <bracket><![CDATA[null]]></bracket>
+          </bind>
+          <bind id="INSTANCE_NUMBER">
+            <prompt><![CDATA[INSTANCE_NUMBER]]></prompt>
+            <tooltip><![CDATA[INSTANCE_NUMBER]]></tooltip>
+            <value><![CDATA[NULL_VALUE]]></value>
+            <bracket><![CDATA[null]]></bracket>
+          </bind>
+        </binds>
+      </query>
+        <pdf version="VERSION_1_7" compression="CONTENT">
+          <docproperty title="" author="" subject="" keywords="" />
+          <cell toppadding="2" bottompadding="2" leftpadding="2" rightpadding="2" horizontalalign="LEFT" verticalalign="TOP" wrap="true" />
+          <column>
+            <heading font="Times New Roman" size="10" style="NORMAL" color="-16777216" rowshading="-1" labeling="FIRST_PAGE" />
+            <footing font="Times New Roman" size="10" style="NORMAL" color="-16777216" rowshading="-1" labeling="NONE" />
+            <blob blob="NONE" zip="false" />
+          </column>
+          <table font="Times New Roman" size="10" style="NORMAL" color="-16777216" userowshading="false" oddrowshading="-1" evenrowshading="-1" showborders="true" spacingbefore="12" spacingafter="12" horizontalalign="LEFT" />
+          <header enable="false" generatedate="false">
+            <data>					
+            null																																																																																																																																																																																																																																																																																																																																</data>
+          </header>
+          <footer enable="false" generatedate="false">
+            <data value="null" />
+          </footer>
+          <security enable="false" useopenpassword="false" openpassword="" encryption="EXCLUDE_METADATA">
+            <permission enable="false" permissionpassword="" allowcopying="true" allowprinting="true" allowupdating="false" allowaccessdevices="true" />
+          </security>
+          <pagesetup papersize="LETTER" orientation="1" measurement="in" margintop="1.0" marginbottom="1.0" marginleft="1.0" marginright="1.0" />
+        </pdf>
+    </display>
+
+
+    <display id="null" type="" style="Script" enable="true">
+      <name><![CDATA[DBMS_XPLAN Cache History]]></name>
+      <description><![CDATA[]]></description>
+      <tooltip><![CDATA[]]></tooltip>
+      <drillclass><![CDATA[null]]></drillclass>
+      <CustomValues>
+      </CustomValues>
+      <query>
+        <sql><![CDATA[set pages 50000 lines 180 feedback off trimspool on
+        select *
+          from table(dbms_xplan.display_cursor( :SQL_ID, null, 'ADVANCED ALLSTATS LAST'));]]></sql>
         <binds>
           <bind id="SQL_ID">
             <prompt><![CDATA[SQL_ID]]></prompt>
