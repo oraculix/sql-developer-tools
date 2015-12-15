@@ -13,12 +13,12 @@
        || DECODE( totalwork, 0, 0, ROUND(sofar/totalwork*100,0)) as progress
      , username, elapsed_seconds, time_remaining, message
      , sid, serial#, NVL( sql_id, '[NULL]' ) AS sql_id, last_update_time
-     --, sql_exec_start, sql_plan_line_id
+     --, sql_exec_start, sql_plan_line_id -- Oracle >= 11.2 required
   FROM v$session_longops
  WHERE 1=1
---   AND sofar <> totalwork
+ --  AND sofar <> totalwork        -- if you only want to see unfinished work
  ORDER BY SIGN( sofar-totalwork ), last_update_time DESC
- --target, sid]]></sql>
+ --    , target, sid               -- useful when on RAC]]></sql>
 	</query>
 		<pdf version="VERSION_1_7" compression="CONTENT">
 			<docproperty title="" author="" subject="" keywords="" />
@@ -31,82 +31,7 @@
 			<table font="Times New Roman" size="10" style="NORMAL" color="-16777216" userowshading="false" oddrowshading="-1" evenrowshading="-1" showborders="true" spacingbefore="12" spacingafter="12" horizontalalign="LEFT" />
 			<header enable="false" generatedate="false">
 				<data>
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				null																																																																																																																																																																																																																																																																																																																</data>
+				null																																																																																																																																																																																																																																																																																																																																																																																																																																</data>
 			</header>
 			<footer enable="false" generatedate="false">
 				<data value="null" />
@@ -155,67 +80,7 @@
 				<table font="Times New Roman" size="10" style="NORMAL" color="-16777216" userowshading="false" oddrowshading="-1" evenrowshading="-1" showborders="true" spacingbefore="12" spacingafter="12" horizontalalign="LEFT" />
 				<header enable="false" generatedate="false">
 					<data>
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					null																																																																																																																																																																																																																																																																																																																	</data>
+					null																																																																																																																																																																																																																																																																																																																																																																																																																																																													</data>
 				</header>
 				<footer enable="false" generatedate="false">
 					<data value="null" />
@@ -246,8 +111,8 @@
  WHERE s.sid = :SID
    AND s.serial# = :SERIAL#
    AND se.sid = s.sid
---   AND se.wait_class <> 'Idle'
---   AND s.username IS NOT NULL
+--   AND se.wait_class <> 'Idle'         -- exclude idle events
+--   AND s.username IS NOT NULL          -- exclude background processes
  GROUP BY s.username, se.event
  ORDER BY MAX( DECODE( se.wait_class, 'Idle', 1, 0 )), total_time_waited DESC]]></sql>
 		</query>
@@ -262,67 +127,7 @@
 				<table font="Times New Roman" size="10" style="NORMAL" color="-16777216" userowshading="false" oddrowshading="-1" evenrowshading="-1" showborders="true" spacingbefore="12" spacingafter="12" horizontalalign="LEFT" />
 				<header enable="false" generatedate="false">
 					<data>
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					null																																																																																																																																																																																																																																																																																																																	</data>
+					null																																																																																																																																																																																																																																																																																																																																																																																																																																																													</data>
 				</header>
 				<footer enable="false" generatedate="false">
 					<data value="null" />
@@ -355,76 +160,7 @@
 				<table font="Times New Roman" size="10" style="NORMAL" color="-16777216" userowshading="false" oddrowshading="-1" evenrowshading="-1" showborders="true" spacingbefore="12" spacingafter="12" horizontalalign="LEFT" />
 				<header enable="false" generatedate="false">
 					<data>
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					null																																																																																																																																																																																																																																																																																																																																																														</data>
+					null																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																										</data>
 				</header>
 				<footer enable="false" generatedate="false">
 					<data value="null" />
@@ -459,72 +195,7 @@
 				<table font="Times New Roman" size="10" style="NORMAL" color="-16777216" userowshading="false" oddrowshading="-1" evenrowshading="-1" showborders="true" spacingbefore="12" spacingafter="12" horizontalalign="LEFT" />
 				<header enable="false" generatedate="false">
 					<data>
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					null																																																																																																																																																																																																																																																																																																																																										</data>
+					null																																																																																																																																																																																																																																																																																																																																																																																																																																																																																						</data>
 				</header>
 				<footer enable="false" generatedate="false">
 					<data value="null" />
@@ -550,13 +221,10 @@
   l_chunk CONSTANT PLS_INTEGER := 8191;
 BEGIN
   dbms_output.enable(NULL);
-  --dbms_output.put_line('Len: '||l_length);
   WHILE l_offset < l_length LOOP
-    --dbms_output.put_line('Off: '||l_offset);
     dbms_output.put_line(dbms_lob.substr( l_report, l_chunk, l_offset));
     l_offset := l_offset + l_chunk;
   END LOOP;
-  --dbms_output.put_line('');
 END;]]></sql>
 		</query>
 			<pdf version="VERSION_1_7" compression="CONTENT">
@@ -570,73 +238,7 @@ END;]]></sql>
 				<table font="Times New Roman" size="10" style="NORMAL" color="-16777216" userowshading="false" oddrowshading="-1" evenrowshading="-1" showborders="true" spacingbefore="12" spacingafter="12" horizontalalign="LEFT" />
 				<header enable="false" generatedate="false">
 					<data>
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					null																																																																																																																																																																																																																																																																																																																																															</data>
+					null																																																																																																																																																																																																																																																																																																																																																																																																																																																																																											</data>
 				</header>
 				<footer enable="false" generatedate="false">
 					<data value="null" />
@@ -649,8 +251,8 @@ END;]]></sql>
 	</display>
 	<display id="null" type="" style="Table" enable="true">
 		<name><![CDATA[SQL-Monitor (Flash)]]></name>
-		<description><![CDATA[]]></description>
-		<tooltip><![CDATA[]]></tooltip>
+		<description><![CDATA[Undocumented; The Flash report is equivalent to the monitoring feature in Oracle Enterprise Manager and has many nitty-gritty extras, but it needs an internet connection to download the embedded renderer from Oracle.]]></description>
+		<tooltip><![CDATA[Save this to a .html file and open in a browser with Adobe Flash support.]]></tooltip>
 		<drillclass><![CDATA[null]]></drillclass>
 		<CustomValues>
 			<TYPE>horizontal</TYPE>
@@ -672,66 +274,7 @@ END;]]></sql>
 				<table font="Times New Roman" size="10" style="NORMAL" color="-16777216" userowshading="false" oddrowshading="-1" evenrowshading="-1" showborders="true" spacingbefore="12" spacingafter="12" horizontalalign="LEFT" />
 				<header enable="false" generatedate="false">
 					<data>
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					null																																																																																																																																																																																																																																																																																																												</data>
+					null																																																																																																																																																																																																																																																																																																																																																																																																																																																								</data>
 				</header>
 				<footer enable="false" generatedate="false">
 					<data value="null" />
