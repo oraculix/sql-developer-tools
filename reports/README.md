@@ -11,20 +11,17 @@ Installation (English)
 - Open an XML file containing a report definition.
 
 
-Installation (Deutsch)
+Directory
 ----------------------
-- Im Navigator links den Reiter "Berichte" auswählen
-- Rechtsklick auf Ordner "Benutzerdefinierte Berichte" und "Bericht öffnen" anklicken
-- Eine XML-Datei mit der Report-Definition im Filesystem auswählen.
-
-Bedeutung der beiliegenden Reports:
-- Autotasks: Anzeige der installierten Autotasks mit Details (z.B. DBMS-Stats)
-- Longops_Gauge: Graphische Anzeige der v$session_longops mit Detailinfos zu Session und SQL
-- Scheduler_Jobs: Jobs, Run Log, Programs, Windows etc.
-- Statspack_AAS: Visualisierung der Metrik "Average Active Sessions" aus Statspack.
-- Statspack_AAS_3Level: Visualisierung der Metrik "Average Active Sessions" aus Statspack; mit einer dritten Ebene für historische und aktuelle Ausführungspläne zu Top SQL.
-- Statspack_Host_CPU: Darstellung der CPU-Last des Servers (komplett, nicht nur Datenbank-Last).
-- Statspack_LIO: Visualisierung der Metrik "Session Logical Reads" mit den Komponenten "consistent reads" und "db block gets" sowie separat "db block changes".
-- Statspack_PIO: Visualisierung der Metriken "Session Physical Reads" und "Session Physical Writes" (Lese-/Schreibzugriffe auf die Festplatte)
-- Statspack_SysStat: Visualisierung historisierter Metriken aus V$SYSSTAT.
-- Storage_Overview: Einfacher Überblick über die DB-Größe
+- Autotasks: Display Autotasks with Detail (e.g., DBMS-Stats Gathering Tasks)
+- AWR-Zeitreihe_Load_11g: "Average Active Sessions" visualization from AWR. With metric detail, AWR, and ADDM reports.
+- Log_Switch_Heat_Map: Colored overview of log switches per hour.
+- Longops_Gauge: Long running SQL from v$session_longops with drill-down into session waits, SQL plan and monitoring
+- Scheduler_Jobs: Jobs, Run Log, Programs, Windows etc. All in one place, unlike the standard reports.
+- Statspack_AAS: "Average Active Sessions" visualization from Statspack. With session, waits, top SQL and top segments.
+- Statspack_AAS_3Level: "Average Active Sessions" visualization from Statspack. Adds a third level to the above report for historic and cached Explain Plan.
+- Statspack_Host_CPU: CPU load visualization from Statspack (Host and DB CPU).
+- Statspack_LIO: "Session Logical Reads" visualization from Statspack from Statspack with "consistent reads", "db block gets" and "db block changes".
+- Statspack_PIO: "Session Physical Reads" and "Session Physical Writes" visualization from Statspack (read/write I/O to storage).
+- Statspack_SysStat: Visualization of recent historic performance metrics from V$SYSSTAT.
+- Storage_Overview: Quick and simple database size info.
