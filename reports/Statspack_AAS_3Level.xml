@@ -390,12 +390,15 @@ FROM (
      , text_subset
      , ROUND(d_ela/1000000, 2) "Elapsed/s"
      , d_exe "Execs"
+     , ROUND(d_ela/1000000/ NULLIF( d_exe, 0 ), 2) "Ela/Exe/s"
      , ROUND(d_cpu/1000000) "CPU/s"
      , d_buf "Buffer Gets"
      , ROUND(d_buf/NULLIF(d_exe, 0)) "Gets/Exec"
      , d_rds "Disk Reads"
      , ROUND(d_exe / NULLIF( dt, 0 ) / 24 / 3600, 2) "Execs/s"
      , module
+     , snap_id           -- needed as bin variable for child report
+     , instance_number   -- needed as bin variable for child report
   from
 (
   SELECT sn.snap_time
@@ -617,15 +620,18 @@ FROM (
       </CustomValues>
       <query>
         <sql><![CDATA[DECLARE
-  --p_sn_id NUMBER := :SNAP_ID;
-  --p_inst  NUMBER := :INSTANCE_NUMBER;
-  p_sn_id NUMBER := 0; -- FIXME: Eingrenzung auf aktuellen und vorherigen Snapshot implementieren
+  p_sn_id NUMBER := :SNAP_ID;
+  p_inst  NUMBER := :INSTANCE_NUMBER;
   p_sqlid VARCHAR2(20) := :SQL_ID;
 BEGIN
   dbms_output.enable(NULL);
   dbms_output.put_line('<pre>');
   IF (p_sn_id IS NOT NULL) THEN
+    dbms_output.put_line('===============================================================================');
     dbms_output.put_line('Historical Plans for SQL_ID '|| p_sqlid);
+    dbms_output.put_line('Instance '|| p_inst);
+    dbms_output.put_line('SNAP_ID  '|| p_sn_id);
+    dbms_output.put_line('===============================================================================');
     dbms_output.put_line('');
     dbms_output.put_line('SQL Text');
     dbms_output.put_line('--------');
@@ -634,10 +640,14 @@ BEGIN
     ) LOOP
       dbms_output.put_line( c.sql_text );
     END LOOP;
-    FOR h IN(select distinct plan_hash_value phv
+    FOR h IN(select plan_hash_value phv
                from stats$sql_plan_usage spu
               where spu.sql_id  = p_sqlid
+                and spu.snap_id = p_sn_id
+                and spu.instance_number = p_inst
                 and spu.plan_hash_value > 0
+              group by plan_hash_value
+              order by min(spu.LAST_ACTIVE_TIME)
     ) LOOP
       dbms_output.put_line('');
       dbms_output.put_line('================================================================================');
@@ -645,10 +655,10 @@ BEGIN
       FOR c IN(
         Select *
           from table(dbms_xplan.display(
-      'perfstat.stats$sql_plan',
-      null,
-      'ALL -predicate -note',
-      'plan_hash_value = '||h.phv
+      table_name   => 'perfstat.stats$sql_plan',
+      statement_id => null,
+      format       => 'ALL -predicate -note',
+      filter_preds => 'plan_hash_value = '||h.phv
     ))
       ) LOOP
         dbms_output.put_line( c.plan_table_output );

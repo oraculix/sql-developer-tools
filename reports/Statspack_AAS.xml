@@ -172,7 +172,15 @@ FROM
 				
 				
 				
-				null																																																																																																																																																																																																																												</data>
+				
+				
+				
+				
+				
+				
+				
+				
+				null																																																																																																																																																																																																																																																												</data>
 			</header>
 			<footer enable="false" generatedate="false">
 				<data value="null" />
@@ -279,7 +287,15 @@ FROM
 					
 					
 					
-					null																																																																																																																																																																																																																																						</data>
+					
+					
+					
+					
+					
+					
+					
+					
+					null																																																																																																																																																																																																																																																																														</data>
 				</header>
 				<footer enable="false" generatedate="false">
 					<data value="null" />
@@ -332,14 +348,6 @@ FROM (
  WHERE snap_time = :TIME
    AND ROUND( time_spent, 2 ) > 0
  ORDER BY time_spent DESC]]></sql>
-			<binds>
-				<bind id="TIME">
-					<prompt><![CDATA[TIME]]></prompt>
-					<tooltip><![CDATA[TIME]]></tooltip>
-					<value><![CDATA[NULL_VALUE]]></value>
-					<bracket><![CDATA[null]]></bracket>
-				</bind>
-			</binds>
 		</query>
 			<pdf version="VERSION_1_7" compression="CONTENT">
 				<docproperty title="null" author="null" subject="null" keywords="null" />
@@ -393,7 +401,15 @@ FROM (
 					
 					
 					
-					null																																																																																																																																																																																																																		</data>
+					
+					
+					
+					
+					
+					
+					
+					
+					null																																																																																																																																																																																																																																																										</data>
 				</header>
 				<footer enable="false" generatedate="false">
 					<data value="null" />
@@ -418,6 +434,7 @@ FROM (
      , text_subset
      , ROUND(d_ela/1000000, 2) "Elapsed/s"
      , d_exe "Execs"
+     , ROUND(d_ela/1000000/ NULLIF( d_exe, 0 ), 2) "Ela/Exe/s"
      , ROUND(d_cpu/1000000) "CPU/s"
      , d_buf "Buffer Gets"
      , ROUND(d_buf/NULLIF(d_exe, 0)) "Gets/Exec"
@@ -480,7 +497,15 @@ FROM (
 					
 					
 					
-					null																																																																																										</data>
+					
+					
+					
+					
+					
+					
+					
+					
+					null																																																																																																																																		</data>
 				</header>
 				<footer enable="false" generatedate="false">
 					<data value="null" />
@@ -527,14 +552,6 @@ select TO_CHAR( snap_time, 'dd.mm. hh24:mi' ) SNAP_TIME, OWNER, OBJECT_NAME, OBJ
  where TO_CHAR( snap_time, 'dd.mm. hh24:mi' ) = :TIME
    and LOGICAL_RDS is not null
  order by LOGICAL_RDS desc nulls last]]></sql>
-			<binds>
-				<bind id="TIME">
-					<prompt><![CDATA[TIME]]></prompt>
-					<tooltip><![CDATA[TIME]]></tooltip>
-					<value><![CDATA[NULL_VALUE]]></value>
-					<bracket><![CDATA[null]]></bracket>
-				</bind>
-			</binds>
 		</query>
 			<pdf version="VERSION_1_7" compression="CONTENT">
 				<docproperty title="null" author="null" subject="null" keywords="null" />
@@ -560,7 +577,55 @@ select TO_CHAR( snap_time, 'dd.mm. hh24:mi' ) SNAP_TIME, OWNER, OBJECT_NAME, OBJ
 					
 					
 					
-					null																																																																						</data>
+					
+					
+					
+					
+					
+					
+					
+					
+					null																																																																																																														</data>
+				</header>
+				<footer enable="false" generatedate="false">
+					<data value="null" />
+				</footer>
+				<security enable="false" useopenpassword="false" openpassword="null" encryption="EXCLUDE_METADATA">
+					<permission enable="false" permissionpassword="null" allowcopying="true" allowprinting="true" allowupdating="false" allowaccessdevices="false" />
+				</security>
+				<pagesetup papersize="LETTER" orientation="1" measurement="in" margintop="1.0" marginbottom="1.0" marginleft="1.0" marginright="1.0" />
+			</pdf>
+	</display>
+	<display id="null" type="" style="Script" enable="true">
+		<name><![CDATA[xplan_mem]]></name>
+		<description><![CDATA[]]></description>
+		<tooltip><![CDATA[]]></tooltip>
+		<drillclass><![CDATA[null]]></drillclass>
+		<CustomValues>
+		</CustomValues>
+		<query>
+			<sql><![CDATA[set pages 50000 lines 180
+select * from table( dbms_xplan.display_cursor('5an4ugdza35t1'));]]></sql>
+		</query>
+			<pdf version="VERSION_1_7" compression="CONTENT">
+				<docproperty title="null" author="null" subject="null" keywords="null" />
+				<cell toppadding="2" bottompadding="2" leftpadding="2" rightpadding="2" horizontalalign="LEFT" verticalalign="TOP" wrap="true" />
+				<column>
+					<heading font="null" size="10" style="NORMAL" color="-16777216" rowshading="-1" labeling="FIRST_PAGE" />
+					<footing font="null" size="10" style="NORMAL" color="-16777216" rowshading="-1" labeling="NONE" />
+					<blob blob="NONE" zip="false" />
+				</column>
+				<table font="null" size="10" style="NORMAL" color="-16777216" userowshading="false" oddrowshading="-1" evenrowshading="-1" showborders="true" spacingbefore="12" spacingafter="12" horizontalalign="LEFT" />
+				<header enable="false" generatedate="false">
+					<data>
+					
+					
+					
+					
+					
+					
+					
+					null																																								</data>
 				</header>
 				<footer enable="false" generatedate="false">
 					<data value="null" />
