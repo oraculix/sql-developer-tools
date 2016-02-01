@@ -1,17 +1,49 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <displays>
-<display id="1abe0d07-013f-1000-800d-0aba9961adae" type="" style="Chart" enable="true">
+<display id="675bde82-0139-1000-801b-0a09994fadc2" type="" style="Chart" enable="true">
 	<name><![CDATA[AWR-Zeitreihe: Load (10g)]]></name>
 	<description><![CDATA[]]></description>
 	<tooltip><![CDATA[]]></tooltip>
-	<drillclass><![CDATA[]]></drillclass>
+	<drillclass><![CDATA[null]]></drillclass>
 	<CustomValues>
-		<STYLE>Default</STYLE>
+		<PLOT_HGRID_WIDTH>THINNER</PLOT_HGRID_WIDTH>
+		<Y1AXIS_SCALE_INCREMENT>10.0</Y1AXIS_SCALE_INCREMENT>
+		<Y2AXIS_SCALE_MAXIMUM>80.0</Y2AXIS_SCALE_MAXIMUM>
+		<NUMBER_FORMATS.TYPE>NUMBER</NUMBER_FORMATS.TYPE>
+		<Y1AXIS_LINE_WIDTH>THINNEST</Y1AXIS_LINE_WIDTH>
+		<Y1AXIS_TITLE_ALIGNMENT>CENTER</Y1AXIS_TITLE_ALIGNMENT>
+		<LEGEND_LOCATION>AUTOMATIC</LEGEND_LOCATION>
+		<PLOT_SERIES_OPTIONS_COLOR>\,-16750849,-3394816,-7833429,-16751002,-26368</PLOT_SERIES_OPTIONS_COLOR>
+		<LEGEND_ALIGNMENT>LEFT</LEGEND_ALIGNMENT>
+		<GRADIENT>false</GRADIENT>
+		<XAXIS_LINE_WIDTH>THINNEST</XAXIS_LINE_WIDTH>
 		<LEGEND>true</LEGEND>
-		<THREED>true</THREED>
-		<GRADIENT>true</GRADIENT>
+		<NUMBER_FORMATS.NEGATIVE_NUMBER_FORMAT>BRACKETED</NUMBER_FORMATS.NEGATIVE_NUMBER_FORMAT>
+		<Y1AXIS_SCALE_MAXIMUM>60.0</Y1AXIS_SCALE_MAXIMUM>
+		<XAXIS_TITLE_ALIGNMENT>CENTER</XAXIS_TITLE_ALIGNMENT>
+		<XAXIS_TICK_LABEL_ROTATE>HORIZONTAL</XAXIS_TICK_LABEL_ROTATE>
+		<Y1AXIS_LOGARITHMIC_BASE>BASE_10</Y1AXIS_LOGARITHMIC_BASE>
+		<TYPE>LINE_VERT_ABS</TYPE>
+		<GRID_WIDTH>THINNER</GRID_WIDTH>
+		<PLOT_DATALABELS_BAR_POSITION>ABOVE</PLOT_DATALABELS_BAR_POSITION>
+		<FOOTNOTE_ALIGNMENT>LEFT</FOOTNOTE_ALIGNMENT>
+		<XAXIS_TICK_LABEL_SKIP_MODE>AUTOMATIC</XAXIS_TICK_LABEL_SKIP_MODE>
+		<Y2AXIS_LOGARITHMIC_BASE>BASE_10</Y2AXIS_LOGARITHMIC_BASE>
 		<GRID>true</GRID>
-		<TYPE>BAR_VERT_CLUST</TYPE>
+		<STYLE>Default</STYLE>
+		<TITLE_ALIGNMENT>LEFT</TITLE_ALIGNMENT>
+		<NUMBER_FORMATS.CURRENCY_SYMBOL>DOLLARS</NUMBER_FORMATS.CURRENCY_SYMBOL>
+		<Y2AXIS_TICK_LABEL_ROTATE>HORIZONTAL</Y2AXIS_TICK_LABEL_ROTATE>
+		<Y2AXIS_SCALE_MINIMUM>10.0</Y2AXIS_SCALE_MINIMUM>
+		<THREED>false</THREED>
+		<NUMBER_FORMATS.DECIMAL_PLACES>1</NUMBER_FORMATS.DECIMAL_PLACES>
+		<Y2AXIS_LINE_WIDTH>THINNEST</Y2AXIS_LINE_WIDTH>
+		<Y1AXIS_TICK_LABEL_ROTATE>HORIZONTAL</Y1AXIS_TICK_LABEL_ROTATE>
+		<NUMBER_FORMATS.SCALE_FACTOR>NONE</NUMBER_FORMATS.SCALE_FACTOR>
+		<Y2AXIS_SCALE_INCREMENT>20.0</Y2AXIS_SCALE_INCREMENT>
+		<PLOT_VGRID_WIDTH>THINNER</PLOT_VGRID_WIDTH>
+		<Y2AXIS_TITLE_ALIGNMENT>CENTER</Y2AXIS_TITLE_ALIGNMENT>
+		<SUBTITLE_ALIGNMENT>LEFT</SUBTITLE_ALIGNMENT>
 	</CustomValues>
 	<query>
 		<sql><![CDATA[SELECT TO_CHAR( sn.end_interval_time, 'yyyy-mm-dd hh24:mi' ) AS sn_time
@@ -23,14 +55,31 @@
        WHEN 2123 THEN ROUND( lc1.average/100, 2 )
        ELSE ROUND( lc1.average, 2 )
        END "Average"
-  FROM sys.dba_hist_sysmetric_summary lc1, sys.dba_hist_snapshot sn
+  FROM sys.dba_hist_sysmetric_summary lc1
+     , sys.dba_hist_snapshot sn
  WHERE lc1.snap_id = sn.snap_id
    AND lc1.metric_id IN (2123, 2135) -- s. v$metricname
    AND lc1.dbid = sn.dbid
    AND lc1.instance_number = sn.instance_number
+   AND lc1.instance_number = ( SELECT instance_number FROM v$instance )
+   -- Limit snapshots to given list
    --AND sn.snap_id IN (&snapshotlist)
+   -- Show only snapshots since last startup (avoid erroneous peaks in graph)
    --AND sn.startup_time = ( SELECT MAX(startup_time) FROM sys.dba_hist_snapshot )
-ORDER BY sn.snap_id, lc1.metric_id]]></sql>
+UNION ALL
+SELECT TO_CHAR( sn.end_interval_time, 'yyyy-mm-dd hh24:mi' ) AS sn_time
+     , 'CPU Count'
+     , to_number(par.value)
+  FROM sys.dba_hist_snapshot sn
+     , sys.dba_hist_parameter par
+ WHERE par.snap_id = sn.snap_id
+   AND par.parameter_name = 'cpu_count'
+   AND sn.instance_number = ( SELECT instance_number FROM v$instance )
+   -- Limit snapshots to given list
+   --AND sn.snap_id IN (&snapshotlist)
+   -- Show only snapshots since last startup (avoid erroneous peaks in graph)
+   --AND sn.startup_time = ( SELECT MAX(startup_time) FROM sys.dba_hist_snapshot )
+ORDER BY 1, 2]]></sql>
 	</query>
 		<pdf version="VERSION_1_7" compression="CONTENT">
 			<docproperty title="" author="" subject="" keywords="" />
@@ -43,26 +92,7 @@ ORDER BY sn.snap_id, lc1.metric_id]]></sql>
 			<table font="Times New Roman" size="10" style="NORMAL" color="-16777216" userowshading="false" oddrowshading="-1" evenrowshading="-1" showborders="true" spacingbefore="12" spacingafter="12" horizontalalign="LEFT" />
 			<header enable="false" generatedate="false">
 				<data>
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				null																																																																																</data>
+				null																																																																																																																																																																																																																																																																																																																</data>
 			</header>
 			<footer enable="false" generatedate="false">
 				<data value="null" />
@@ -72,5 +102,248 @@ ORDER BY sn.snap_id, lc1.metric_id]]></sql>
 			</security>
 			<pagesetup papersize="LETTER" orientation="1" measurement="in" margintop="1.0" marginbottom="1.0" marginleft="1.0" marginright="1.0" />
 		</pdf>
+	<display id="null" type="" style="Table" enable="true">
+		<name><![CDATA[Info]]></name>
+		<description><![CDATA[]]></description>
+		<tooltip><![CDATA[]]></tooltip>
+		<drillclass><![CDATA[null]]></drillclass>
+		<CustomValues>
+			<TYPE>horizontal</TYPE>
+		</CustomValues>
+		<query>
+			<sql><![CDATA[SELECT CASE metric_name
+            WHEN 'SQL Service Response Time' THEN 'SQL Service Response Time (s)'
+            WHEN 'Response Time Per Txn' THEN 'Response Time Per Txn (s)'
+            ELSE metric_name
+            END metric_name,
+       CASE metric_name
+            WHEN 'SQL Service Response Time' THEN ROUND((average / 100), CASE WHEN average > 100 THEN 0 ELSE 2 END )
+            WHEN 'Response Time Per Txn' THEN ROUND((average / 100), CASE WHEN average > 100 THEN 0 ELSE 2 END )
+            ELSE ROUND( average, CASE WHEN average > 100 THEN 0 ELSE 2 END )
+            END average,
+       CASE metric_name
+            WHEN 'SQL Service Response Time' THEN ROUND((minval / 100), CASE WHEN minval > 100 THEN 0 ELSE 2 END )
+            WHEN 'Response Time Per Txn' THEN ROUND((minval / 100), CASE WHEN minval > 100 THEN 0 ELSE 2 END )
+            ELSE ROUND( minval, CASE WHEN minval > 100 THEN 0 ELSE 2 END )
+            END mininum,
+       CASE metric_name
+            WHEN 'SQL Service Response Time' THEN ROUND((maxval / 100), CASE WHEN maxval > 100 THEN 0 ELSE 2 END )
+            WHEN 'Response Time Per Txn' THEN ROUND(( maxval / 100 ), CASE WHEN maxval > 100 THEN 0 ELSE 2 END )
+            ELSE ROUND( maxval, CASE WHEN maxval > 100 THEN 0 ELSE 2 END )
+            END maximum,
+       CASE metric_name
+            WHEN 'SQL Service Response Time' THEN ROUND((standard_deviation / 100),2)
+            WHEN 'Response Time Per Txn' THEN ROUND((standard_deviation / 100),2)
+            ELSE ROUND( standard_deviation, CASE WHEN standard_deviation > 100 THEN 0 ELSE 2 END )
+            END standard_deviation
+  FROM sys.dba_hist_sysmetric_summary lc1
+     , sys.dba_hist_snapshot sn
+ WHERE lc1.snap_id = sn.snap_id
+   AND TO_CHAR( sn.end_interval_time, 'yyyy-mm-dd hh24:mi' ) = :SN_TIME
+   AND lc1.metric_name IN ('Average Active Sessions', 'SQL Service Response Time', 'Response Time Per Txn'
+       , 'Physical Read Total Bytes Per Sec', 'DB Block Gets Per Sec', 'Consistent Read Gets Per Sec'
+       , 'CPU Usage Per Sec', 'Host CPU Utilization (%)', 'Network Traffic Volume Per Sec')
+   AND lc1.dbid = sn.dbid
+   AND lc1.instance_number = sn.instance_number
+   AND sn.instance_number = ( SELECT instance_number FROM v$instance )
+ ORDER BY lc1.metric_name]]></sql>
+			<binds>
+				<bind id="SN_TIME">
+					<prompt><![CDATA[SN_TIME]]></prompt>
+					<tooltip><![CDATA[SN_TIME]]></tooltip>
+					<value><![CDATA[NULL_VALUE]]></value>
+					<bracket><![CDATA[null]]></bracket>
+				</bind>
+			</binds>
+		</query>
+			<pdf version="VERSION_1_7" compression="CONTENT">
+				<docproperty title="null" author="null" subject="null" keywords="null" />
+				<cell toppadding="2" bottompadding="2" leftpadding="2" rightpadding="2" horizontalalign="LEFT" verticalalign="TOP" wrap="true" />
+				<column>
+					<heading font="null" size="10" style="NORMAL" color="-16777216" rowshading="-1" labeling="FIRST_PAGE" />
+					<footing font="null" size="10" style="NORMAL" color="-16777216" rowshading="-1" labeling="NONE" />
+					<blob blob="NONE" zip="false" />
+				</column>
+				<table font="null" size="10" style="NORMAL" color="-16777216" userowshading="false" oddrowshading="-1" evenrowshading="-1" showborders="true" spacingbefore="12" spacingafter="12" horizontalalign="LEFT" />
+				<header enable="false" generatedate="false">
+					<data>
+					null																																																																																																																																		</data>
+				</header>
+				<footer enable="false" generatedate="false">
+					<data value="null" />
+				</footer>
+				<security enable="false" useopenpassword="false" openpassword="null" encryption="EXCLUDE_METADATA">
+					<permission enable="false" permissionpassword="null" allowcopying="true" allowprinting="true" allowupdating="false" allowaccessdevices="false" />
+				</security>
+				<pagesetup papersize="LETTER" orientation="1" measurement="in" margintop="1.0" marginbottom="1.0" marginleft="1.0" marginright="1.0" />
+			</pdf>
+	</display>
+	<display id="null" type="" style="plsql-dbms_output" enable="true">
+		<name><![CDATA[Text-Report]]></name>
+		<description><![CDATA[]]></description>
+		<tooltip><![CDATA[]]></tooltip>
+		<drillclass><![CDATA[null]]></drillclass>
+		<CustomValues>
+		</CustomValues>
+		<query>
+			<sql><![CDATA[DECLARE
+  sn_id NUMBER;
+  sn_start VARCHAR2(16) := :SN_TIME;
+BEGIN
+  dbms_output.enable(NULL);
+  dbms_output.put_line('<pre>');
+  SELECT snap_id INTO sn_id FROM dba_hist_snapshot
+   WHERE TO_CHAR( end_interval_time, 'yyyy-mm-dd hh24:mi' ) = sn_start
+     AND instance_number = ( SELECT instance_number FROM v$instance );
+  FOR c IN(
+		SELECT *
+		FROM TABLE(dbms_workload_repository.awr_report_text(
+		         ( SELECT dbid FROM v$database ),
+		         ( SELECT instance_number FROM v$instance ),
+		         ( SELECT MAX( snap_id ) FROM dba_hist_snapshot WHERE snap_id < sn_id ), -- Starting snapshot
+		         sn_id,      -- Ending snapshot
+		         0           -- Optionen (8 für ADDM-Bericht)
+		     ))
+		  )
+  LOOP
+    dbms_output.put_line( c.output );
+  END LOOP;
+  dbms_output.put_line('</pre>');
+END;]]></sql>
+		</query>
+			<pdf version="VERSION_1_7" compression="CONTENT">
+				<docproperty title="" author="" subject="" keywords="" />
+				<cell toppadding="2" bottompadding="2" leftpadding="2" rightpadding="2" horizontalalign="LEFT" verticalalign="TOP" wrap="true" />
+				<column>
+					<heading font="Times New Roman" size="10" style="NORMAL" color="-16777216" rowshading="-1" labeling="FIRST_PAGE" />
+					<footing font="Times New Roman" size="10" style="NORMAL" color="-16777216" rowshading="-1" labeling="NONE" />
+					<blob blob="NONE" zip="false" />
+				</column>
+				<table font="Times New Roman" size="10" style="NORMAL" color="-16777216" userowshading="false" oddrowshading="-1" evenrowshading="-1" showborders="true" spacingbefore="12" spacingafter="12" horizontalalign="LEFT" />
+				<header enable="false" generatedate="false">
+					<data>
+					null																																																																																																																																																																																																																																																																																																																																										</data>
+				</header>
+				<footer enable="false" generatedate="false">
+					<data value="null" />
+				</footer>
+				<security enable="false" useopenpassword="false" openpassword="" encryption="EXCLUDE_METADATA">
+					<permission enable="false" permissionpassword="" allowcopying="true" allowprinting="true" allowupdating="false" allowaccessdevices="true" />
+				</security>
+				<pagesetup papersize="LETTER" orientation="1" measurement="in" margintop="1.0" marginbottom="1.0" marginleft="1.0" marginright="1.0" />
+			</pdf>
+	</display>
+	<display id="null" type="" style="Table" enable="true">
+		<name><![CDATA[HTML-Report]]></name>
+		<description><![CDATA[]]></description>
+		<tooltip><![CDATA[]]></tooltip>
+		<drillclass><![CDATA[null]]></drillclass>
+		<CustomValues>
+			<TYPE>horizontal</TYPE>
+		</CustomValues>
+		<query>
+			<sql><![CDATA[SELECT *
+  FROM TABLE(dbms_workload_repository.awr_report_html(
+		         ( SELECT dbid FROM v$database ),
+		         ( SELECT instance_number FROM v$instance ),
+		         ( SELECT MAX( snap_id ) FROM dba_hist_snapshot WHERE TO_CHAR( end_interval_time, 'yyyy-mm-dd hh24:mi' ) < :SN_TIME ), -- Starting snapshot
+		         ( SELECT snap_id FROM dba_hist_snapshot WHERE TO_CHAR( end_interval_time, 'yyyy-mm-dd hh24:mi' ) = :SN_TIME ),      -- Ending snapshot
+		         0           -- Optionen (8 für ADDM-Bericht)
+	     ))]]></sql>
+		</query>
+			<pdf version="VERSION_1_7" compression="CONTENT">
+				<docproperty title="" author="" subject="" keywords="" />
+				<cell toppadding="2" bottompadding="2" leftpadding="2" rightpadding="2" horizontalalign="LEFT" verticalalign="TOP" wrap="true" />
+				<column>
+					<heading font="Times New Roman" size="10" style="NORMAL" color="-16777216" rowshading="-1" labeling="FIRST_PAGE" />
+					<footing font="Times New Roman" size="10" style="NORMAL" color="-16777216" rowshading="-1" labeling="NONE" />
+					<blob blob="NONE" zip="false" />
+				</column>
+				<table font="Times New Roman" size="10" style="NORMAL" color="-16777216" userowshading="false" oddrowshading="-1" evenrowshading="-1" showborders="true" spacingbefore="12" spacingafter="12" horizontalalign="LEFT" />
+				<header enable="false" generatedate="false">
+					<data>
+					null																																																																																																																																																																																																																																																										</data>
+				</header>
+				<footer enable="false" generatedate="false">
+					<data value="null" />
+				</footer>
+				<security enable="false" useopenpassword="false" openpassword="" encryption="EXCLUDE_METADATA">
+					<permission enable="false" permissionpassword="" allowcopying="true" allowprinting="true" allowupdating="false" allowaccessdevices="true" />
+				</security>
+				<pagesetup papersize="LETTER" orientation="1" measurement="in" margintop="1.0" marginbottom="1.0" marginleft="1.0" marginright="1.0" />
+			</pdf>
+	</display>
+	<display id="null" type="" style="plsql-dbms_output" enable="true">
+		<name><![CDATA[ADDM-Report]]></name>
+		<description><![CDATA[]]></description>
+		<tooltip><![CDATA[]]></tooltip>
+		<drillclass><![CDATA[null]]></drillclass>
+		<CustomValues>
+		</CustomValues>
+		<query>
+			<sql><![CDATA[DECLARE
+  bid PLS_INTEGER;
+  eid PLS_INTEGER;
+  sn_start VARCHAR2(16) := :SN_TIME;
+  id PLS_INTEGER;
+  inst_num PLS_INTEGER;
+  dbid NUMBER;
+  taskname VARCHAR2(100);
+  descr VARCHAR2(500);
+BEGIN
+  SELECT dbid INTO dbid FROM v$database;
+  
+  dbms_output.enable(NULL);
+  dbms_output.put_line('<pre>');
+  SELECT snap_id INTO eid FROM dba_hist_snapshot WHERE TO_CHAR( end_interval_time, 'yyyy-mm-dd hh24:mi' ) = sn_start;
+  SELECT MAX( snap_id ) INTO bid FROM dba_hist_snapshot WHERE snap_id < eid;
+  SELECT instance_number INTO inst_num FROM v$instance;
+  
+  -- Run ADDM for desired snapshots
+  taskname := '';
+  descr := 'ADDM run: snapshots [' || bid || ', '
+           || eid || '], instance ' || inst_num
+           || ', database id ' || dbid;
+  dbms_advisor.create_task('ADDM',id, taskname,descr,null);
+
+  -- set time window
+  dbms_advisor.set_task_parameter(taskname, 'START_SNAPSHOT', bid);
+  dbms_advisor.set_task_parameter(taskname, 'END_SNAPSHOT', eid);
+
+  -- set instance number
+  dbms_advisor.set_task_parameter(taskname, 'INSTANCE', inst_num);
+
+  -- set dbid
+  dbms_advisor.set_task_parameter(taskname, 'DB_ID', dbid);
+
+  -- execute task
+  dbms_advisor.execute_task(taskname);
+
+  dbms_output.put_line( dbms_advisor.get_task_report( taskname, 'TEXT', 'TYPICAL' ));
+  dbms_output.put_line('</pre>');
+END;]]></sql>
+		</query>
+			<pdf version="VERSION_1_7" compression="CONTENT">
+				<docproperty title="" author="" subject="" keywords="" />
+				<cell toppadding="2" bottompadding="2" leftpadding="2" rightpadding="2" horizontalalign="LEFT" verticalalign="TOP" wrap="true" />
+				<column>
+					<heading font="Times New Roman" size="10" style="NORMAL" color="-16777216" rowshading="-1" labeling="FIRST_PAGE" />
+					<footing font="Times New Roman" size="10" style="NORMAL" color="-16777216" rowshading="-1" labeling="NONE" />
+					<blob blob="NONE" zip="false" />
+				</column>
+				<table font="Times New Roman" size="10" style="NORMAL" color="-16777216" userowshading="false" oddrowshading="-1" evenrowshading="-1" showborders="true" spacingbefore="12" spacingafter="12" horizontalalign="LEFT" />
+				<header enable="false" generatedate="false">
+					<data>
+					null																																																																																																																																																																																																																																																					</data>
+				</header>
+				<footer enable="false" generatedate="false">
+					<data value="null" />
+				</footer>
+				<security enable="false" useopenpassword="false" openpassword="" encryption="EXCLUDE_METADATA">
+					<permission enable="false" permissionpassword="" allowcopying="true" allowprinting="true" allowupdating="false" allowaccessdevices="true" />
+				</security>
+				<pagesetup papersize="LETTER" orientation="1" measurement="in" margintop="1.0" marginbottom="1.0" marginleft="1.0" marginright="1.0" />
+			</pdf>
+	</display>
 </display>
 </displays>
