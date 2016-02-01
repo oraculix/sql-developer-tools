@@ -79,7 +79,7 @@ SELECT TO_CHAR( sn.end_interval_time, 'yyyy-mm-dd hh24:mi' ) AS sn_time
    --AND sn.snap_id IN (&snapshotlist)
    -- Show only snapshots since last startup (avoid erroneous peaks in graph)
    --AND sn.startup_time = ( SELECT MAX(startup_time) FROM sys.dba_hist_snapshot )
-ORDER BY 1, 2]]></sql>
+ORDER BY sn_time, metric_name]]></sql>
 	</query>
 		<pdf version="VERSION_1_7" compression="CONTENT">
 			<docproperty title="" author="" subject="" keywords="" />
@@ -92,7 +92,8 @@ ORDER BY 1, 2]]></sql>
 			<table font="Times New Roman" size="10" style="NORMAL" color="-16777216" userowshading="false" oddrowshading="-1" evenrowshading="-1" showborders="true" spacingbefore="12" spacingafter="12" horizontalalign="LEFT" />
 			<header enable="false" generatedate="false">
 				<data>
-				null																																																																																																																																																																																																																																																																																																																</data>
+				
+				null																																																																																																																																																																																																																																																																																																																				</data>
 			</header>
 			<footer enable="false" generatedate="false">
 				<data value="null" />
@@ -167,7 +168,8 @@ ORDER BY 1, 2]]></sql>
 				<table font="null" size="10" style="NORMAL" color="-16777216" userowshading="false" oddrowshading="-1" evenrowshading="-1" showborders="true" spacingbefore="12" spacingafter="12" horizontalalign="LEFT" />
 				<header enable="false" generatedate="false">
 					<data>
-					null																																																																																																																																		</data>
+					
+					null																																																																																																																																							</data>
 				</header>
 				<footer enable="false" generatedate="false">
 					<data value="null" />
@@ -222,7 +224,8 @@ END;]]></sql>
 				<table font="Times New Roman" size="10" style="NORMAL" color="-16777216" userowshading="false" oddrowshading="-1" evenrowshading="-1" showborders="true" spacingbefore="12" spacingafter="12" horizontalalign="LEFT" />
 				<header enable="false" generatedate="false">
 					<data>
-					null																																																																																																																																																																																																																																																																																																																																										</data>
+					
+					null																																																																																																																																																																																																																																																																																																																																															</data>
 				</header>
 				<footer enable="false" generatedate="false">
 					<data value="null" />
@@ -247,7 +250,8 @@ END;]]></sql>
 		         ( SELECT dbid FROM v$database ),
 		         ( SELECT instance_number FROM v$instance ),
 		         ( SELECT MAX( snap_id ) FROM dba_hist_snapshot WHERE TO_CHAR( end_interval_time, 'yyyy-mm-dd hh24:mi' ) < :SN_TIME ), -- Starting snapshot
-		         ( SELECT snap_id FROM dba_hist_snapshot WHERE TO_CHAR( end_interval_time, 'yyyy-mm-dd hh24:mi' ) = :SN_TIME ),      -- Ending snapshot
+		         ( SELECT snap_id FROM dba_hist_snapshot WHERE TO_CHAR( end_interval_time, 'yyyy-mm-dd hh24:mi' ) = :SN_TIME 
+                  AND instance_number = ( SELECT instance_number FROM v$instance )),      -- Ending snapshot
 		         0           -- Optionen (8 für ADDM-Bericht)
 	     ))]]></sql>
 		</query>
@@ -262,7 +266,8 @@ END;]]></sql>
 				<table font="Times New Roman" size="10" style="NORMAL" color="-16777216" userowshading="false" oddrowshading="-1" evenrowshading="-1" showborders="true" spacingbefore="12" spacingafter="12" horizontalalign="LEFT" />
 				<header enable="false" generatedate="false">
 					<data>
-					null																																																																																																																																																																																																																																																										</data>
+					
+					null																																																																																																																																																																																																																																																															</data>
 				</header>
 				<footer enable="false" generatedate="false">
 					<data value="null" />
@@ -295,7 +300,9 @@ BEGIN
   
   dbms_output.enable(NULL);
   dbms_output.put_line('<pre>');
-  SELECT snap_id INTO eid FROM dba_hist_snapshot WHERE TO_CHAR( end_interval_time, 'yyyy-mm-dd hh24:mi' ) = sn_start;
+  SELECT snap_id INTO eid FROM dba_hist_snapshot
+   WHERE TO_CHAR( end_interval_time, 'yyyy-mm-dd hh24:mi' ) = sn_start
+     AND instance_number = ( SELECT instance_number FROM v$instance );
   SELECT MAX( snap_id ) INTO bid FROM dba_hist_snapshot WHERE snap_id < eid;
   SELECT instance_number INTO inst_num FROM v$instance;
   
@@ -334,7 +341,8 @@ END;]]></sql>
 				<table font="Times New Roman" size="10" style="NORMAL" color="-16777216" userowshading="false" oddrowshading="-1" evenrowshading="-1" showborders="true" spacingbefore="12" spacingafter="12" horizontalalign="LEFT" />
 				<header enable="false" generatedate="false">
 					<data>
-					null																																																																																																																																																																																																																																																					</data>
+					
+					null																																																																																																																																																																																																																																																										</data>
 				</header>
 				<footer enable="false" generatedate="false">
 					<data value="null" />
