@@ -1,0 +1,1357 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<snippets>
+   <group category="Performance" language="PLSQL">
+      <snippet name="ADDM-Bericht" description="">
+         <code>
+            <![CDATA[-- Welche ADDM-Tasks sind fertig?
+SELECT *
+  FROM DBA_ADVISOR_TASKS
+ ORDER BY execution_end DESC;
+ ORDER BY task_id DESC;
+
+-- Starten eines ADDM-Reports z.B. mit $ORACLE_HOME/rdbms/admin/addmrpt.sql
+-- Oder manuell:
+DECLARE
+   bid   NUMBER := ;
+   eid   NUMBER := ;
+   tname VARCHAR2(50);
+   tid   NUMBER;
+BEGIN
+  DBMS_ADVISOR.CREATE_TASK( 'ADDM', tid, tname, 'ADDM Report( ' || bid || ',' || eid || ' )' );
+  DBMS_ADVISOR.SET_TASK_PARAMETER( tname, 'START_SNAPSHOT', bid );
+  DBMS_ADVISOR.SET_TASK_PARAMETER( tname, 'END_SNAPSHOT', eid );
+  DBMS_ADVISOR.EXECUTE_TASK( tname );
+END;
+/
+
+
+SELECT 
+DBMS_ADVISOR.GET_TASK_REPORT (
+    'TASK_5742' -- task_name
+  , 'TEXT'      -- type
+  , 'TYPICAL'   -- level
+  , 'ALL'       -- section
+  , ''          -- owner_name
+  , ''          -- execution_name
+  , NULL        -- object_id
+  )
+ FROM dual;
+
+exec dbms_advisor.delete_task( :task_name )
+]]>
+         </code>
+      </snippet>
+      <snippet name="ASH-Bericht" description="Erzeugen eines ASH-Berichts">
+         <code>
+            <![CDATA[SELECT *
+  FROM TABLE (
+         dbms_workload_repository.ash_report_html (l_dbid         => ( SELECT dbid FROM v$database )
+                                                 , l_inst_num     => 1
+                                                 , l_btime        =>  TO_DATE( '301301', 'ddhh24mi' )
+                                                 , L_etime        =>  TO_DATE( '301401', 'ddhh24mi' )
+--                                                 , L_OPTIONS -- nicht genutzt
+--                                                 , L_SLOT_WIDTH   =>
+--                                                 , L_SID          => 123
+--                                                 , L_SQL_ID       =>
+--                                                 , L_WAIT_CLASS   =>
+--                                                 , L_SERVICE_HASH =>
+--                                                 , L_MODULE       =>
+--                                                 , L_ACTION       =>
+--                                                 , L_CLIENT_ID    =>
+--                                                 , L_PLSQL_ENTRY  =>
+--                                                 , L_DATA_SRC     => 
+                                                 ));]]>
+         </code>
+      </snippet>
+      <snippet name="AWR-Bericht" description="Vorlagen zum Erzeugen von AWR-Berichten">
+         <code>
+            <![CDATA[-- Welche Snapshot-IDs stehen zur Verfügung?
+SELECT   snap_id,
+         snap_level,
+         to_char(begin_interval_time, 'yyyy/mm/dd hh24:mi:ss') begin_interval_time,
+         to_char(end_interval_time, 'yyyy/mm/dd hh24:mi:ss') end_interval_time,
+         to_char(flush_elapsed) flush_elapsed,
+         to_char(startup_time, 'yyyy/mm/dd hh24:mi:ss') startup_time,
+         error_count
+FROM     DBA_HIST_SNAPSHOT
+WHERE    dbid = ( select dbid from v$database )
+AND      instance_number = 1
+order by 1;
+
+-- Snapshot erstellen
+exec dbms_workload_repository.CREATE_SNAPSHOT
+
+-- Starten und Anzeigen des HTML-Reports
+Select *
+from table(dbms_workload_repository.awr_report_html(
+         ( select dbid from v$database ),
+         1,          -- Instance number (meistens 1)
+         94,         -- Starting snapshot
+         95,         -- Ending snapshot
+         0           -- Optionen (8 für ADDM-Bericht)
+     ));
+
+-- Starten und Anzeigen des Text-Reports
+Select *
+from table(dbms_workload_repository.awr_report_text(
+         ( select dbid from v$database ),
+         1,          -- Instance number (meistens 1)
+         94,         -- Starting snapshot
+         95,         -- Ending snapshot
+         0           -- Optionen (8 für ADDM-Bericht)
+     ));
+
+-- Starten und Anzeigen des HTML-Reports für eine SQLID
+Select *
+from table( SYS.dbms_workload_repository.awr_sql_report_html(
+           ( select dbid from v$database ),
+         1,              -- Instance number (meistens 1)
+         28279,          -- Starting snapshot
+         28286,          -- Ending snapshot
+         'dzn8dqwdnw7cy',-- SQLID
+         0               -- Optionen (8 für ADDM-Bericht)
+     ));
+]]>
+         </code>
+      </snippet>
+      <snippet name="AWR-Zeitreihen" description="Extrahieren von Metriken über mehrere AWR-Snapshots hinweg">
+         <code>
+            <![CDATA[SELECT sn.snap_id, sn.begin_interval_time, lc1.average "Logical IO/s"
+  FROM sys.dba_hist_sysmetric_summary lc1, sys.dba_hist_snapshot sn
+ WHERE lc1.snap_id = sn.snap_id
+   AND lc1.metric_id IN (2030) -- entspr. in 10g "Logical IO", s. v$metricname
+   AND lc1.dbid = sn.dbid
+   AND lc1.instance_number = sn.instance_number
+   AND sn.snap_id IN (&snapshotlist)
+ORDER BY sn.snap_id;]]>
+         </code>
+      </snippet>
+      <snippet name="Fulltext + XPlan" description="Holt den vollständigen SQL-Test zu einer SQL-ID">
+         <code>
+            <![CDATA[SELECT sql_fulltext FROM v$sql WHERE sql_id = '&sql_id';
+
+set pages 50000 lines 180 trimspool on feedback off
+SELECT * FROM TABLE( dbms_xplan.display_cursor( '5an4ugdza35t1', NULL, 'ADVANCED ALLSTATS LAST' ));
+-- 1. Format:
+--   BASIC
+--   TYPICAL
+--   ALL
+--   ADVANCED
+-- 2. Welche Statistiken:
+--   IOSTATS
+--   MEMSTATS
+--   ALLSTATS
+-- 3. Nur letzte SQL-Ausführung statt Aggregat
+--   LAST
+-- 4. Ggf. hinzufügen/entfernen von Details:
+--   +peeked_binds -bytes
+-- http://wp.me/pJ3Bk-oE]]>
+         </code>
+      </snippet>
+      <snippet name="Sessions" description="Vorlage für Session-Liste">
+         <code>
+            <![CDATA[SELECT * FROM v$session
+ WHERE sid <> USERENV('SID')
+   AND status = 'ACTIVE'
+   AND username IS NOT NULL
+--   AND username LIKE 'MNEREN%'
+--   AND program LIKE '%ACCESS%'
+ ORDER BY username;]]>
+         </code>
+      </snippet>
+      <snippet name="SQL-Monitor" description="">
+         <code>
+            <![CDATA[-- SQL mit Hint /*+ MONITOR */ ausführen
+
+-- Text Report fuer vorausgegangenes SQL
+select DBMS_SQLTUNE.REPORT_SQL_MONITOR(
+    session_id   => sys_context('USERENV','SID')
+  , report_level => 'ALL'
+  , type         => 'HTML'
+  ) as report
+from dual;
+
+-- EM Flash Report
+-- benoetigt Internetverbindung zum Einbetten von Objekten
+select dbms_sqltune.report_sql_monitor( type=>'EM', sql_id => '&sql_id' ) monitor_report from dual;
+
+-- Welche Reports stehen zur Verfügung?
+SELECT DBMS_SQLTUNE.report_sql_monitor_list(
+  type         => 'TEXT',
+  report_level => 'ALL') AS report
+FROM dual;
+]]>
+         </code>
+      </snippet>
+      <snippet name="Calibrate I/O" description="I/O-Benchmark; auf einem System ohne Last ausführen!">
+         <code>
+            <![CDATA[SET SERVEROUTPUT ON
+DECLARE
+  lat INTEGER;
+  iops INTEGER;
+  mbps INTEGER;
+BEGIN
+  --DBMS_RESOURCE_MANAGER.CALIBRATE_IO(<NUM_DISKS>, <MAX_LATENCY>,iops, mbps, lat);
+  DBMS_RESOURCE_MANAGER.CALIBRATE_IO (1, 10, iops, mbps, lat);
+  DBMS_OUTPUT.PUT_LINE ('max_iops = ' || iops);
+  DBMS_OUTPUT.PUT_LINE ('latency = ' || lat);
+  dbms_output.put_line('max_mbps = ' || mbps);
+end;
+/
+]]>
+         </code>
+      </snippet>
+      <snippet name="Session Waits" description="Non-Idle Waits, gruppiert nach Benutzern">
+         <code>
+            <![CDATA[SELECT s.username
+     , se.event
+     , SUM(total_waits) total_waits
+     , SUM(time_waited) total_time_waited
+     , AVG(average_wait) avg_wait
+  FROM v$session_event se
+     , v$session s
+ WHERE se.sid = s.sid
+   AND se.wait_class <> 'Idle'
+   AND s.username IS NOT NULL
+--   AND se.event = 'resmgr:cpu quantum'
+ GROUP BY s.username, se.event
+ ORDER BY total_time_waited DESC;
+]]>
+         </code>
+      </snippet>
+      <snippet name="Was geht ab?" description="Wie viele Sessions arbeiten bzw. warten und auf was?">
+         <code>
+            <![CDATA[SELECT
+   COUNT(*),
+   CASE WHEN state != 'WAITING' THEN 'WORKING'
+        ELSE 'WAITING'
+   END AS state,
+   CASE WHEN state != 'WAITING' THEN 'On CPU / runqueue'
+        ELSE event
+   END AS sw_event
+  FROM v$session
+ WHERE type = 'USER'     -- ggf. auskommentieren, um auch Background Sessions zu sehen
+   AND status = 'ACTIVE' -- ggf. auskommentieren, um alle Sessions zu sehen
+GROUP BY
+   CASE WHEN state != 'WAITING' THEN 'WORKING'
+        ELSE 'WAITING'
+   END,
+   CASE WHEN state != 'WAITING' THEN 'On CPU / runqueue'
+        ELSE event
+   END
+ORDER BY 1 DESC, 2 DESC;
+]]>
+         </code>
+      </snippet>
+      <snippet name="DBMS_STATS Prefs (11g)" description="Shows DB-wide preferences">
+         <code>
+            <![CDATA[--
+-- Thorsten Bruhns (Thorsten.Bruhns@opitz-consulting.de)
+-- $Id: get_param.sql 10 2008-11-11 10:25:06Z oracle $
+--
+-- get default statistic parameter from database
+--
+-- Note:406475.1 Subject: 	What are default parameters when i gather statistisc on Table on 9i and 10g
+-- Note:725845.1 Subject:       How to Change Default Parameters for Gathering Statistics
+--
+-- 2014-08-14 U. Kuechler: Major rewrite to cover options from 10.1 to 11.2.0.4.
+
+col value for a30
+set pages 50000 feed off
+
+with I as (select version from v$instance)
+select 'AUTOSTATS_TARGET' AS pref, DBMS_STATS.get_param( 'AUTOSTATS_TARGET' ) AS value FROM dual
+union
+select 'CASCADE', DBMS_STATS.get_param( 'CASCADE' ) AS pref FROM dual
+union
+select 'DEGREE'
+     , CASE DBMS_STATS.get_param( 'DEGREE' ) 
+       WHEN NULL THEN 'Null'
+       WHEN '32767' THEN 'Default'
+       WHEN '32768' THEN 'Auto'
+       ELSE DBMS_STATS.get_param( 'DEGREE' )
+       END AS pref FROM dual
+union
+select 'ESTIMATE_PERCENT'
+     , CASE DBMS_STATS.get_param( 'ESTIMATE_PERCENT' )
+       WHEN '0' THEN 'Auto'
+       ELSE DBMS_STATS.get_param( 'ESTIMATE_PERCENT' )
+       END AS pref FROM dual
+union
+select 'METHOD_OPT', DBMS_STATS.get_param( 'METHOD_OPT' ) AS pref FROM dual
+union
+select 'NO_INVALIDATE', DBMS_STATS.get_param( 'NO_INVALIDATE' ) AS pref FROM dual
+union
+select 'GRANULARITY', DBMS_STATS.get_param( 'GRANULARITY' ) AS pref FROM dual
+union
+select 'PUBLISH', CASE WHEN I.VERSION >= '11'
+       THEN DBMS_STATS.get_param( 'PUBLISH' )
+       ELSE '---' END AS pref FROM dual, i
+union
+select 'INCREMENTAL', CASE WHEN I.VERSION >= '11'
+       THEN DBMS_STATS.get_param( 'INCREMENTAL' )
+       ELSE '---' END AS pref FROM dual, i
+union
+select 'STALE_PERCENT', CASE WHEN I.VERSION >= '11'
+       THEN DBMS_STATS.get_param( 'STALE_PERCENT' )
+       ELSE '---' END AS pref FROM dual, i
+union
+select 'CONCURRENT', CASE WHEN I.VERSION >= '11.2'
+       THEN DBMS_STATS.get_param( 'CONCURRENT' )
+       ELSE '---' END AS pref FROM dual, i
+--/* ab 11.2.0.4 oder 11.2.0.3 mit Patch 13262857 ------------------------------
+union
+select 'APPROXIMATE_NDV', CASE WHEN I.VERSION >= '11.2.0.4'
+       THEN DBMS_STATS.get_param( 'APPROXIMATE_NDV' )
+       ELSE '---' END AS pref FROM dual, i
+union
+select 'TABLE_CACHED_BLOCKS'
+     , CASE WHEN I.VERSION >= '11.2.0.4' THEN 
+           CASE DBMS_STATS.get_param( 'TABLE_CACHED_BLOCKS' )
+           WHEN '0' THEN 'Auto'
+           ELSE DBMS_STATS.get_param( 'TABLE_CACHED_BLOCKS' )
+           END
+       ELSE '---' 
+       END AS pref FROM dual, i
+------------------------------------------------------------------------------*/
+;
+]]>
+         </code>
+      </snippet>
+      <snippet name="Log Switches" description="Ermittelt die Dauer zwischen den einzelnen Log Switches">
+         <code>
+            <![CDATA[select
+    to_char(first_time,'dd hh24:mi:ss')     first_time,
+    round(24 * 60 * (
+        lead(first_time,1) over (
+            order by first_time
+        ) -
+        first_time
+           ),2)                 minutes
+from
+    v$log_history v
+--where
+--    recid >= 3654
+order by
+    recid desc
+;]]>
+         </code>
+      </snippet>
+      <snippet name="Statspack Top 5" description="Zeitreihe über die Top 5 Events aus Statspack">
+         <code>
+            <![CDATA[set linesize 132
+set pagesize 10000
+set tab off
+set trimout on
+set trimspool on
+set sqlblanklines on
+ 
+alter session set nls_date_format = 'dd.mm. hh24:mi';
+ 
+column event format a30
+column time_spent_d format 9,999,999.90
+column aas format 9999.90
+column pct_of_dbtime format 999.90
+ 
+break on snap_id on snap_time skip 1
+ 
+WITH
+ 
+  timed_events AS
+ 
+  -- Get wait time from STATS$SYSTEM_EVENT.
+  -- Select snapshots from start_snap_id to end_snap_id.
+  -- Convert wait microseconds into seconds.
+  -- Ignore the "Idle" class (wait_class = 6).
+  -- Wait classifications are found in V$EVENT_NAME.
+ 
+  -- Get CPU usage from the STATS$SYSSTAT table.
+  -- Convert CPU centiseconds into seconds.
+ 
+  (SELECT   snap_id,
+            event,
+            time_waited_micro / 1000000 AS time_spent
+     FROM   stats$system_event NATURAL JOIN v$event_name
+    WHERE   snap_id between
+              &&start_snap_id and &&end_snap_id
+      AND   wait_class# != 6
+ 
+            UNION ALL
+ 
+   SELECT   snap_id,
+            'CPU used by this session' AS event,
+            VALUE / 100 as time_spent
+     FROM   stats$sysstat
+    WHERE   snap_id between
+              &&start_snap_id and &&end_snap_id
+      AND   name = 'CPU used by this session'),
+ 
+------------------------------------------------------------
+ 
+  deltas AS
+ 
+  -- Use the LAG function to determine the increase.
+  -- Partition the rows by database startup time.
+  -- STATS$SNAPSHOT tells us when the database was started.
+ 
+  (SELECT   snap_id,
+            snap_time,
+            event,
+            (snap_time - LAG (snap_time)
+              OVER (PARTITION BY startup_time, event
+                    ORDER BY snap_id)) * 86400
+              AS snap_time_d,
+            time_spent - LAG (time_spent)
+              OVER (PARTITION BY startup_time, event
+                    ORDER BY snap_id)
+              AS time_spent_d
+     FROM   timed_events NATURAL JOIN stats$snapshot),
+ 
+------------------------------------------------------------
+ 
+  ranks AS
+ 
+  -- Use the RANK function to rank the events.
+  -- Also compute the percentage contribution of each event.
+ 
+  (SELECT   snap_id,
+            snap_time,
+            event,
+            snap_time_d,
+            time_spent_d,
+            RANK()
+              OVER (PARTITION BY snap_id
+                    ORDER BY time_spent_d DESC)
+              AS rank,
+            DECODE(time_spent_d,
+                   0, 0,
+                   time_spent_d / SUM(time_spent_d)
+              OVER (PARTITION BY snap_id) * 100)
+              AS percentage
+     FROM   deltas
+    WHERE   time_spent_d IS NOT NULL)
+ 
+------------------------------------------------------------
+ 
+  -- Compute Average Active Sessions for each category.
+  -- List the top 5 events.
+ 
+   SELECT   snap_id,
+            snap_time,
+            rank,
+            substr(event, 1, 30) AS event,
+            ROUND( time_spent_d ) AS time_spent,
+            ROUND( time_spent_d / snap_time_d, 2 ) as aas,
+            ROUND( percentage, 2 ) AS pct_of_dbtime
+     FROM   ranks
+    WHERE   rank <= 5
+ ORDER BY   snap_id,
+            rank;]]>
+         </code>
+      </snippet>
+      <snippet name="ASH: Top SQL for Event" description="">
+         <code>
+            <![CDATA[select EVENT, SQL_ID, sum( TIME_WAITED )
+  from DBA_HIST_ACTIVE_SESS_HISTORY
+ where 1=1
+--   and rownum < 1000
+--   and SNAP_ID between 7575 and 7801
+   and EVENT='resmgr:cpu quantum'
+--   and EVENT='enq: TM - contention'
+ group by EVENT, SQL_ID
+ order by sum( TIME_WAITED ) desc
+;
+]]>
+         </code>
+      </snippet>
+      <snippet name="ASH-Zeitreihe: Top 5 Events" description="">
+         <code>
+            <![CDATA[-- Zeitreihe: Top 5 Events aus ASH
+-- dbid und snap_id ggf. unten anpassen!
+select case wait_rank when 1 then inst_id end "Inst Num",
+ case wait_rank when 1 then snap_id end "Snap Id",
+ case wait_rank when 1 then begin_snap end "Begin Snap",
+ case wait_rank when 1 then end_snap end "End Snap",
+ event_name "Event",
+ total_waits "Waits",
+ time_waited "Time(s)",
+ round((time_waited/total_waits)*1000) "Avg wait(ms)",
+ round((time_waited/db_time)*100, 2) "% DB time",
+ substr(wait_class, 1, 15) "Wait Class"
+from (
+select
+  inst_id,
+  snap_id, to_char(begin_snap, 'DD-MM-YY hh24:mi:ss') begin_snap,
+  to_char(end_snap, 'hh24:mi:ss') end_snap,
+  event_name,
+  wait_class,
+  total_waits,
+  time_waited,
+  dense_rank() over (partition by inst_id, snap_id order by time_waited desc)-1 wait_rank,
+  max(time_waited) over (partition by inst_id, snap_id) db_time
+from (
+select
+  s.instance_number inst_id,
+  s.snap_id,
+  s.begin_interval_time begin_snap,
+  s.end_interval_time end_snap,
+  event_name,
+  wait_class,
+  total_waits-lag(total_waits, 1, total_waits) over
+   (partition by s.startup_time, s.instance_number, stats.event_name order by s.snap_id) total_waits,
+  time_waited-lag(time_waited, 1, time_waited) over
+   (partition by s.startup_time, s.instance_number, stats.event_name order by s.snap_id) time_waited,
+  min(s.snap_id) over (partition by s.startup_time, s.instance_number, stats.event_name) min_snap_id
+from (
+ select dbid, instance_number, snap_id, event_name, wait_class, total_waits_fg total_waits, round(time_waited_micro_fg/1000000, 2) time_waited
+  from dba_hist_system_event
+  where wait_class not in ('Idle', 'System I/O')
+ union all
+ select dbid, instance_number, snap_id, stat_name event_name, null wait_class, null total_waits, round(value/1000000, 2) time_waited
+  from dba_hist_sys_time_model
+  where stat_name in ('DB CPU', 'DB time')
+) stats, dba_hist_snapshot s
+ where stats.instance_number=s.instance_number
+  and stats.snap_id=s.snap_id
+  and stats.dbid=s.dbid
+  --and s.dbid=3870213301 --------------------------------
+  and s.instance_number=1
+  --and stats.snap_id between 190 and 195 ----------------------------
+) where snap_id > min_snap_id and nvl(total_waits,1) > 0
+) where event_name!='DB time' and wait_rank <= 5
+order by inst_id, snap_id;]]>
+         </code>
+      </snippet>
+      <snippet name="Redo Log Snippets" description="">
+         <code>
+            <![CDATA[SELECT ROUND( a.value/b.value * 100, 2) "Redo Retry Ratio"
+  FROM v$sysstat a, v$sysstat b
+ WHERE a.name='redo buffer allocation retries'
+   AND b.name='redo entries';
+
+
+SELECT event, total_waits, average_wait
+  FROM v$system_event
+ WHERE event LIKE 'log file switch%';
+
+
+SELECT b.username, a.seconds_in_wait, a.state
+  FROM v$session_wait a, v$session b
+ WHERE a.sid = b.sid
+   AND a.event = 'log buffer space';
+
+
+SELECT a.seconds_in_wait, a.state
+  FROM v$session_wait a
+ WHERE a.event LIKE 'log%';
+]]>
+         </code>
+      </snippet>
+      <snippet name="Statspack XPLAN" description="Retrieve all historical SQL plans from Statspack">
+         <code>
+            <![CDATA[select lpad(' ',1*(depth-1))||operation||' '||options "Operation"
+     , CASE WHEN id=0 THEN 'PHV: '||to_char(plan_hash_value)
+       WHEN REGEXP_SUBSTR(object_type, '[[:alpha:]\_]+\S') IN ('TABLE', 'VIEW', 'INDEX', 'PROCEDURE', 'FUNCTION', 'MAT_VIEW', 'CLUSTER')
+       THEN
+         'SQLDEV:LINK:'
+         ||object_owner
+         ||':'
+         ||REGEXP_SUBSTR( DECODE( object_type, 'CLUSTER', 'TABLE', object_type ), '[[:alpha:]\_]+\S')
+         ||':'
+         ||REGEXP_SUBSTR(object_name, '[[:alpha:]\_\$]+\S')
+         ||':oracle.dbtools.raptor.controls.grid.DefaultDrillLink'
+       ELSE
+         object_name
+       END AS "Object"
+     , lpad(decode(cardinality,null,' ',
+         decode(sign(cardinality-1000), -1, cardinality||' ',
+         decode(sign(cardinality-1000000), -1, trunc(cardinality/1000)||'K',
+         decode(sign(cardinality-1000000000), -1, trunc(cardinality/1000000)||'M',
+               trunc(cardinality/1000000000)||'G')))), 6, ' ') AS "Rows"
+     , lpad(decode(bytes,null,' ',
+         decode(sign(bytes-1024), -1, bytes||' ',
+         decode(sign(bytes-1048576), -1, trunc(bytes/1024)||'K',
+         decode(sign(bytes-1073741824), -1, trunc(bytes/1048576)||'M',
+               trunc(bytes/1073741824)||'G')))), 6, ' ') AS "Bytes"
+     , COST
+     , IO_COST
+     , lpad(decode(CPU_COST,null,' ',
+         decode(sign(CPU_COST-1000), -1, CPU_COST||' ',
+         decode(sign(CPU_COST-1000000), -1, trunc(CPU_COST/1000)||'K',
+         decode(sign(CPU_COST-1000000000), -1, trunc(CPU_COST/1000000)||'M',
+               trunc(CPU_COST/1000000000)||'G')))), 6, ' ') AS "CPU_COST"
+     , QBLOCK_NAME
+     , OTHER_TAG
+     , PARTITION_START
+     , PARTITION_STOP
+     , ACCESS_PREDICATES
+     , FILTER_PREDICATES
+     , PROJECTION
+  from stats$sql_plan
+ where plan_hash_value in (select plan_hash_value
+                             from stats$sql_plan_usage spu
+                            where spu.sql_id  = :SQL_ID
+                              and spu.plan_hash_value > 0
+                          )
+  order by plan_hash_value, id
+;
+
+
+select *
+from	table(
+ 	dbms_xplan.display(
+ 		'perfstat.stats$sql_plan',
+ 		null,
+ 		'ALL -predicate -note',
+ 		'plan_hash_value=2535548201'
+ 	)
+ )
+;
+]]>
+         </code>
+      </snippet>
+      <snippet name="Child Cursor Count" description="Shows no. of child cursors per plan hash for a given sql_id">
+         <code>
+            <![CDATA[select PLAN_HASH_VALUE, "# child_cur", "Execs"
+     , round( Ela / nullif( "Execs", 0)/1000000, 2) "Ela/Exe"
+  from (
+        select distinct PLAN_HASH_VALUE, count(*) "# child_cur", sum(EXECUTIONS) "Execs", sum(ELAPSED_TIME) Ela
+          from V$SQL
+         where SQL_ID='&sqlid'
+         group by rollup (SQL_ID, PLAN_HASH_VALUE)
+) a
+order by PLAN_HASH_VALUE nulls last
+;]]>
+         </code>
+      </snippet>
+   </group>
+   <group category="Optimizer Hints" language="PLSQL">
+      <snippet name="OPT_PARAM" description="Set optimizer parameters explicitly for this statement">
+         <code>
+            <![CDATA[/*+ OPT_PARAM('_optimizer_push_pred_cost_based','FALSE') */]]>
+         </code>
+      </snippet>
+   </group>
+   <group category="Licensing" language="PLSQL">
+      <snippet name="Option Usage" description="">
+         <code>
+            <![CDATA[SET LINESIZE 180;
+SET PAGESIZE 1000;
+SET FEEDBACK OFF;
+SET COLSEP '|';
+WHENEVER SQLERROR EXIT SQL.SQLCODE;
+
+COL "Host Name" FORMAT A30;
+COL "Option/Management Pack" FORMAT A60;
+COL "Used" FORMAT A5;
+with features as(
+select a OPTIONS, b NAME  from
+(
+select 'Active Data Guard' a,  'Active Data Guard - Real-Time Query on Physical Standby' b from dual
+union all 
+select 'Advanced Compression', 'HeapCompression' from dual
+union all
+select 'Advanced Compression', 'Backup BZIP2 Compression' from dual
+union all 
+select 'Advanced Compression', 'Backup DEFAULT Compression' from dual
+union all 
+select 'Advanced Compression', 'Backup HIGH Compression' from dual
+union all
+select 'Advanced Compression', 'Backup LOW Compression' from dual
+union all
+select 'Advanced Compression', 'Backup MEDIUM Compression' from dual
+union all
+select 'Advanced Compression', 'Backup ZLIB, Compression' from dual
+union all
+select 'Advanced Compression', 'SecureFile Compression (user)' from dual
+union all
+select 'Advanced Compression', 'SecureFile Deduplication (user)' from dual
+union all
+select 'Advanced Compression',        'Data Guard' from dual
+union all
+select 'Advanced Compression', 'Oracle Utility Datapump (Export)' from dual
+union all
+select 'Advanced Compression', 'Oracle Utility Datapump (Import)' from dual
+union all
+select 'Advanced Security',	'ASO native encryption and checksumming' from dual
+union all
+select 'Advanced Security', 'Transparent Data Encryption' from dual
+union all
+select 'Advanced Security', 'Encrypted Tablespaces' from dual
+union all
+select 'Advanced Security', 'Backup Encryption' from dual
+union all
+select 'Advanced Security', 'SecureFile Encryption (user)' from dual
+union all
+select 'Change Management Pack',	'Change Management Pack (GC)' from dual
+union all
+select 'Data Masking Pack',	'Data Masking Pack (GC)' from dual
+union all
+select 'Data Mining',	'Data Mining' from dual
+union all
+select 'Diagnostic Pack',  	'Diagnostic Pack' from dual
+union all
+select 'Diagnostic Pack',  	'ADDM' from dual
+union all
+select 'Diagnostic Pack',  	'AWR Baseline' from dual
+union all
+select 'Diagnostic Pack',  	'AWR Baseline Template' from dual
+union all
+select 'Diagnostic Pack',  	'AWR Report' from dual
+union all
+select 'Diagnostic Pack',  	'Baseline Adaptive Thresholds' from dual
+union all
+select 'Diagnostic Pack',  	'Baseline Static Computations' from dual
+union all
+select 'Tuning  Pack',  	'Tuning Pack' from dual
+union all
+select 'Tuning  Pack',  	'Real-Time SQL Monitoring' from dual
+union all
+select 'Tuning  Pack',  	'SQL Tuning Advisor' from dual
+union all
+select 'Tuning  Pack',  	'SQL Access Advisor' from dual
+union all
+select 'Tuning  Pack',  	'SQL Profile' from dual
+union all
+select 'Tuning  Pack',  	'Automatic SQL Tuning Advisor' from dual
+union all
+select 'Database Vault',  	'Oracle Database Vault' from dual
+union all
+select 'WebLogic Server Management Pack Enterprise Edition',  	'EM AS Provisioning and Patch Automation (GC)' from dual
+union all
+select 'Configuration Management Pack for Oracle Database',  	'EM Config Management Pack (GC)' from dual
+union all
+select 'Provisioning and Patch Automation Pack for Database',  	'EM Database Provisioning and Patch Automation (GC)' from dual
+union all
+select 'Provisioning and Patch Automation Pack',  	'EM Standalone Provisioning and Patch Automation Pack (GC)' from dual
+union all
+select 'Exadata',  	'Exadata' from dual
+union all
+select 'Label Security',  	'Label Security' from dual
+union all
+select 'OLAP',  	'OLAP - Analytic Workspaces' from dual
+union all
+select 'Partitioning',  	'Partitioning (user)' from dual
+union all
+select 'Real Application Clusters',  	'Real Application Clusters (RAC)' from dual
+union all
+select 'Real Application Testing',  	'Database Replay: Workload Capture' from dual
+union all
+select 'Real Application Testing',  	'Database Replay: Workload Replay' from dual
+union all
+select 'Real Application Testing',  	'SQL Performance Analyzer' from dual
+union all
+select 'Spatial'	,'Spatial (Not used because this does not differential usage of spatial over locator, which is free)' from dual
+union all
+select 'Total Recall',	'Flashback Data Archive' from dual
+)
+)
+select t.o "Option/Management Pack", 
+       t.u "Used",
+       d.DBID "DBID",
+       d.name "DB Name",
+       i.version "DB Version",
+       i.host_name "Host Name",
+       to_char(sysdate, 'YYYY-MM-DD HH24:MI:SS') "ReportGen Time"
+from
+(select OPTIONS o, DECODE(sum(num),0,'NO','YES') u
+from
+(
+select f.OPTIONS OPTIONS, case
+                   when f_stat.name is null then 0
+                   when ( ( f_stat.currently_used = 'TRUE' and
+                            f_stat.detected_usages > 0 and
+                            (sysdate - f_stat.last_usage_date) < 366 and
+                            f_stat.total_samples > 0
+                          )
+                          or 
+                          (f_stat.detected_usages > 0 and 
+                          (sysdate - f_stat.last_usage_date) < 366 and
+                          f_stat.total_samples > 0)
+                        ) and 
+                        ( f_stat.name not in('Data Guard', 'Oracle Utility Datapump (Export)', 'Oracle Utility Datapump (Import)')
+                          or
+                          (f_stat.name in('Data Guard', 'Oracle Utility Datapump (Export)', 'Oracle Utility Datapump (Import)') and
+                           f_stat.feature_info is not null and trim(substr(to_char(feature_info), instr(to_char(feature_info), 'compression used: ',1,1) + 18, 2)) != '0')
+                        )
+                        then 1
+                   else 0
+                  end num
+  from features f,
+       sys.dba_feature_usage_statistics f_stat
+where f.name = f_stat.name(+)
+) group by options) t,
+  v$instance i,
+  v$database d
+order by 2 desc,1 
+;
+]]>
+         </code>
+      </snippet>
+      <snippet name="Option Usage Detail" description="">
+         <code>
+            <![CDATA[SET LINESIZE 350;
+SET PAGESIZE 1000;
+SET FEEDBACK OFF;
+SET COLSEP '|';
+
+WHENEVER SQLERROR EXIT SQL.SQLCODE;
+
+COL "Option/Management Pack" FORMAT A60;
+COL "Used" FORMAT A5;
+COL "Feature being Used" FORMAT A50;
+COL "Currently Used" FORMAT A14;
+COL "Last Usage Date" FORMAT A18;
+COL "Last Sample Date" FORMAT A18;
+COL "Host Name" FORMAT A30;
+
+
+with features as(
+select a OPTIONS, b NAME  from
+(
+select 'Active Data Guard' a,  'Active Data Guard - Real-Time Query on Physical Standby' b from dual
+union all 
+select 'Advanced Compression', 'HeapCompression' from dual
+union all
+select 'Advanced Compression', 'Backup BZIP2 Compression' from dual
+union all 
+select 'Advanced Compression', 'Backup DEFAULT Compression' from dual
+union all 
+select 'Advanced Compression', 'Backup HIGH Compression' from dual
+union all
+select 'Advanced Compression', 'Backup LOW Compression' from dual
+union all
+select 'Advanced Compression', 'Backup MEDIUM Compression' from dual
+union all
+select 'Advanced Compression', 'Backup ZLIB, Compression' from dual
+union all 
+select 'Advanced Compression', 'SecureFile Compression (user)' from dual
+union all
+select 'Advanced Compression', 'SecureFile Deduplication (user)' from dual
+union all
+select 'Advanced Compression',        'Data Guard' from dual
+union all
+select 'Advanced Compression', 'Oracle Utility Datapump (Export)' from dual
+union all
+select 'Advanced Compression', 'Oracle Utility Datapump (Import)' from dual
+union all
+select 'Advanced Security',	'ASO native encryption and checksumming' from dual
+union all
+select 'Advanced Security', 'Transparent Data Encryption' from dual
+union all
+select 'Advanced Security', 'Encrypted Tablespaces' from dual
+union all
+select 'Advanced Security', 'Backup Encryption' from dual
+union all
+select 'Advanced Security', 'SecureFile Encryption (user)' from dual
+union all
+select 'Change Management Pack (GC)',	'Change Management Pack (GC)' from dual
+union all
+select 'Data Masking Pack',	'Data Masking Pack (GC)' from dual
+union all
+select 'Data Mining',	'Data Mining' from dual
+union all
+select 'Diagnostic Pack',  	'Diagnostic Pack' from dual
+union all
+select 'Diagnostic Pack',  	'ADDM' from dual
+union all
+select 'Diagnostic Pack',  	'AWR Baseline' from dual
+union all
+select 'Diagnostic Pack',  	'AWR Baseline Template' from dual
+union all
+select 'Diagnostic Pack',  	'AWR Report' from dual
+union all
+select 'Diagnostic Pack',  	'Baseline Adaptive Thresholds' from dual
+union all
+select 'Diagnostic Pack',  	'Baseline Static Computations' from dual
+union all
+select 'Tuning Pack',  	'Tuning Pack' from dual
+union all
+select 'Tuning Pack',  	'Real-Time SQL Monitoring' from dual
+union all
+select 'Tuning Pack',  	'SQL Tuning Advisor' from dual
+union all
+select 'Tuning Pack',  	'SQL Access Advisor' from dual
+union all
+select 'Tuning Pack',  	'SQL Profile' from dual
+union all
+select 'Tuning Pack',  	'Automatic SQL Tuning Advisor' from dual
+union all
+select 'Database Vault',  	'Oracle Database Vault' from dual
+union all
+select 'WebLogic Server Management Pack Enterprise Edition',  	'EM AS Provisioning and Patch Automation (GC)' from dual
+union all
+select 'Configuration Management Pack for Oracle Database',  	'EM Config Management Pack (GC)' from dual
+union all
+select 'Provisioning and Patch Automation Pack for Database',  	'EM Database Provisioning and Patch Automation (GC)' from dual
+union all
+select 'Provisioning and Patch Automation Pack',  	'EM Standalone Provisioning and Patch Automation Pack (GC)' from dual
+union all
+select 'Exadata',  	'Exadata' from dual
+union all
+select 'Label Security',  	'Label Security' from dual
+union all
+select 'OLAP',  	'OLAP - Analytic Workspaces' from dual
+union all
+select 'Partitioning',  	'Partitioning (user)' from dual
+union all
+select 'Real Application Clusters',  	'Real Application Clusters (RAC)' from dual
+union all
+select 'Real Application Testing',  	'Database Replay: Workload Capture' from dual
+union all
+select 'Real Application Testing',  	'Database Replay: Workload Replay' from dual
+union all
+select 'Real Application Testing',  	'SQL Performance Analyzer' from dual
+union all
+select 'Spatial'	,'Spatial (Not used because this does not differential usage of spatial over locator, which is free)' from dual
+union all
+select 'Total Recall',	'Flashback Data Archive' from dual
+)
+)
+select 
+   t.o "Option/Management Pack",
+   t.u "Used",
+   t.n "Feature being Used",
+   t.v "Version",
+   t.cu "Currently Used",
+   t.du "Detected Usage",
+   t.lud "Last Usage Date",
+   t.ts "Total Samples",
+   t.lsd "Last Sample Date",
+   d.DBID "DBID",
+   d.name "DB Name",
+   i.version "Curr DB Version",
+   i.host_name "Host Name",
+   to_char(sysdate, 'YYYY-MM-DD HH24:MI:SS') "ReportGen Time"
+from (
+select f.OPTIONS o,  
+       'YES' u,
+       f_stat.version v,
+       case when f_stat.name in ('Oracle Utility Datapump (Export)', 'Oracle Utility Datapump (Import)') then 'Data Pump Compression'
+            when f_stat.name in ('Data Guard') then 'Data Guard Network Compression'
+            else f_stat.name 
+       end n,
+       f_stat.CURRENTLY_USED cu,
+       (f_stat.DETECTED_USAGES) du,
+       to_char(f_stat.LAST_USAGE_DATE, 'DD-MON-YY HH24:MI:SS') lud,
+       (f_stat.TOTAL_SAMPLES) ts,
+       to_char(f_stat.LAST_SAMPLE_DATE, 'DD-MON-YY HH24:MI:SS') lsd
+from features f,
+     sys.dba_feature_usage_statistics f_stat
+where f.name = f_stat.name and
+      ( (f_stat.currently_used = 'TRUE' and
+         f_stat.detected_usages > 0 and
+         (sysdate - f_stat.last_usage_date) < 366 and
+         f_stat.total_samples > 0
+        )
+        or 
+        (f_stat.detected_usages > 0 and
+        (sysdate - f_stat.last_usage_date) < 366 and 
+        f_stat.total_samples > 0)
+      ) and
+      ( f_stat.name not in('Data Guard', 'Oracle Utility Datapump (Export)', 'Oracle Utility Datapump (Import)')
+        or
+        (f_stat.name in('Data Guard', 'Oracle Utility Datapump (Export)', 'Oracle Utility Datapump (Import)') and
+         f_stat.feature_info is not null and trim(substr(to_char(feature_info), instr(to_char(feature_info), 'compression used: ',1,1) + 18, 2)) != '0')
+      )
+) t,
+v$instance i,
+v$database d  
+order by t.o,t.n,t.v
+;
+]]>
+         </code>
+      </snippet>
+   </group>
+   <group category="Troubleshooting" language="PLSQL">
+      <snippet name="Locking Information - Advanced" description="Fully DECODED information regarding the locks currently held in the database">
+         <code>
+            <![CDATA[SET ECHO off 
+REM ------------------------------------------------------------------------ 
+REM REQUIREMENTS: 
+REM    SELECT on V_$LOCK, V_$SESSION, SYS.USER$, SYS.OBJ$ 
+REM ------------------------------------------------------------------------ 
+REM PURPOSE: 
+REM    The following locking information script provides fully DECODED 
+REM    information regarding the locks currently held in the database. 
+REM    The report generated is fairly complex and difficult to read, 
+REM    but has considerable detail. 
+REM 
+REM    The TFTS series contains scripts to provide (less detailed) lock  
+REM    information in a formats which are somewhat less difficult to read: 
+REM    TFSMLOCK.SQL and TFSLLOCK.SQL. 
+REM ------------------------------------------------------------------------ 
+REM EXAMPLE: 
+REM    Too complex to show a representative sample here 
+REM  
+REM ------------------------------------------------------------------------ 
+REM DISCLAIMER: 
+REM    This script is provided for educational purposes only. It is NOT  
+REM    supported by Oracle World Wide Technical Support. 
+REM    The script has been tested and appears to work as intended. 
+REM    You should always run new scripts on a test instance initially. 
+REM ------------------------------------------------------------------------ 
+REM 
+
+set lines 200 
+set pagesize 66 
+break on Kill on sid on  username on terminal 
+column Kill heading 'Kill String' format a13 
+column res heading 'Resource Type' format 999 
+column id1 format 9999990 
+column id2 format 9999990 
+column locking heading 'Lock Held/Lock Requested' format a40 
+column lmode heading 'Lock Held' format a20 
+column request heading 'Lock Requested' format a20 
+column serial# format 99999 
+column username  format a10  heading "Username" 
+column terminal heading Term format a6 
+column tab format a30 heading "Table Name" 
+column owner format a9 
+column LAddr heading "ID1 - ID2" format a18 
+column Lockt heading "Lock Type" format a40 
+column command format a25 
+column sid format 990 
+
+select 
+nvl(S.USERNAME,'Internal') username,s.SERIAL#, 
+        L.SID, 
+        nvl(S.TERMINAL,'None') terminal, 
+        decode(command, 
+0,'None',decode(l.id2,0,U1.NAME||'.'||substr(T1.NAME,1,20),'None')) tab, 
+decode(command, 
+0,'BACKGROUND', 
+1,'Create Table', 
+2,'INSERT', 
+3,'SELECT', 
+4,'CREATE CLUSTER', 
+5,'ALTER CLUSTER', 
+6,'UPDATE', 
+7,'DELETE', 
+8,'DROP', 
+9,'CREATE INDEX', 
+10,'DROP INDEX', 
+11,'ALTER INDEX', 
+12,'DROP TABLE', 
+13,'CREATE SEQUENCE', 
+14,'ALTER SEQUENCE', 
+15,'ALTER TABLE', 
+16,'DROP SEQUENCE', 
+17,'GRANT', 
+18,'REVOKE', 
+19,'CREATE SYNONYM', 
+20,'DROP SYNONYM', 
+21,'CREATE VIEW', 
+22,'DROP VIEW', 
+23,'VALIDATE INDEX', 
+24,'CREATE PROCEDURE', 
+25,'ALTER PROCEDURE', 
+26,'LOCK TABLE', 
+27,'NO OPERATION', 
+28,'RENAME', 
+29,'COMMENT', 
+30,'AUDIT', 
+31,'NOAUDIT', 
+32,'CREATE EXTERNAL DATABASE', 
+33,'DROP EXTERNAL DATABASE', 
+34,'CREATE DATABASE', 
+35,'ALTER DATABASE', 
+36,'CREATE ROLLBACK SEGMENT', 
+37,'ALTER ROLLBACK SEGMENT', 
+38,'DROP ROLLBACK SEGMENT', 
+39,'CREATE TABLESPACE', 
+40,'ALTER TABLESPACE', 
+41,'DROP TABLESPACE', 
+42,'ALTER SESSION', 
+43,'ALTER USER', 
+44,'COMMIT', 
+45,'ROLLBACK', 
+46,'SAVEPOINT', 
+47,'PL/SQL EXECUTE', 
+48,'SET TRANSACTION', 
+49,'ALTER SYSTEM SWITCH LOG', 
+50,'EXPLAIN', 
+51,'CREATE USER', 
+52,'CREATE ROLE', 
+53,'DROP USER', 
+54,'DROP ROLE', 
+55,'SET ROLE', 
+56,'CREATE SCHEMA', 
+57,'CREATE CONTROL FILE', 
+58,'ALTER TRACING', 
+59,'CREATE TRIGGER', 
+60,'ALTER TRIGGER', 
+61,'DROP TRIGGER', 
+62,'ANALYZE TABLE', 
+63,'ANALYZE INDEX', 
+64,'ANALYZE CLUSTER', 
+65,'CREATE PROFILE', 
+66,'DROP PROFILE', 
+67,'ALTER PROFILE', 
+68,'DROP PROCEDURE', 
+69,'DROP PROCEDURE',
+70,'ALTER RESOURCE COST', 
+71,'CREATE SNAPSHOT LOG', 
+72,'ALTER SNAPSHOT LOG', 
+73,'DROP SNAPSHOT LOG', 
+74,'CREATE SNAPSHOT', 
+75,'ALTER SNAPSHOT', 
+76,'DROP SNAPSHOT', 
+79,'ALTER ROLE',
+85,'TRUNCATE TABLE', 
+86,'TRUNCATE CLUSTER', 
+87,'-', 
+88,'ALTER VIEW', 
+89,'-', 
+90,'-', 
+91,'CREATE FUNCTION', 
+92,'ALTER FUNCTION', 
+93,'DROP FUNCTION', 
+94,'CREATE PACKAGE', 
+95,'ALTER PACKAGE', 
+96,'DROP PACKAGE', 
+97,'CREATE PACKAGE BODY', 
+98,'ALTER PACKAGE BODY', 
+99,'DROP PACKAGE BODY', 
+command||' - ???') COMMAND, 
+        decode(L.LMODE,1,'No Lock', 
+                2,'Row Share', 
+                3,'Row Exclusive', 
+                4,'Share', 
+                5,'Share Row Exclusive', 
+                6,'Exclusive','NONE') lmode, 
+        decode(L.REQUEST,1,'No Lock', 
+                2,'Row Share', 
+                3,'Row Exclusive', 
+                4,'Share', 
+                5,'Share Row Exclusive', 
+                6,'Exclusive','NONE') request, 
+l.id1||'-'||l.id2 Laddr, 
+l.type||' - '|| 
+decode(l.type, 
+'BL','Buffer hash table instance lock', 
+'CF',' Control file schema global enqueue lock', 
+'CI','Cross-instance function invocation instance lock',
+'CS','Control file schema global enqueue lock', 
+'CU','Cursor bind lock',
+'DF','Data file instance lock', 
+'DL','Direct loader parallel index create',
+'DM','Mount/startup db primary/secondary instance lock', 
+'DR','Distributed recovery process lock', 
+'DX','Distributed transaction entry lock', 
+'FI','SGA open-file information lock', 
+'FS','File set lock', 
+'HW','Space management operations on a specific segment lock',
+'IN','Instance number lock',
+'IR','Instance recovery serialization global enqueue lock', 
+'IS','Instance state lock',
+'IV','Library cache invalidation instance lock', 
+'JQ','Job queue lock',
+'KK','Thread kick lock',
+'MB','Master buffer hash table instance lock', 
+'MM','Mount definition gloabal enqueue lock', 
+'MR','Media recovery lock', 
+'PF','Password file lock',
+'PI','Parallel operation lock',
+'PR','Process startup lock',
+'PS','Parallel operation lock',
+'RE','USE_ROW_ENQUEUE enforcement lock', 
+'RT','Redo thread global enqueue lock', 
+'RW','Row wait enqueue lock', 
+'SC','System commit number instance lock', 
+'SH','System commit number high water mark enqueue lock', 
+'SM','SMON lock',
+'SN','Sequence number instance lock', 
+'SQ','Sequence number enqueue lock', 
+'SS','Sort segment lock',
+'ST','Space transaction enqueue lock', 
+'SV','Sequence number value lock', 
+'TA','Generic enqueue lock', 
+'TD','DDL enqueue lock', 
+'TE','Extend-segment enqueue lock', 
+'TM','DML enqueue lock', 
+'TO','Temporary Table Object Enqueue', 
+'TT','Temporary table enqueue lock', 
+'TX','Transaction enqueue lock', 
+'UL','User supplied lock', 
+'UN','User name lock', 
+'US','Undo segment DDL lock',
+'WL','Being-written redo log instance lock', 
+'WS','Write-atomic-log-switch global enqueue lock', 
+'TS',decode(l.id2,0,'Temporary segment enqueue lock (ID2=0)', 
+                    'New block allocation enqueue lock (ID2=1)'), 
+'LA','Library cache lock instance lock (A=namespace)', 
+'LB','Library cache lock instance lock (B=namespace)', 
+'LC','Library cache lock instance lock (C=namespace)', 
+'LD','Library cache lock instance lock (D=namespace)', 
+'LE','Library cache lock instance lock (E=namespace)', 
+'LF','Library cache lock instance lock (F=namespace)', 
+'LG','Library cache lock instance lock (G=namespace)', 
+'LH','Library cache lock instance lock (H=namespace)', 
+'LI','Library cache lock instance lock (I=namespace)', 
+'LJ','Library cache lock instance lock (J=namespace)', 
+'LK','Library cache lock instance lock (K=namespace)', 
+'LL','Library cache lock instance lock (L=namespace)', 
+'LM','Library cache lock instance lock (M=namespace)', 
+'LN','Library cache lock instance lock (N=namespace)', 
+'LO','Library cache lock instance lock (O=namespace)', 
+'LP','Library cache lock instance lock (P=namespace)', 
+'LS','Log start/log switch enqueue lock', 
+'PA','Library cache pin instance lock (A=namespace)', 
+'PB','Library cache pin instance lock (B=namespace)', 
+'PC','Library cache pin instance lock (C=namespace)', 
+'PD','Library cache pin instance lock (D=namespace)', 
+'PE','Library cache pin instance lock (E=namespace)', 
+'PF','Library cache pin instance lock (F=namespace)', 
+'PG','Library cache pin instance lock (G=namespace)', 
+'PH','Library cache pin instance lock (H=namespace)', 
+'PI','Library cache pin instance lock (I=namespace)', 
+'PJ','Library cache pin instance lock (J=namespace)', 
+'PL','Library cache pin instance lock (K=namespace)', 
+'PK','Library cache pin instance lock (L=namespace)', 
+'PM','Library cache pin instance lock (M=namespace)', 
+'PN','Library cache pin instance lock (N=namespace)', 
+'PO','Library cache pin instance lock (O=namespace)', 
+'PP','Library cache pin instance lock (P=namespace)', 
+'PQ','Library cache pin instance lock (Q=namespace)', 
+'PR','Library cache pin instance lock (R=namespace)', 
+'PS','Library cache pin instance lock (S=namespace)', 
+'PT','Library cache pin instance lock (T=namespace)', 
+'PU','Library cache pin instance lock (U=namespace)', 
+'PV','Library cache pin instance lock (V=namespace)', 
+'PW','Library cache pin instance lock (W=namespace)', 
+'PX','Library cache pin instance lock (X=namespace)', 
+'PY','Library cache pin instance lock (Y=namespace)', 
+'PZ','Library cache pin instance lock (Z=namespace)', 
+'QA','Row cache instance lock (A=cache)', 
+'QB','Row cache instance lock (B=cache)', 
+'QC','Row cache instance lock (C=cache)', 
+'QD','Row cache instance lock (D=cache)', 
+'QE','Row cache instance lock (E=cache)', 
+'QF','Row cache instance lock (F=cache)', 
+'QG','Row cache instance lock (G=cache)', 
+'QH','Row cache instance lock (H=cache)', 
+'QI','Row cache instance lock (I=cache)', 
+'QJ','Row cache instance lock (J=cache)', 
+'QL','Row cache instance lock (K=cache)', 
+'QK','Row cache instance lock (L=cache)', 
+'QM','Row cache instance lock (M=cache)', 
+'QN','Row cache instance lock (N=cache)', 
+'QO','Row cache instance lock (O=cache)', 
+'QP','Row cache instance lock (P=cache)', 
+'QQ','Row cache instance lock (Q=cache)', 
+'QR','Row cache instance lock (R=cache)', 
+'QS','Row cache instance lock (S=cache)', 
+'QT','Row cache instance lock (T=cache)', 
+'QU','Row cache instance lock (U=cache)', 
+'QV','Row cache instance lock (V=cache)', 
+'QW','Row cache instance lock (W=cache)', 
+'QX','Row cache instance lock (X=cache)', 
+'QY','Row cache instance lock (Y=cache)', 
+'QZ','Row cache instance lock (Z=cache)','????') Lockt 
+from    V$LOCK L,  
+        V$SESSION S, 
+        SYS.USER$ U1, 
+        SYS.OBJ$ T1 
+where   L.SID = S.SID  
+and     T1.OBJ#  = decode(L.ID2,0,L.ID1,1)  
+and     U1.USER# = T1.OWNER# 
+and     S.TYPE != 'BACKGROUND' 
+order by 1,2,5 
+/
+]]>
+         </code>
+      </snippet>
+      <snippet name="Locking Information - Simple" description="">
+         <code>
+            <![CDATA[set linesize 80  
+set pagesize 66  
+column lmode heading 'Lock|Held' format a4  
+column request heading 'Lock|Req.' format a4  
+column username  format a10  heading 'Username'  
+column tab format a30 heading 'Table Name'  
+column LAddr heading 'ID1 - ID2' format a16  
+column Lockt heading 'Lock|Type' format a4  
+select nvl(S.USERNAME,'Internal') username,  
+      decode(command,  
+0,'None',decode(l.id2,0,U1.NAME||'.'||substr(T1.NAME,1,20),  
+'Rollback Segment')) tab,  
+      decode(L.LMODE,1,'NoLk', 2,' RS ', 3,' RX ',  
+                4,'  S ', 5,' SRX', 6,'  X ','NONE') lmode,  
+      decode(L.REQUEST,1,'NoLk', 2,' RSh ', 3,' RX ',  
+        4,'  S ', 5,' SRX', 6,'  X ','NONE') request,  
+l.id1||'-'||l.id2 Laddr, l.type Lockt  
+from    V$LOCK L, V$SESSION S, SYS.USER$ U1, SYS.OBJ$ T1  
+where   L.SID = S.SID and       T1.OBJ#  = decode(L.ID2,0,L.ID1,1)   
+and     U1.USER# = T1.OWNER# and        S.TYPE != 'BACKGROUND'  
+order by 1,2,5  
+/
+]]>
+         </code>
+      </snippet>
+      <snippet name="SGA Resize Ops" description="">
+         <code>
+            <![CDATA[set pages 50000
+col component for a30
+
+select component,oper_type,count(1) 
+  FROM V$SGA_RESIZE_OPS 
+ group by component, oper_type
+ order by component, oper_type;
+]]>
+         </code>
+      </snippet>
+      <snippet name="utllockt" description="Baumdarstellung von Blocking Locks ähnlich utllockt.sql, jedoch RAC-aware und mit Details">
+         <code>
+            <![CDATA[/* Abhängigkeitsbaum ähnlich utllockt.sql, jedoch
+ * RAC-aware und mit Details
+ */
+col sid for a10
+col inst_id for a2
+col username for a10
+col osuser for a10
+col module for a10
+col action for a10
+col kill_session_stmt for a55
+set lines 200 pages 50000 trimspool on
+
+with BLOCKERS as(
+  SELECT inst_id waiting_instance
+       , sid waiting_session
+       , blocking_instance
+       , blocking_session
+    FROM gv$session
+   WHERE blocking_instance IS NOT NULL AND blocking_session IS NOT NULL
+)
+, LOCK_TREE as(
+  select * from BLOCKERS 
+  union all
+  select blocking_instance, blocking_session, null, null
+    from BLOCKERS
+  minus
+  select waiting_instance, waiting_session, null, null
+    from BLOCKERS
+)
+select lpad(' ', 2*(level-1)) || l.waiting_session sid
+     , l.waiting_instance inst_id
+     , s.status
+     , ( SELECT SUBSTR( MAX(q.sql_text), 1, 30 ) FROM gv$sql q WHERE q.sql_id = COALESCE( S.SQL_ID, S.PREV_SQL_ID ) ) sql_text
+     , COALESCE( S.SQL_ID, S.PREV_SQL_ID ) sql_id
+     , s.OSUSER
+     , s.USERNAME
+     , SUBSTR(s.PROGRAM,1,20) program
+     , SUBSTR(s.module,1,20) module
+     , s.action
+     , 'alter system kill session ' || '''' || s.SID || ', ' || s.serial# || ', @' || s.inst_id ||'''' || ' immediate;' kill_session_stmt
+  from LOCK_TREE l
+     , gv$session s
+ where s.sid = l.waiting_session
+   and s.inst_id = l.waiting_instance
+connect by prior l.waiting_session = l.blocking_session
+        and prior l.waiting_instance = l.blocking_instance
+  start with l.blocking_session is null;
+]]>
+         </code>
+      </snippet>
+   </group>
+</snippets>
