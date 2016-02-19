@@ -44,7 +44,7 @@
 			<table font="Times New Roman" size="10" style="NORMAL" color="-16777216" userowshading="false" oddrowshading="-1" evenrowshading="-1" showborders="true" spacingbefore="12" spacingafter="12" horizontalalign="LEFT" />
 			<header enable="false" generatedate="false">
 				<data>
-				null																																																																																																																																																																																																																																																																																																																																																																																																																																																																								</data>
+				null																																																																																																																																																																																																																																																																																																																																																																																																																																																																												</data>
 			</header>
 			<footer enable="false" generatedate="false">
 				<data value="null" />
@@ -93,7 +93,7 @@
 				<table font="Times New Roman" size="10" style="NORMAL" color="-16777216" userowshading="false" oddrowshading="-1" evenrowshading="-1" showborders="true" spacingbefore="12" spacingafter="12" horizontalalign="LEFT" />
 				<header enable="false" generatedate="false">
 					<data>
-					null																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																															</data>
+					null																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																				</data>
 				</header>
 				<footer enable="false" generatedate="false">
 					<data value="null" />
@@ -129,20 +129,6 @@
 --   AND s.username IS NOT NULL
  GROUP BY s.username, se.event
  ORDER BY MAX( DECODE( se.wait_class, 'Idle', 1, 0 )), total_time_waited DESC]]></sql>
-			<binds>
-				<bind id="SID">
-					<prompt><![CDATA[SID]]></prompt>
-					<tooltip><![CDATA[SID]]></tooltip>
-					<value><![CDATA[NULL_VALUE]]></value>
-					<bracket><![CDATA[null]]></bracket>
-				</bind>
-				<bind id="SERIAL#">
-					<prompt><![CDATA[SERIAL#]]></prompt>
-					<tooltip><![CDATA[SERIAL#]]></tooltip>
-					<value><![CDATA[NULL_VALUE]]></value>
-					<bracket><![CDATA[null]]></bracket>
-				</bind>
-			</binds>
 		</query>
 			<pdf version="VERSION_1_7" compression="CONTENT">
 				<docproperty title="" author="" subject="" keywords="" />
@@ -155,7 +141,7 @@
 				<table font="Times New Roman" size="10" style="NORMAL" color="-16777216" userowshading="false" oddrowshading="-1" evenrowshading="-1" showborders="true" spacingbefore="12" spacingafter="12" horizontalalign="LEFT" />
 				<header enable="false" generatedate="false">
 					<data>
-					null																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																															</data>
+					null																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																				</data>
 				</header>
 				<footer enable="false" generatedate="false">
 					<data value="null" />
@@ -175,7 +161,15 @@
 			<TYPE>horizontal</TYPE>
 		</CustomValues>
 		<query>
-			<sql><![CDATA[SELECT * FROM TABLE( dbms_xplan.display_cursor( NVL( :SQL_ID, 'NULL!' ), NULL, 'ALLSTATS ALL' ))]]></sql>
+			<sql><![CDATA[-- Displays SQL plans from all cluster nodes when on RAC.
+-- Captured while still in memory. Metrics below are for ALL executions of each child cursor.
+-- If STATISTICS_LEVEL was set to ALL at the time of the hard-parse then A-Rows column is populated.
+SELECT RPAD('Inst: '||v.inst_id, 9)||' '||RPAD('Child: '||v.child_number, 11) inst_child, t.plan_table_output
+  FROM gv$sql v
+     , TABLE( DBMS_XPLAN.DISPLAY('gv$sql_plan_statistics_all', NULL, 'ADVANCED ALLSTATS ALL'
+            , 'inst_id = '||v.inst_id||' AND sql_id = '''||v.sql_id||''' AND child_number = '||v.child_number)) t
+ WHERE v.sql_id = NVL( :SQL_ID, 'NULL!' )
+   AND v.loaded_versions > 0]]></sql>
 			<binds>
 				<bind id="SQL_ID">
 					<prompt><![CDATA[SQL_ID]]></prompt>
@@ -196,7 +190,7 @@
 				<table font="Times New Roman" size="10" style="NORMAL" color="-16777216" userowshading="false" oddrowshading="-1" evenrowshading="-1" showborders="true" spacingbefore="12" spacingafter="12" horizontalalign="LEFT" />
 				<header enable="false" generatedate="false">
 					<data>
-					null																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																												</data>
+					null																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																	</data>
 				</header>
 				<footer enable="false" generatedate="false">
 					<data value="null" />
@@ -220,32 +214,6 @@
           , SESSION_ID => :SID, SESSION_SERIAL => :SERIAL#, SQL_EXEC_ID => :SQL_EXEC_ID )
        END AS report
   FROM dual]]></sql>
-			<binds>
-				<bind id="SQL_ID">
-					<prompt><![CDATA[SQL_ID]]></prompt>
-					<tooltip><![CDATA[SQL_ID]]></tooltip>
-					<value><![CDATA[NULL_VALUE]]></value>
-					<bracket><![CDATA[null]]></bracket>
-				</bind>
-				<bind id="SID">
-					<prompt><![CDATA[SID]]></prompt>
-					<tooltip><![CDATA[SID]]></tooltip>
-					<value><![CDATA[NULL_VALUE]]></value>
-					<bracket><![CDATA[null]]></bracket>
-				</bind>
-				<bind id="SERIAL#">
-					<prompt><![CDATA[SERIAL#]]></prompt>
-					<tooltip><![CDATA[SERIAL#]]></tooltip>
-					<value><![CDATA[NULL_VALUE]]></value>
-					<bracket><![CDATA[null]]></bracket>
-				</bind>
-				<bind id="SQL_EXEC_ID">
-					<prompt><![CDATA[SQL_EXEC_ID]]></prompt>
-					<tooltip><![CDATA[SQL_EXEC_ID]]></tooltip>
-					<value><![CDATA[NULL_VALUE]]></value>
-					<bracket><![CDATA[null]]></bracket>
-				</bind>
-			</binds>
 		</query>
 			<pdf version="VERSION_1_7" compression="CONTENT">
 				<docproperty title="" author="" subject="" keywords="" />
@@ -258,7 +226,7 @@
 				<table font="Times New Roman" size="10" style="NORMAL" color="-16777216" userowshading="false" oddrowshading="-1" evenrowshading="-1" showborders="true" spacingbefore="12" spacingafter="12" horizontalalign="LEFT" />
 				<header enable="false" generatedate="false">
 					<data>
-					null																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																								</data>
+					null																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																													</data>
 				</header>
 				<footer enable="false" generatedate="false">
 					<data value="null" />
@@ -293,32 +261,6 @@ BEGIN
   END LOOP;
   --dbms_output.put_line('');
 END;]]></sql>
-			<binds>
-				<bind id="SQL_ID">
-					<prompt><![CDATA[SQL_ID]]></prompt>
-					<tooltip><![CDATA[SQL_ID]]></tooltip>
-					<value><![CDATA[NULL_VALUE]]></value>
-					<bracket><![CDATA[null]]></bracket>
-				</bind>
-				<bind id="SID">
-					<prompt><![CDATA[SID]]></prompt>
-					<tooltip><![CDATA[SID]]></tooltip>
-					<value><![CDATA[NULL_VALUE]]></value>
-					<bracket><![CDATA[null]]></bracket>
-				</bind>
-				<bind id="SERIAL#">
-					<prompt><![CDATA[SERIAL#]]></prompt>
-					<tooltip><![CDATA[SERIAL#]]></tooltip>
-					<value><![CDATA[NULL_VALUE]]></value>
-					<bracket><![CDATA[null]]></bracket>
-				</bind>
-				<bind id="SQL_EXEC_ID">
-					<prompt><![CDATA[SQL_EXEC_ID]]></prompt>
-					<tooltip><![CDATA[SQL_EXEC_ID]]></tooltip>
-					<value><![CDATA[NULL_VALUE]]></value>
-					<bracket><![CDATA[null]]></bracket>
-				</bind>
-			</binds>
 		</query>
 			<pdf version="VERSION_1_7" compression="CONTENT">
 				<docproperty title="" author="" subject="" keywords="" />
@@ -331,7 +273,7 @@ END;]]></sql>
 				<table font="Times New Roman" size="10" style="NORMAL" color="-16777216" userowshading="false" oddrowshading="-1" evenrowshading="-1" showborders="true" spacingbefore="12" spacingafter="12" horizontalalign="LEFT" />
 				<header enable="false" generatedate="false">
 					<data>
-					null																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																													</data>
+					null																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																		</data>
 				</header>
 				<footer enable="false" generatedate="false">
 					<data value="null" />
@@ -356,32 +298,6 @@ END;]]></sql>
           , SESSION_ID => :SID, SESSION_SERIAL => :SERIAL#, SQL_EXEC_ID => :SQL_EXEC_ID )
        END AS report
   FROM dual]]></sql>
-			<binds>
-				<bind id="SQL_ID">
-					<prompt><![CDATA[SQL_ID]]></prompt>
-					<tooltip><![CDATA[SQL_ID]]></tooltip>
-					<value><![CDATA[NULL_VALUE]]></value>
-					<bracket><![CDATA[null]]></bracket>
-				</bind>
-				<bind id="SID">
-					<prompt><![CDATA[SID]]></prompt>
-					<tooltip><![CDATA[SID]]></tooltip>
-					<value><![CDATA[NULL_VALUE]]></value>
-					<bracket><![CDATA[null]]></bracket>
-				</bind>
-				<bind id="SERIAL#">
-					<prompt><![CDATA[SERIAL#]]></prompt>
-					<tooltip><![CDATA[SERIAL#]]></tooltip>
-					<value><![CDATA[NULL_VALUE]]></value>
-					<bracket><![CDATA[null]]></bracket>
-				</bind>
-				<bind id="SQL_EXEC_ID">
-					<prompt><![CDATA[SQL_EXEC_ID]]></prompt>
-					<tooltip><![CDATA[SQL_EXEC_ID]]></tooltip>
-					<value><![CDATA[NULL_VALUE]]></value>
-					<bracket><![CDATA[null]]></bracket>
-				</bind>
-			</binds>
 		</query>
 			<pdf version="VERSION_1_7" compression="CONTENT">
 				<docproperty title="" author="" subject="" keywords="" />
@@ -394,7 +310,7 @@ END;]]></sql>
 				<table font="Times New Roman" size="10" style="NORMAL" color="-16777216" userowshading="false" oddrowshading="-1" evenrowshading="-1" showborders="true" spacingbefore="12" spacingafter="12" horizontalalign="LEFT" />
 				<header enable="false" generatedate="false">
 					<data>
-					null																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																										</data>
+					null																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																															</data>
 				</header>
 				<footer enable="false" generatedate="false">
 					<data value="null" />
