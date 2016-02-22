@@ -6,7 +6,10 @@
 	<tooltip><![CDATA[]]></tooltip>
 	<drillclass><![CDATA[null]]></drillclass>
 	<CustomValues>
+		<Y1AXIS_TITLE_TEXT>Average Active Sessions</Y1AXIS_TITLE_TEXT>
 		<PLOT_HGRID_WIDTH>THINNEST</PLOT_HGRID_WIDTH>
+		<TITLE_FONT.COLOR>-13231103</TITLE_FONT.COLOR>
+		<TITLE_FONT.SIZE>14</TITLE_FONT.SIZE>
 		<Y1AXIS_SCALE_INCREMENT>10.0</Y1AXIS_SCALE_INCREMENT>
 		<Y2AXIS_SCALE_MAXIMUM>80.0</Y2AXIS_SCALE_MAXIMUM>
 		<Y1AXIS_LINE_WIDTH>THINNEST</Y1AXIS_LINE_WIDTH>
@@ -15,6 +18,7 @@
 		<LEGEND_ALIGNMENT>LEFT</LEGEND_ALIGNMENT>
 		<GRADIENT>false</GRADIENT>
 		<XAXIS_LINE_WIDTH>THINNEST</XAXIS_LINE_WIDTH>
+		<TITLE_FONT.POSTURE>false</TITLE_FONT.POSTURE>
 		<Y1AXIS_SCALE_MAXIMUM>60.0</Y1AXIS_SCALE_MAXIMUM>
 		<XAXIS_TITLE_ALIGNMENT>CENTER</XAXIS_TITLE_ALIGNMENT>
 		<XAXIS_TICK_LABEL_ROTATE>HORIZONTAL</XAXIS_TICK_LABEL_ROTATE>
@@ -26,12 +30,18 @@
 		<XAXIS_TICK_LABEL_SKIP_MODE>AUTOMATIC</XAXIS_TICK_LABEL_SKIP_MODE>
 		<Y2AXIS_LOGARITHMIC_BASE>BASE_10</Y2AXIS_LOGARITHMIC_BASE>
 		<STYLE>Earth</STYLE>
-		<TITLE_ALIGNMENT>LEFT</TITLE_ALIGNMENT>
+		<TITLE_ALIGNMENT>CENTER</TITLE_ALIGNMENT>
+		<TITLE_FONT.WEIGHT>true</TITLE_FONT.WEIGHT>
+		<TITLE_TEXT>Average Active Sessions by Instance</TITLE_TEXT>
 		<Y2AXIS_TICK_LABEL_ROTATE>HORIZONTAL</Y2AXIS_TICK_LABEL_ROTATE>
 		<Y2AXIS_SCALE_MINIMUM>10.0</Y2AXIS_SCALE_MINIMUM>
 		<THREED>false</THREED>
 		<Y2AXIS_LINE_WIDTH>THINNEST</Y2AXIS_LINE_WIDTH>
+		<TITLE_FONT.UNDERLINE>false</TITLE_FONT.UNDERLINE>
 		<Y1AXIS_TICK_LABEL_ROTATE>HORIZONTAL</Y1AXIS_TICK_LABEL_ROTATE>
+		<TITLE_FONT.NAME>SansSerif</TITLE_FONT.NAME>
+		<TITLE>true</TITLE>
+		<Y1AXIS_TITLE>true</Y1AXIS_TITLE>
 		<Y2AXIS_SCALE_INCREMENT>20.0</Y2AXIS_SCALE_INCREMENT>
 		<PLOT_VGRID_WIDTH>THINNEST</PLOT_VGRID_WIDTH>
 		<Y2AXIS_TITLE_ALIGNMENT>CENTER</Y2AXIS_TITLE_ALIGNMENT>
@@ -44,11 +54,11 @@ select to_char( h.END_TIME, 'yyyy-mm-dd hh24:mi' ) TIME
      , ROUND( h.VALUE / 100, 2 ) AAS
   from gv$sysmetric_history h
      , GV$INSTANCE i
- where METRIC_ID = 2123
+ where METRIC_ID = 2123  -- "DB Time [csec/s]"
    and h.INST_ID = i.INST_ID
  order by TIME desc, i.INST_ID
 )
- where rownum < 201
+ where rownum < 1001
  order by TIME, INSTANCE_NAME]]></sql>
 	</query>
 		<pdf version="VERSION_1_7" compression="CONTENT">
@@ -62,7 +72,7 @@ select to_char( h.END_TIME, 'yyyy-mm-dd hh24:mi' ) TIME
 			<table font="null" size="10" style="NORMAL" color="-16777216" userowshading="false" oddrowshading="-1" evenrowshading="-1" showborders="true" spacingbefore="12" spacingafter="12" horizontalalign="LEFT" />
 			<header enable="false" generatedate="false">
 				<data>
-				null				</data>
+				null												</data>
 			</header>
 			<footer enable="false" generatedate="false">
 				<data value="null" />
@@ -82,6 +92,7 @@ select to_char( h.END_TIME, 'yyyy-mm-dd hh24:mi' ) TIME
 			<PLOT_HGRID_WIDTH>THINNEST</PLOT_HGRID_WIDTH>
 			<TITLE_FONT.COLOR>-12565927</TITLE_FONT.COLOR>
 			<TITLE_FONT.SIZE>14</TITLE_FONT.SIZE>
+			<PLOT_DATATIPS_CUMULATIVE_VALUE>true</PLOT_DATATIPS_CUMULATIVE_VALUE>
 			<Y1AXIS_SCALE_INCREMENT>30.0</Y1AXIS_SCALE_INCREMENT>
 			<Y2AXIS_SCALE_MAXIMUM>80.0</Y2AXIS_SCALE_MAXIMUM>
 			<NUMBER_FORMATS.TYPE>NUMBER</NUMBER_FORMATS.TYPE>
@@ -125,18 +136,26 @@ select to_char( h.END_TIME, 'yyyy-mm-dd hh24:mi' ) TIME
 		</CustomValues>
 		<query>
 			<sql><![CDATA[select * from (
-with wc as(
+with WC as(
 select distinct e.WAIT_CLASS, e.WAIT_CLASS_ID
   from v$event_name e
 )
-select to_char( END_TIME, 'yyyy-mm-dd hh24:mi' ) time, wc.WAIT_CLASS, AVERAGE_WAITER_COUNT
+select to_char( END_TIME, 'yyyy-mm-dd hh24:mi' ) time
+     , wc.WAIT_CLASS
+     , round( AVERAGE_WAITER_COUNT, 2 ) AVERAGE_WAITER_COUNT
      --, INST_ID
   from GV$WAITCLASSMETRIC_HISTORY h
      , WC
  where h.WAIT_CLASS_ID = wc.WAIT_CLASS_ID
    and wc.WAIT_CLASS <> 'Idle'
-   and h.INST_ID = ( select INST_ID from GV$INSTANCE where INSTANCE_NAME = :INSTANCE_NAME )
- order by h.END_TIME desc, wc.WAIT_CLASS
+   and h.INST_ID = ( select i.INST_ID from GV$INSTANCE i where i.INSTANCE_NAME = :INSTANCE_NAME )
+union all
+select to_char( END_TIME, 'yyyy-mm-dd hh24:mi' ) time
+     , 'CPU' as WAIT_CLASS
+     , round( sh.VALUE / 100, 2 ) AVERAGE_WAITER_COUNT
+  from GV$SYSMETRIC_HISTORY sh
+ where sh.METRIC_ID = 2075 -- "CPU Usage Per Sec" in csec/s
+   and sh.INST_ID = ( select i.INST_ID from GV$INSTANCE i where i.INSTANCE_NAME = :INSTANCE_NAME )
 )
 where rownum < 1000
 order by TIME, WAIT_CLASS]]></sql>
@@ -160,7 +179,7 @@ order by TIME, WAIT_CLASS]]></sql>
 				<table font="null" size="10" style="NORMAL" color="-16777216" userowshading="false" oddrowshading="-1" evenrowshading="-1" showborders="true" spacingbefore="12" spacingafter="12" horizontalalign="LEFT" />
 				<header enable="false" generatedate="false">
 					<data>
-					null					</data>
+					null															</data>
 				</header>
 				<footer enable="false" generatedate="false">
 					<data value="null" />
