@@ -11,7 +11,7 @@
 	<query minversion="11.1">
 		<sql><![CDATA[SELECT 'SQLDEV:GAUGE:0:100:0:100:'
        || DECODE( sofar, NULL, 100,
-          DECODE( totalwork, 0, 0, NULL, sofar, ROUND(sofar/totalwork*100,0))) as progress
+          DECODE( totalwork, 0, 100, NULL, sofar, ROUND(sofar/totalwork*100,0))) as progress
      , username, elapsed_seconds "Elapsed/s", time_remaining "Remaining/s", message
      , sid, serial#, NVL( sql_id, '[NULL]' ) AS sql_id, last_update_time
      , sql_exec_start, sql_plan_line_id, sql_exec_id
@@ -24,7 +24,7 @@
 	<query maxversion="11.0">
 		<sql><![CDATA[SELECT 'SQLDEV:GAUGE:0:100:0:100:'
        || DECODE( sofar, NULL, 100,
-          DECODE( totalwork, 0, 0, NULL, sofar, ROUND(sofar/totalwork*100,0))) as progress
+          DECODE( totalwork, 0, 100, NULL, sofar, ROUND(sofar/totalwork*100,0))) as progress
      , username, elapsed_seconds "Elapsed/s", time_remaining "Remaining/s", message
      , sid, serial#, NVL( sql_id, '[NULL]' ) AS sql_id, last_update_time
   FROM gv$session_longops
@@ -44,7 +44,7 @@
 			<table font="Times New Roman" size="10" style="NORMAL" color="-16777216" userowshading="false" oddrowshading="-1" evenrowshading="-1" showborders="true" spacingbefore="12" spacingafter="12" horizontalalign="LEFT" />
 			<header enable="false" generatedate="false">
 				<data>
-				null																																																																																																																																																																																																																																																																																																																																																																																																																																																																																</data>
+				null																																																																																																																																																																																																																																																																																																																																																																																																																																																																																								</data>
 			</header>
 			<footer enable="false" generatedate="false">
 				<data value="null" />
@@ -93,7 +93,7 @@
 				<table font="Times New Roman" size="10" style="NORMAL" color="-16777216" userowshading="false" oddrowshading="-1" evenrowshading="-1" showborders="true" spacingbefore="12" spacingafter="12" horizontalalign="LEFT" />
 				<header enable="false" generatedate="false">
 					<data>
-					null																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																									</data>
+					null																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																			</data>
 				</header>
 				<footer enable="false" generatedate="false">
 					<data value="null" />
@@ -116,7 +116,7 @@
 			<sql><![CDATA[SELECT s.username
      , se.event
      , SUM( total_waits ) total_waits
-     , SUM( time_waited ) total_time_waited
+     , ROUND( SUM( time_waited )/10, 2 ) "Time waited / s"
      , AVG( average_wait ) avg_wait
      , MAX( se.wait_class ) wait_class
   FROM gv$session_event se
@@ -128,7 +128,21 @@
 --   AND se.wait_class <> 'Idle'
 --   AND s.username IS NOT NULL
  GROUP BY s.username, se.event
- ORDER BY MAX( DECODE( se.wait_class, 'Idle', 1, 0 )), total_time_waited DESC]]></sql>
+ ORDER BY MAX( DECODE( se.wait_class, 'Idle', 1, 0 )), "Time waited / s" DESC]]></sql>
+			<binds>
+				<bind id="SID">
+					<prompt><![CDATA[SID]]></prompt>
+					<tooltip><![CDATA[SID]]></tooltip>
+					<value><![CDATA[NULL_VALUE]]></value>
+					<bracket><![CDATA[null]]></bracket>
+				</bind>
+				<bind id="SERIAL#">
+					<prompt><![CDATA[SERIAL#]]></prompt>
+					<tooltip><![CDATA[SERIAL#]]></tooltip>
+					<value><![CDATA[NULL_VALUE]]></value>
+					<bracket><![CDATA[null]]></bracket>
+				</bind>
+			</binds>
 		</query>
 			<pdf version="VERSION_1_7" compression="CONTENT">
 				<docproperty title="" author="" subject="" keywords="" />
@@ -141,7 +155,7 @@
 				<table font="Times New Roman" size="10" style="NORMAL" color="-16777216" userowshading="false" oddrowshading="-1" evenrowshading="-1" showborders="true" spacingbefore="12" spacingafter="12" horizontalalign="LEFT" />
 				<header enable="false" generatedate="false">
 					<data>
-					null																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																									</data>
+					null																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																			</data>
 				</header>
 				<footer enable="false" generatedate="false">
 					<data value="null" />
@@ -182,7 +196,7 @@
 				<table font="null" size="10" style="NORMAL" color="-16777216" userowshading="false" oddrowshading="-1" evenrowshading="-1" showborders="true" spacingbefore="12" spacingafter="12" horizontalalign="LEFT" />
 				<header enable="false" generatedate="false">
 					<data>
-					null					</data>
+					null															</data>
 				</header>
 				<footer enable="false" generatedate="false">
 					<data value="null" />
@@ -223,7 +237,7 @@ SELECT RPAD('Inst: '||v.inst_id, 9)||' '||RPAD('Child: '||v.child_number, 11) in
 				<table font="Times New Roman" size="10" style="NORMAL" color="-16777216" userowshading="false" oddrowshading="-1" evenrowshading="-1" showborders="true" spacingbefore="12" spacingafter="12" horizontalalign="LEFT" />
 				<header enable="false" generatedate="false">
 					<data>
-					null																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																						</data>
+					null																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																</data>
 				</header>
 				<footer enable="false" generatedate="false">
 					<data value="null" />
@@ -259,7 +273,7 @@ SELECT RPAD('Inst: '||v.inst_id, 9)||' '||RPAD('Child: '||v.child_number, 11) in
 				<table font="Times New Roman" size="10" style="NORMAL" color="-16777216" userowshading="false" oddrowshading="-1" evenrowshading="-1" showborders="true" spacingbefore="12" spacingafter="12" horizontalalign="LEFT" />
 				<header enable="false" generatedate="false">
 					<data>
-					null																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																		</data>
+					null																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																												</data>
 				</header>
 				<footer enable="false" generatedate="false">
 					<data value="null" />
@@ -306,7 +320,7 @@ END;]]></sql>
 				<table font="Times New Roman" size="10" style="NORMAL" color="-16777216" userowshading="false" oddrowshading="-1" evenrowshading="-1" showborders="true" spacingbefore="12" spacingafter="12" horizontalalign="LEFT" />
 				<header enable="false" generatedate="false">
 					<data>
-					null																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																							</data>
+					null																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																	</data>
 				</header>
 				<footer enable="false" generatedate="false">
 					<data value="null" />
@@ -343,7 +357,7 @@ END;]]></sql>
 				<table font="Times New Roman" size="10" style="NORMAL" color="-16777216" userowshading="false" oddrowshading="-1" evenrowshading="-1" showborders="true" spacingbefore="12" spacingafter="12" horizontalalign="LEFT" />
 				<header enable="false" generatedate="false">
 					<data>
-					null																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																				</data>
+					null																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																														</data>
 				</header>
 				<footer enable="false" generatedate="false">
 					<data value="null" />
