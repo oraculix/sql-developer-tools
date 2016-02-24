@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <displays>
 <display id="675bde82-0139-1000-801b-0a09994fadc2" type="" style="Chart" enable="true">
-	<name><![CDATA[AWR-Zeitreihe: Load (11g)]]></name>
+	<name><![CDATA[AWR-Zeitreihe: Load]]></name>
 	<description><![CDATA[]]></description>
 	<tooltip><![CDATA[]]></tooltip>
 	<drillclass><![CDATA[null]]></drillclass>
 	<CustomValues>
-		<PLOT_HGRID_WIDTH>THINNER</PLOT_HGRID_WIDTH>
+		<PLOT_HGRID_WIDTH>THINNEST</PLOT_HGRID_WIDTH>
 		<Y1AXIS_SCALE_INCREMENT>10.0</Y1AXIS_SCALE_INCREMENT>
 		<Y2AXIS_SCALE_MAXIMUM>80.0</Y2AXIS_SCALE_MAXIMUM>
 		<NUMBER_FORMATS.TYPE>NUMBER</NUMBER_FORMATS.TYPE>
@@ -36,16 +36,17 @@
 		<Y2AXIS_TICK_LABEL_ROTATE>HORIZONTAL</Y2AXIS_TICK_LABEL_ROTATE>
 		<Y2AXIS_SCALE_MINIMUM>10.0</Y2AXIS_SCALE_MINIMUM>
 		<THREED>false</THREED>
+		<PLOT_SERIES_OPTIONS_LINE_WIDTH>\,THICKER,THICKER,THIN,THICKER,THICKER</PLOT_SERIES_OPTIONS_LINE_WIDTH>
 		<NUMBER_FORMATS.DECIMAL_PLACES>1</NUMBER_FORMATS.DECIMAL_PLACES>
 		<Y2AXIS_LINE_WIDTH>THINNEST</Y2AXIS_LINE_WIDTH>
 		<Y1AXIS_TICK_LABEL_ROTATE>HORIZONTAL</Y1AXIS_TICK_LABEL_ROTATE>
 		<NUMBER_FORMATS.SCALE_FACTOR>NONE</NUMBER_FORMATS.SCALE_FACTOR>
 		<Y2AXIS_SCALE_INCREMENT>20.0</Y2AXIS_SCALE_INCREMENT>
-		<PLOT_VGRID_WIDTH>THINNER</PLOT_VGRID_WIDTH>
+		<PLOT_VGRID_WIDTH>THINNEST</PLOT_VGRID_WIDTH>
 		<Y2AXIS_TITLE_ALIGNMENT>CENTER</Y2AXIS_TITLE_ALIGNMENT>
 		<SUBTITLE_ALIGNMENT>LEFT</SUBTITLE_ALIGNMENT>
 	</CustomValues>
-	<query>
+	<query minversion="11.1">
 		<sql><![CDATA[SELECT TO_CHAR( sn.end_interval_time, 'yyyy-mm-dd hh24:mi' ) AS sn_time
      , lc1.metric_name
      , ROUND( lc1.average, 2 ) "Average"
@@ -53,6 +54,42 @@
      , sys.dba_hist_snapshot sn
  WHERE lc1.snap_id = sn.snap_id
    AND lc1.metric_id IN (2147, 2135) -- s. v$metricname
+   AND lc1.dbid = sn.dbid
+   AND lc1.instance_number = sn.instance_number
+   AND lc1.instance_number = ( SELECT instance_number FROM v$instance )
+   -- Limit snapshots to given list
+   --AND sn.snap_id IN (&snapshotlist)
+   -- Show only snapshots since last startup (avoid erroneous peaks in graph)
+   --AND sn.startup_time = ( SELECT MAX(startup_time) FROM sys.dba_hist_snapshot )
+UNION ALL
+SELECT TO_CHAR( sn.end_interval_time, 'yyyy-mm-dd hh24:mi' ) AS sn_time
+     , 'CPU Count'
+     , to_number(par.value)
+  FROM sys.dba_hist_snapshot sn
+     , sys.dba_hist_parameter par
+ WHERE par.snap_id = sn.snap_id
+   AND par.parameter_name = 'cpu_count'
+   AND sn.instance_number = ( SELECT instance_number FROM v$instance )
+   -- Limit snapshots to given list
+   --AND sn.snap_id IN (&snapshotlist)
+   -- Show only snapshots since last startup (avoid erroneous peaks in graph)
+   --AND sn.startup_time = ( SELECT MAX(startup_time) FROM sys.dba_hist_snapshot )
+ORDER BY 1, 2]]></sql>
+	</query>
+	<query minversion="10.1" maxversion="11.0">
+		<sql><![CDATA[SELECT TO_CHAR( sn.end_interval_time, 'yyyy-mm-dd hh24:mi' ) AS sn_time
+     , CASE metric_id
+       WHEN 2123 THEN 'Average Active Sessions'
+       ELSE lc1.metric_name
+       END metric_name
+     , CASE metric_id
+       WHEN 2123 THEN ROUND( lc1.average/100, 2 )
+       ELSE ROUND( lc1.average, 2 )
+       END "Average"
+  FROM sys.dba_hist_sysmetric_summary lc1
+     , sys.dba_hist_snapshot sn
+ WHERE lc1.snap_id = sn.snap_id
+   AND lc1.metric_id IN (2123, 2135) -- s. v$metricname
    AND lc1.dbid = sn.dbid
    AND lc1.instance_number = sn.instance_number
    AND lc1.instance_number = ( SELECT instance_number FROM v$instance )
@@ -86,7 +123,8 @@ ORDER BY sn_time, metric_name]]></sql>
 			<table font="Times New Roman" size="10" style="NORMAL" color="-16777216" userowshading="false" oddrowshading="-1" evenrowshading="-1" showborders="true" spacingbefore="12" spacingafter="12" horizontalalign="LEFT" />
 			<header enable="false" generatedate="false">
 				<data>
-				null																																																																																																																																																																																																																																																																																																												</data>
+				
+				null																																																																																																																																																																																																																																																																																																																																																																																																																																																																																</data>
 			</header>
 			<footer enable="false" generatedate="false">
 				<data value="null" />
@@ -97,7 +135,7 @@ ORDER BY sn_time, metric_name]]></sql>
 			<pagesetup papersize="LETTER" orientation="1" measurement="in" margintop="1.0" marginbottom="1.0" marginleft="1.0" marginright="1.0" />
 		</pdf>
 	<display id="null" type="" style="Table" enable="true">
-		<name><![CDATA[Info]]></name>
+		<name><![CDATA[System Metrics]]></name>
 		<description><![CDATA[]]></description>
 		<tooltip><![CDATA[]]></tooltip>
 		<drillclass><![CDATA[null]]></drillclass>
@@ -161,7 +199,62 @@ ORDER BY sn_time, metric_name]]></sql>
 				<table font="null" size="10" style="NORMAL" color="-16777216" userowshading="false" oddrowshading="-1" evenrowshading="-1" showborders="true" spacingbefore="12" spacingafter="12" horizontalalign="LEFT" />
 				<header enable="false" generatedate="false">
 					<data>
-					null																																																																																																																													</data>
+					
+					null																																																																																																																																																																																																																																																																																																																																										</data>
+				</header>
+				<footer enable="false" generatedate="false">
+					<data value="null" />
+				</footer>
+				<security enable="false" useopenpassword="false" openpassword="null" encryption="EXCLUDE_METADATA">
+					<permission enable="false" permissionpassword="null" allowcopying="true" allowprinting="true" allowupdating="false" allowaccessdevices="false" />
+				</security>
+				<pagesetup papersize="LETTER" orientation="1" measurement="in" margintop="1.0" marginbottom="1.0" marginleft="1.0" marginright="1.0" />
+			</pdf>
+	</display>
+	<display id="null" type="" style="Table" enable="true">
+		<name><![CDATA[Resources]]></name>
+		<description><![CDATA[]]></description>
+		<tooltip><![CDATA[]]></tooltip>
+		<drillclass><![CDATA[null]]></drillclass>
+		<CustomValues>
+			<TYPE>horizontal</TYPE>
+		</CustomValues>
+		<query>
+			<sql><![CDATA[SELECT RESOURCE_NAME
+     , CURRENT_UTILIZATION
+     , MAX_UTILIZATION
+     , LIMIT_VALUE
+  FROM DBA_HIST_RESOURCE_LIMIT lc1
+     , sys.dba_hist_snapshot sn
+ WHERE lc1.snap_id = sn.snap_id
+   AND TO_CHAR( sn.end_interval_time, 'yyyy-mm-dd hh24:mi' ) = :SN_TIME
+   AND lc1.dbid = sn.dbid
+   AND lc1.instance_number = sn.instance_number
+   AND sn.instance_number = ( SELECT instance_number FROM v$instance )
+   AND CURRENT_UTILIZATION + MAX_UTILIZATION > 0  -- used resources only
+ ORDER BY lc1.resource_name]]></sql>
+			<binds>
+				<bind id="SN_TIME">
+					<prompt><![CDATA[SN_TIME]]></prompt>
+					<tooltip><![CDATA[SN_TIME]]></tooltip>
+					<value><![CDATA[NULL_VALUE]]></value>
+					<bracket><![CDATA[null]]></bracket>
+				</bind>
+			</binds>
+		</query>
+			<pdf version="VERSION_1_7" compression="CONTENT">
+				<docproperty title="null" author="null" subject="null" keywords="null" />
+				<cell toppadding="2" bottompadding="2" leftpadding="2" rightpadding="2" horizontalalign="LEFT" verticalalign="TOP" wrap="true" />
+				<column>
+					<heading font="null" size="10" style="NORMAL" color="-16777216" rowshading="-1" labeling="FIRST_PAGE" />
+					<footing font="null" size="10" style="NORMAL" color="-16777216" rowshading="-1" labeling="NONE" />
+					<blob blob="NONE" zip="false" />
+				</column>
+				<table font="null" size="10" style="NORMAL" color="-16777216" userowshading="false" oddrowshading="-1" evenrowshading="-1" showborders="true" spacingbefore="12" spacingafter="12" horizontalalign="LEFT" />
+				<header enable="false" generatedate="false">
+					<data>
+					
+					null										</data>
 				</header>
 				<footer enable="false" generatedate="false">
 					<data value="null" />
@@ -216,7 +309,8 @@ END;]]></sql>
 				<table font="Times New Roman" size="10" style="NORMAL" color="-16777216" userowshading="false" oddrowshading="-1" evenrowshading="-1" showborders="true" spacingbefore="12" spacingafter="12" horizontalalign="LEFT" />
 				<header enable="false" generatedate="false">
 					<data>
-					null																																																																																																																																																																																																																																																																																																																																					</data>
+					
+					null																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																		</data>
 				</header>
 				<footer enable="false" generatedate="false">
 					<data value="null" />
@@ -241,18 +335,9 @@ END;]]></sql>
 		         ( SELECT dbid FROM v$database ),
 		         ( SELECT instance_number FROM v$instance ),
 		         ( SELECT MAX( snap_id ) FROM dba_hist_snapshot WHERE TO_CHAR( end_interval_time, 'yyyy-mm-dd hh24:mi' ) < :SN_TIME ), -- Starting snapshot
-		         ( SELECT snap_id FROM dba_hist_snapshot WHERE TO_CHAR( end_interval_time, 'yyyy-mm-dd hh24:mi' ) = :SN_TIME 
-                  AND instance_number = ( SELECT instance_number FROM v$instance )),      -- Ending snapshot
+		         ( SELECT snap_id FROM dba_hist_snapshot WHERE TO_CHAR( end_interval_time, 'yyyy-mm-dd hh24:mi' ) = :SN_TIME ),      -- Ending snapshot
 		         0           -- Optionen (8 für ADDM-Bericht)
 	     ))]]></sql>
-			<binds>
-				<bind id="SN_TIME">
-					<prompt><![CDATA[SN_TIME]]></prompt>
-					<tooltip><![CDATA[SN_TIME]]></tooltip>
-					<value><![CDATA[NULL_VALUE]]></value>
-					<bracket><![CDATA[null]]></bracket>
-				</bind>
-			</binds>
 		</query>
 			<pdf version="VERSION_1_7" compression="CONTENT">
 				<docproperty title="" author="" subject="" keywords="" />
@@ -265,7 +350,8 @@ END;]]></sql>
 				<table font="Times New Roman" size="10" style="NORMAL" color="-16777216" userowshading="false" oddrowshading="-1" evenrowshading="-1" showborders="true" spacingbefore="12" spacingafter="12" horizontalalign="LEFT" />
 				<header enable="false" generatedate="false">
 					<data>
-					null																																																																																																																																																																																																																																																					</data>
+					
+					null																																																																																																																																																																																																																																																																																																																																																																																																																																																																		</data>
 				</header>
 				<footer enable="false" generatedate="false">
 					<data value="null" />
@@ -295,46 +381,29 @@ END;]]></sql>
   descr VARCHAR2(500);
 BEGIN
   SELECT dbid INTO dbid FROM v$database;
-  
   dbms_output.enable(NULL);
   dbms_output.put_line('<pre>');
-  SELECT snap_id INTO eid FROM dba_hist_snapshot
-   WHERE TO_CHAR( end_interval_time, 'yyyy-mm-dd hh24:mi' ) = sn_start
-     AND instance_number = ( SELECT instance_number FROM v$instance );
+  SELECT snap_id INTO eid FROM dba_hist_snapshot WHERE TO_CHAR( end_interval_time, 'yyyy-mm-dd hh24:mi' ) = sn_start;
   SELECT MAX( snap_id ) INTO bid FROM dba_hist_snapshot WHERE snap_id < eid;
   SELECT instance_number INTO inst_num FROM v$instance;
-  
   -- Run ADDM for desired snapshots
   taskname := '';
   descr := 'ADDM run: snapshots [' || bid || ', '
            || eid || '], instance ' || inst_num
            || ', database id ' || dbid;
   dbms_advisor.create_task('ADDM',id, taskname,descr,null);
-
   -- set time window
   dbms_advisor.set_task_parameter(taskname, 'START_SNAPSHOT', bid);
   dbms_advisor.set_task_parameter(taskname, 'END_SNAPSHOT', eid);
-
   -- set instance number
   dbms_advisor.set_task_parameter(taskname, 'INSTANCE', inst_num);
-
   -- set dbid
   dbms_advisor.set_task_parameter(taskname, 'DB_ID', dbid);
-
   -- execute task
   dbms_advisor.execute_task(taskname);
-
   dbms_output.put_line( dbms_advisor.get_task_report( taskname, 'TEXT', 'TYPICAL' ));
   dbms_output.put_line('</pre>');
 END;]]></sql>
-			<binds>
-				<bind id="SN_TIME">
-					<prompt><![CDATA[SN_TIME]]></prompt>
-					<tooltip><![CDATA[SN_TIME]]></tooltip>
-					<value><![CDATA[NULL_VALUE]]></value>
-					<bracket><![CDATA[null]]></bracket>
-				</bind>
-			</binds>
 		</query>
 			<pdf version="VERSION_1_7" compression="CONTENT">
 				<docproperty title="" author="" subject="" keywords="" />
@@ -347,7 +416,8 @@ END;]]></sql>
 				<table font="Times New Roman" size="10" style="NORMAL" color="-16777216" userowshading="false" oddrowshading="-1" evenrowshading="-1" showborders="true" spacingbefore="12" spacingafter="12" horizontalalign="LEFT" />
 				<header enable="false" generatedate="false">
 					<data>
-					null																																																																																																																																																																																																																																																</data>
+					
+					null																																																																																																																																																																																																																																																																																																																																																																																																																																																													</data>
 				</header>
 				<footer enable="false" generatedate="false">
 					<data value="null" />
