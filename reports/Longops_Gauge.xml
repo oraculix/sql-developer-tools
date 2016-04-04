@@ -13,7 +13,8 @@
        || DECODE( sofar, NULL, 100,
           DECODE( totalwork, 0, 100, NULL, sofar, ROUND(sofar/totalwork*100,0))) as progress
      , username, elapsed_seconds "Elapsed/s", time_remaining "Remaining/s", message
-     , sid, serial#, NVL( sql_id, '[NULL]' ) AS sql_id, last_update_time
+     , sid, serial#, NVL( sql_id, '[NULL]' ) AS sql_id
+     , to_char(last_update_time, 'yyyy-mm-dd hh24:mi:ss') last_update_time
      , sql_exec_start, sql_plan_line_id, sql_exec_id
   FROM gv$session_longops
  WHERE 1=1
@@ -26,7 +27,8 @@
        || DECODE( sofar, NULL, 100,
           DECODE( totalwork, 0, 100, NULL, sofar, ROUND(sofar/totalwork*100,0))) as progress
      , username, elapsed_seconds "Elapsed/s", time_remaining "Remaining/s", message
-     , sid, serial#, NVL( sql_id, '[NULL]' ) AS sql_id, last_update_time
+     , sid, serial#, NVL( sql_id, '[NULL]' ) AS sql_id
+     , to_char(last_update_time, 'yyyy-mm-dd hh24:mi:ss') last_update_time
   FROM gv$session_longops
  WHERE 1=1
 --   AND sofar <> totalwork         -- if you want to see active operations only
