@@ -402,12 +402,12 @@ FROM (
   from
 (
   SELECT sn.snap_time
-       , sm.ELAPSED_TIME - NVL( LAG( sm.ELAPSED_TIME, 1 ) OVER( PARTITION BY sm.sql_id ORDER BY sm.snap_id ), 0 ) d_ela
-       , sm.EXECUTIONS - NVL( LAG( sm.EXECUTIONS, 1 ) OVER( PARTITION BY sm.sql_id ORDER BY sm.snap_id ), 0 ) d_exe
-       , sm.BUFFER_GETS - NVL( LAG( sm.BUFFER_GETS, 1 ) OVER( PARTITION BY sm.sql_id ORDER BY sm.snap_id ), 0 ) d_buf
-       , sm.DISK_READS - NVL( LAG( sm.DISK_READS, 1 ) OVER( PARTITION BY sm.sql_id ORDER BY sm.snap_id ), 0 ) d_rds
-       , sm.CPU_TIME - NVL( LAG( sm.CPU_TIME, 1 ) OVER( PARTITION BY sm.sql_id ORDER BY sm.snap_id ), 0 ) d_cpu
-       , sn.snap_time - LAG( sn.snap_time, 1 ) OVER( PARTITION BY sm.sql_id ORDER BY sn.snap_id ) AS dt
+       , sm.ELAPSED_TIME - LAG( sm.ELAPSED_TIME, 1, 0 ) OVER( PARTITION BY sm.sql_id ORDER BY sm.snap_id ) d_ela
+       , sm.EXECUTIONS   - LAG( sm.EXECUTIONS, 1, 0 )   OVER( PARTITION BY sm.sql_id ORDER BY sm.snap_id ) d_exe
+       , sm.BUFFER_GETS  - LAG( sm.BUFFER_GETS, 1, 0 )  OVER( PARTITION BY sm.sql_id ORDER BY sm.snap_id ) d_buf
+       , sm.DISK_READS   - LAG( sm.DISK_READS, 1, 0 )   OVER( PARTITION BY sm.sql_id ORDER BY sm.snap_id ) d_rds
+       , sm.CPU_TIME     - LAG( sm.CPU_TIME, 1, 0 )     OVER( PARTITION BY sm.sql_id ORDER BY sm.snap_id ) d_cpu
+       , sn.snap_time    - LAG( sn.snap_time, 1, 0 )    OVER( PARTITION BY sm.sql_id ORDER BY sn.snap_id ) AS dt
        , sm.*
     FROM perfstat.stats$sql_summary sm
        , perfstat.STATS$SNAPSHOT sn
