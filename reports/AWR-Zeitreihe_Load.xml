@@ -7,6 +7,8 @@
 	<drillclass><![CDATA[null]]></drillclass>
 	<CustomValues>
 		<PLOT_HGRID_WIDTH>THINNEST</PLOT_HGRID_WIDTH>
+		<TITLE_FONT.COLOR>-12565927</TITLE_FONT.COLOR>
+		<TITLE_FONT.SIZE>14</TITLE_FONT.SIZE>
 		<Y1AXIS_SCALE_INCREMENT>10.0</Y1AXIS_SCALE_INCREMENT>
 		<Y2AXIS_SCALE_MAXIMUM>80.0</Y2AXIS_SCALE_MAXIMUM>
 		<NUMBER_FORMATS.TYPE>NUMBER</NUMBER_FORMATS.TYPE>
@@ -18,6 +20,7 @@
 		<GRADIENT>false</GRADIENT>
 		<XAXIS_LINE_WIDTH>THINNEST</XAXIS_LINE_WIDTH>
 		<LEGEND>true</LEGEND>
+		<TITLE_FONT.POSTURE>false</TITLE_FONT.POSTURE>
 		<NUMBER_FORMATS.NEGATIVE_NUMBER_FORMAT>BRACKETED</NUMBER_FORMATS.NEGATIVE_NUMBER_FORMAT>
 		<Y1AXIS_SCALE_MAXIMUM>60.0</Y1AXIS_SCALE_MAXIMUM>
 		<XAXIS_TITLE_ALIGNMENT>CENTER</XAXIS_TITLE_ALIGNMENT>
@@ -31,16 +34,21 @@
 		<Y2AXIS_LOGARITHMIC_BASE>BASE_10</Y2AXIS_LOGARITHMIC_BASE>
 		<GRID>true</GRID>
 		<STYLE>Default</STYLE>
-		<TITLE_ALIGNMENT>LEFT</TITLE_ALIGNMENT>
+		<TITLE_ALIGNMENT>CENTER</TITLE_ALIGNMENT>
+		<TITLE_FONT.WEIGHT>true</TITLE_FONT.WEIGHT>
 		<NUMBER_FORMATS.CURRENCY_SYMBOL>DOLLARS</NUMBER_FORMATS.CURRENCY_SYMBOL>
+		<TITLE_TEXT>Average Active Sessions History (AWR)</TITLE_TEXT>
 		<Y2AXIS_TICK_LABEL_ROTATE>HORIZONTAL</Y2AXIS_TICK_LABEL_ROTATE>
 		<Y2AXIS_SCALE_MINIMUM>10.0</Y2AXIS_SCALE_MINIMUM>
 		<THREED>false</THREED>
-		<PLOT_SERIES_OPTIONS_LINE_WIDTH>\,THICKER,THICKER,THIN,THICKER,THICKER</PLOT_SERIES_OPTIONS_LINE_WIDTH>
+		<PLOT_SERIES_OPTIONS_LINE_WIDTH>\,THICK,THIN,THINNER,THICKER,THICKER</PLOT_SERIES_OPTIONS_LINE_WIDTH>
 		<NUMBER_FORMATS.DECIMAL_PLACES>1</NUMBER_FORMATS.DECIMAL_PLACES>
 		<Y2AXIS_LINE_WIDTH>THINNEST</Y2AXIS_LINE_WIDTH>
+		<TITLE_FONT.UNDERLINE>false</TITLE_FONT.UNDERLINE>
 		<Y1AXIS_TICK_LABEL_ROTATE>HORIZONTAL</Y1AXIS_TICK_LABEL_ROTATE>
+		<TITLE_FONT.NAME>SansSerif</TITLE_FONT.NAME>
 		<NUMBER_FORMATS.SCALE_FACTOR>NONE</NUMBER_FORMATS.SCALE_FACTOR>
+		<TITLE>true</TITLE>
 		<Y2AXIS_SCALE_INCREMENT>20.0</Y2AXIS_SCALE_INCREMENT>
 		<PLOT_VGRID_WIDTH>THINNEST</PLOT_VGRID_WIDTH>
 		<Y2AXIS_TITLE_ALIGNMENT>CENTER</Y2AXIS_TITLE_ALIGNMENT>
@@ -124,7 +132,7 @@ ORDER BY sn_time, metric_name]]></sql>
 			<header enable="false" generatedate="false">
 				<data>
 				
-				null																																																																																																																																																																																																																																																																																																																																																																																																																																																																																</data>
+				null																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																</data>
 			</header>
 			<footer enable="false" generatedate="false">
 				<data value="null" />
@@ -200,7 +208,7 @@ ORDER BY sn_time, metric_name]]></sql>
 				<header enable="false" generatedate="false">
 					<data>
 					
-					null																																																																																																																																																																																																																																																																																																																																										</data>
+					null																																																																																																																																																																																																																																																																																																																																																																																		</data>
 				</header>
 				<footer enable="false" generatedate="false">
 					<data value="null" />
@@ -233,14 +241,6 @@ ORDER BY sn_time, metric_name]]></sql>
    AND sn.instance_number = ( SELECT instance_number FROM v$instance )
    AND CURRENT_UTILIZATION + MAX_UTILIZATION > 0  -- used resources only
  ORDER BY lc1.resource_name]]></sql>
-			<binds>
-				<bind id="SN_TIME">
-					<prompt><![CDATA[SN_TIME]]></prompt>
-					<tooltip><![CDATA[SN_TIME]]></tooltip>
-					<value><![CDATA[NULL_VALUE]]></value>
-					<bracket><![CDATA[null]]></bracket>
-				</bind>
-			</binds>
 		</query>
 			<pdf version="VERSION_1_7" compression="CONTENT">
 				<docproperty title="null" author="null" subject="null" keywords="null" />
@@ -254,7 +254,7 @@ ORDER BY sn_time, metric_name]]></sql>
 				<header enable="false" generatedate="false">
 					<data>
 					
-					null										</data>
+					null																																																		</data>
 				</header>
 				<footer enable="false" generatedate="false">
 					<data value="null" />
@@ -310,7 +310,7 @@ END;]]></sql>
 				<header enable="false" generatedate="false">
 					<data>
 					
-					null																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																		</data>
+					null																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																										</data>
 				</header>
 				<footer enable="false" generatedate="false">
 					<data value="null" />
@@ -351,7 +351,7 @@ END;]]></sql>
 				<header enable="false" generatedate="false">
 					<data>
 					
-					null																																																																																																																																																																																																																																																																																																																																																																																																																																																																		</data>
+					null																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																										</data>
 				</header>
 				<footer enable="false" generatedate="false">
 					<data value="null" />
@@ -383,9 +383,11 @@ BEGIN
   SELECT dbid INTO dbid FROM v$database;
   dbms_output.enable(NULL);
   dbms_output.put_line('<pre>');
-  SELECT snap_id INTO eid FROM dba_hist_snapshot WHERE TO_CHAR( end_interval_time, 'yyyy-mm-dd hh24:mi' ) = sn_start;
-  SELECT MAX( snap_id ) INTO bid FROM dba_hist_snapshot WHERE snap_id < eid;
   SELECT instance_number INTO inst_num FROM v$instance;
+  SELECT snap_id INTO eid FROM dba_hist_snapshot
+   WHERE TO_CHAR( end_interval_time, 'yyyy-mm-dd hh24:mi' ) = sn_start
+     AND instance_number = inst_num;
+  SELECT MAX( snap_id ) INTO bid FROM dba_hist_snapshot WHERE snap_id < eid;
   -- Run ADDM for desired snapshots
   taskname := '';
   descr := 'ADDM run: snapshots [' || bid || ', '
@@ -417,7 +419,7 @@ END;]]></sql>
 				<header enable="false" generatedate="false">
 					<data>
 					
-					null																																																																																																																																																																																																																																																																																																																																																																																																																																																													</data>
+					null																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																					</data>
 				</header>
 				<footer enable="false" generatedate="false">
 					<data value="null" />
