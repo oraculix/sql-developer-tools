@@ -51,11 +51,11 @@
 		<sql><![CDATA[WITH snaps AS(
      SELECT sn.snap_id
           , sn.snap_time
-          , LAG( sn.snap_id, 1 ) OVER( ORDER BY sn.snap_id ) AS prev_snap_id
-          , ( LAG( sn.snap_time, 1 ) OVER( ORDER BY sn.snap_id ) - sn.snap_time ) *24*3600 AS time_diff
+          , ( LAG( sn.snap_time, 1 ) OVER( PARTITION BY sn.instance_number ORDER BY sn.snap_id ) - sn.snap_time ) *24*3600 AS time_diff
           , sn.instance_number
           , sn.dbid
        FROM stats$snapshot sn
+      WHERE sn.instance_number = ( SELECT instance_number FROM v$instance )
 )
 SELECT TO_CHAR( snap_time, 'dd.mm. hh24:mi' ) time
      , stat_name
@@ -76,7 +76,6 @@ SELECT TO_CHAR( snap_time, 'dd.mm. hh24:mi' ) time
         AND sn.snap_id = ss.snap_id
         AND ss.dbid = sn.dbid
         AND ss.instance_number = sn.instance_number
-        AND sn.instance_number = ( SELECT instance_number FROM v$instance )
      )
 ORDER BY snap_time, stat_name]]></sql>
 	</query>
@@ -91,38 +90,7 @@ ORDER BY snap_time, stat_name]]></sql>
 			<table font="null" size="10" style="NORMAL" color="-16777216" userowshading="false" oddrowshading="-1" evenrowshading="-1" showborders="true" spacingbefore="12" spacingafter="12" horizontalalign="LEFT" />
 			<header enable="false" generatedate="false">
 				<data>
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				null																																																																																																																																</data>
+				null																																																																																																																																																																																																				</data>
 			</header>
 			<footer enable="false" generatedate="false">
 				<data value="null" />

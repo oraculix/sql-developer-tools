@@ -40,10 +40,11 @@
 		<sql><![CDATA[WITH snaps AS(
      SELECT sn.snap_id
           , sn.snap_time
-          , ROUND((sn.snap_time - LAG( sn.snap_time, 1 ) OVER( ORDER BY sn.snap_id )) *24*3600, 2 ) AS time_diff
+          , ROUND((sn.snap_time - LAG( sn.snap_time, 1 ) OVER( PARTITION BY sn.instance_number ORDER BY sn.snap_id )) *24*3600, 2 ) AS time_diff
           , sn.instance_number
           , sn.dbid
        FROM stats$snapshot sn
+      WHERE sn.instance_number = ( SELECT instance_number FROM v$instance )
 )
 SELECT TO_CHAR( snap_time, 'dd.mm. hh24:mi' ) time
      , stat_name
@@ -64,8 +65,6 @@ SELECT TO_CHAR( snap_time, 'dd.mm. hh24:mi' ) time
         AND sn.snap_id = ss.snap_id
         AND ss.dbid = sn.dbid
         AND ss.instance_number = sn.instance_number
-        AND sn.instance_number = ( SELECT instance_number FROM v$instance )
-        --AND sn.snap_id IN (&Snapshotlist)
      )
 ORDER BY snap_time, stat_name]]></sql>
 	</query>
@@ -82,7 +81,7 @@ ORDER BY snap_time, stat_name]]></sql>
 				<data>
 				
 				
-				null												</data>
+				null																																																																																																																																																																				</data>
 			</header>
 			<footer enable="false" generatedate="false">
 				<data value="null" />
