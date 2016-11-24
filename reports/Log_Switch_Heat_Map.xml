@@ -4,7 +4,7 @@
 	<name><![CDATA[Log Switch Heat Map]]></name>
 	<description><![CDATA[]]></description>
 	<tooltip><![CDATA[]]></tooltip>
-	<drillclass><![CDATA[]]></drillclass>
+	<drillclass><![CDATA[null]]></drillclass>
 	<CustomValues>
 	</CustomValues>
 	<query>
@@ -20,30 +20,9 @@
 -- I tried to use a scripted stylesheet but SQL Dev wouldn't cooperate so
 -- that is my excuse for all of the ugly inline CSS. For now :) 
 
---SET SERVEROUTPUT ON
 DECLARE
   myMax NUMBER;
   myDBName VARCHAR2(16);
-
-  -- dec2hex Function from http://www.orafaq.com/wiki/Hexadecimal
-  FUNCTION dec2hex (N in number) RETURN varchar2 IS
-    hexval varchar2(64);
-    N2     number := N;
-    digit  number;
-    hexdigit  char;
-  BEGIN
-    while ( N2 > 0 ) loop
-       digit := mod(N2, 16);
-       if digit > 9 then 
-         hexdigit := chr(ascii('A') + digit - 10);
-       else
-         hexdigit := to_char(digit);
-       end if;
-       hexval := hexdigit || hexval;
-       N2 := trunc( N2 / 16 );
-    end loop;
-    return hexval;
-  END dec2hex;
 
   FUNCTION DataCell ( P_Value NUMBER, P_Max NUMBER) RETURN VARCHAR2 IS
    myReturn VARCHAR2(128);
@@ -52,7 +31,7 @@ DECLARE
   BEGIN
 
     myColorVal := ROUND( 255-FLOOR(255 * (P_VALUE / P_MAX)));
-    myColorHex := LPAD(TRIM(dec2hex(myColorVal)) ,2,'0');
+    myColorHex := LPAD(TRIM(TO_CHAR(myColorVal, 'XX')) ,2,'0');
     
     IF P_Value = P_Max THEN
       myColorHex := '00';
@@ -194,7 +173,7 @@ END;]]></sql>
 				
 				
 				
-				null																				</data>
+				null																																																																																																																																												</data>
 			</header>
 			<footer enable="false" generatedate="false">
 				<data value="null" />

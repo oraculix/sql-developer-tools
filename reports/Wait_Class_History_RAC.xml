@@ -2,8 +2,8 @@
 <displays>
 <display id="fa4bda79-0152-1000-800c-0a52640f976a" type="" style="Chart" enable="true">
 	<name><![CDATA[Wait Class History - RAC]]></name>
-	<description><![CDATA[]]></description>
-	<tooltip><![CDATA[]]></tooltip>
+	<description><![CDATA[Average Active Sessions by Wait Class (1h)]]></description>
+	<tooltip><![CDATA[Average Active Sessions by Wait Class (1h)]]></tooltip>
 	<drillclass><![CDATA[null]]></drillclass>
 	<CustomValues>
 		<Y1AXIS_TITLE_TEXT>Average Active Sessions</Y1AXIS_TITLE_TEXT>
@@ -49,7 +49,7 @@
 	</CustomValues>
 	<query>
 		<sql><![CDATA[select TIME, INSTANCE_NAME, AAS from(
-select to_char( h.END_TIME, 'yyyy-mm-dd hh24:mi' ) TIME
+select to_char( h.END_TIME, 'dd.mm. hh24:mi' ) TIME
      , i.INSTANCE_NAME
      , ROUND( h.VALUE / 100, 2 ) AAS
   from gv$sysmetric_history h
@@ -72,7 +72,25 @@ select to_char( h.END_TIME, 'yyyy-mm-dd hh24:mi' ) TIME
 			<table font="null" size="10" style="NORMAL" color="-16777216" userowshading="false" oddrowshading="-1" evenrowshading="-1" showborders="true" spacingbefore="12" spacingafter="12" horizontalalign="LEFT" />
 			<header enable="false" generatedate="false">
 				<data>
-				null												</data>
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				null																																																																																				</data>
 			</header>
 			<footer enable="false" generatedate="false">
 				<data value="null" />
@@ -140,7 +158,7 @@ with WC as(
 select distinct e.WAIT_CLASS, e.WAIT_CLASS_ID
   from v$event_name e
 )
-select to_char( END_TIME, 'yyyy-mm-dd hh24:mi' ) time
+select to_char( END_TIME, 'dd.mm. hh24:mi' ) time
      , wc.WAIT_CLASS
      , round( AVERAGE_WAITER_COUNT, 2 ) AVERAGE_WAITER_COUNT
      --, INST_ID
@@ -150,15 +168,15 @@ select to_char( END_TIME, 'yyyy-mm-dd hh24:mi' ) time
    and wc.WAIT_CLASS <> 'Idle'
    and h.INST_ID = ( select i.INST_ID from GV$INSTANCE i where i.INSTANCE_NAME = :INSTANCE_NAME )
 union all
-select to_char( END_TIME, 'yyyy-mm-dd hh24:mi' ) time
-     , 'CPU' as WAIT_CLASS
+select to_char( END_TIME, 'dd.mm. hh24:mi' ) time
+     , '_CPU' as WAIT_CLASS
      , round( sh.VALUE / 100, 2 ) AVERAGE_WAITER_COUNT
   from GV$SYSMETRIC_HISTORY sh
  where sh.METRIC_ID = 2075 -- "CPU Usage Per Sec" in csec/s
    and sh.INST_ID = ( select i.INST_ID from GV$INSTANCE i where i.INSTANCE_NAME = :INSTANCE_NAME )
 )
 where rownum < 1000
-order by TIME, WAIT_CLASS]]></sql>
+order by TIME, nlssort(WAIT_CLASS, 'nls_sort=BINARY')]]></sql>
 			<binds>
 				<bind id="INSTANCE_NAME">
 					<prompt><![CDATA[INSTANCE_NAME]]></prompt>
@@ -179,7 +197,25 @@ order by TIME, WAIT_CLASS]]></sql>
 				<table font="null" size="10" style="NORMAL" color="-16777216" userowshading="false" oddrowshading="-1" evenrowshading="-1" showborders="true" spacingbefore="12" spacingafter="12" horizontalalign="LEFT" />
 				<header enable="false" generatedate="false">
 					<data>
-					null															</data>
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					null																																																																																																									</data>
 				</header>
 				<footer enable="false" generatedate="false">
 					<data value="null" />
