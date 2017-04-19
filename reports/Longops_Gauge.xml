@@ -4,11 +4,11 @@
 	<name><![CDATA[LongOps-Gauge]]></name>
 	<description><![CDATA[]]></description>
 	<tooltip><![CDATA[]]></tooltip>
-	<drillclass><![CDATA[null]]></drillclass>
+	<drillclass><![CDATA[]]></drillclass>
 	<CustomValues>
-		<TYPE>horizontal</TYPE>
+		<TYPE><![CDATA[horizontal]]></TYPE>
 	</CustomValues>
-	<query minversion="11.1">
+	<query minversion="10.2">
 		<sql><![CDATA[SELECT 'SQLDEV:GAUGE:0:100:0:100:'
        || DECODE( sofar, NULL, 100,
           DECODE( totalwork, 0, 100, NULL, sofar, ROUND(sofar/totalwork*100,0))) as progress
@@ -22,12 +22,29 @@
  ORDER BY SIGN( sofar - NVL( totalwork, 0 )), last_update_time DESC
  --target, sid]]></sql>
 	</query>
-	<query maxversion="11.0">
+	<query minversion="10" maxversion="10.1.9">
 		<sql><![CDATA[SELECT 'SQLDEV:GAUGE:0:100:0:100:'
        || DECODE( sofar, NULL, 100,
           DECODE( totalwork, 0, 100, NULL, sofar, ROUND(sofar/totalwork*100,0))) as progress
      , username, elapsed_seconds "Elapsed/s", time_remaining "Remaining/s", message
-     , sid, serial#, NVL( sql_id, '[NULL]' ) AS sql_id
+     , sid, serial#
+     , sql_hash_value
+     --, NVL( sql_id, '[NULL]' ) AS sql_id
+     , to_char(last_update_time, 'yyyy-mm-dd hh24:mi:ss') last_update_time
+  FROM gv$session_longops
+ WHERE 1=1
+--   AND sofar <> totalwork         -- if you want to see active operations only
+ ORDER BY SIGN( sofar - NVL( totalwork, 0 )), last_update_time DESC
+ --target, sid]]></sql>
+	</query>
+	<query maxversion="9.3">
+		<sql><![CDATA[SELECT 'SQLDEV:GAUGE:0:100:0:100:'
+       || DECODE( sofar, NULL, 100,
+          DECODE( totalwork, 0, 100, NULL, sofar, ROUND(sofar/totalwork*100,0))) as progress
+     , username, elapsed_seconds "Elapsed/s", time_remaining "Remaining/s", message
+     , sid, serial#
+     , sql_hash_value
+     , sql_address
      , to_char(last_update_time, 'yyyy-mm-dd hh24:mi:ss') last_update_time
   FROM gv$session_longops
  WHERE 1=1
@@ -46,23 +63,23 @@
 			<table font="Times New Roman" size="10" style="NORMAL" color="-16777216" userowshading="false" oddrowshading="-1" evenrowshading="-1" showborders="true" spacingbefore="12" spacingafter="12" horizontalalign="LEFT" />
 			<header enable="false" generatedate="false">
 				<data>
-				null																																																																																																																																																																																																																																																																																																																																																																																																																																																																																								</data>
+				
+				
+				
+				null																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																				</data>
 			</header>
 			<footer enable="false" generatedate="false">
 				<data value="null" />
 			</footer>
-			<security enable="false" useopenpassword="false" openpassword="" encryption="EXCLUDE_METADATA">
-				<permission enable="false" permissionpassword="" allowcopying="true" allowprinting="true" allowupdating="false" allowaccessdevices="true" />
-			</security>
 			<pagesetup papersize="LETTER" orientation="1" measurement="in" margintop="1.0" marginbottom="1.0" marginleft="1.0" marginright="1.0" />
 		</pdf>
 	<display id="null" type="" style="Table" enable="true">
 		<name><![CDATA[Session Detail]]></name>
 		<description><![CDATA[]]></description>
 		<tooltip><![CDATA[]]></tooltip>
-		<drillclass><![CDATA[null]]></drillclass>
+		<drillclass><![CDATA[]]></drillclass>
 		<CustomValues>
-			<TYPE>vertical</TYPE>
+			<TYPE><![CDATA[vertical]]></TYPE>
 		</CustomValues>
 		<query>
 			<sql><![CDATA[SELECT *
@@ -95,14 +112,14 @@
 				<table font="Times New Roman" size="10" style="NORMAL" color="-16777216" userowshading="false" oddrowshading="-1" evenrowshading="-1" showborders="true" spacingbefore="12" spacingafter="12" horizontalalign="LEFT" />
 				<header enable="false" generatedate="false">
 					<data>
-					null																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																			</data>
+					
+					
+					
+					null																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																		</data>
 				</header>
 				<footer enable="false" generatedate="false">
 					<data value="null" />
 				</footer>
-				<security enable="false" useopenpassword="false" openpassword="" encryption="EXCLUDE_METADATA">
-					<permission enable="false" permissionpassword="" allowcopying="true" allowprinting="true" allowupdating="false" allowaccessdevices="true" />
-				</security>
 				<pagesetup papersize="LETTER" orientation="1" measurement="in" margintop="1.0" marginbottom="1.0" marginleft="1.0" marginright="1.0" />
 			</pdf>
 	</display>
@@ -110,9 +127,9 @@
 		<name><![CDATA[Wait Summary]]></name>
 		<description><![CDATA[]]></description>
 		<tooltip><![CDATA[]]></tooltip>
-		<drillclass><![CDATA[null]]></drillclass>
+		<drillclass><![CDATA[]]></drillclass>
 		<CustomValues>
-			<TYPE>horizontal</TYPE>
+			<TYPE><![CDATA[horizontal]]></TYPE>
 		</CustomValues>
 		<query>
 			<sql><![CDATA[SELECT s.username
@@ -131,20 +148,6 @@
 --   AND s.username IS NOT NULL
  GROUP BY s.username, se.event
  ORDER BY MAX( DECODE( se.wait_class, 'Idle', 1, 0 )), "Time waited / s" DESC]]></sql>
-			<binds>
-				<bind id="SID">
-					<prompt><![CDATA[SID]]></prompt>
-					<tooltip><![CDATA[SID]]></tooltip>
-					<value><![CDATA[NULL_VALUE]]></value>
-					<bracket><![CDATA[null]]></bracket>
-				</bind>
-				<bind id="SERIAL#">
-					<prompt><![CDATA[SERIAL#]]></prompt>
-					<tooltip><![CDATA[SERIAL#]]></tooltip>
-					<value><![CDATA[NULL_VALUE]]></value>
-					<bracket><![CDATA[null]]></bracket>
-				</bind>
-			</binds>
 		</query>
 			<pdf version="VERSION_1_7" compression="CONTENT">
 				<docproperty title="" author="" subject="" keywords="" />
@@ -157,14 +160,14 @@
 				<table font="Times New Roman" size="10" style="NORMAL" color="-16777216" userowshading="false" oddrowshading="-1" evenrowshading="-1" showborders="true" spacingbefore="12" spacingafter="12" horizontalalign="LEFT" />
 				<header enable="false" generatedate="false">
 					<data>
-					null																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																			</data>
+					
+					
+					
+					null																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																		</data>
 				</header>
 				<footer enable="false" generatedate="false">
 					<data value="null" />
 				</footer>
-				<security enable="false" useopenpassword="false" openpassword="" encryption="EXCLUDE_METADATA">
-					<permission enable="false" permissionpassword="" allowcopying="true" allowprinting="true" allowupdating="false" allowaccessdevices="true" />
-				</security>
 				<pagesetup papersize="LETTER" orientation="1" measurement="in" margintop="1.0" marginbottom="1.0" marginleft="1.0" marginright="1.0" />
 			</pdf>
 	</display>
@@ -172,16 +175,19 @@
 		<name><![CDATA[SQL-Detail]]></name>
 		<description><![CDATA[]]></description>
 		<tooltip><![CDATA[]]></tooltip>
-		<drillclass><![CDATA[null]]></drillclass>
+		<drillclass><![CDATA[]]></drillclass>
 		<CustomValues>
-			<TYPE>vertical</TYPE>
+			<TYPE><![CDATA[vertical]]></TYPE>
 		</CustomValues>
-		<query>
+		<query minversion="10.2">
 			<sql><![CDATA[select * from gv$sql where SQL_ID = :SQL_ID]]></sql>
+		</query>
+		<query maxversion="10.1.9">
+			<sql><![CDATA[select * from gv$sql where HASH_VALUE = :SQL_HASH_VALUE]]></sql>
 			<binds>
-				<bind id="SQL_ID">
-					<prompt><![CDATA[SQL_ID]]></prompt>
-					<tooltip><![CDATA[SQL_ID]]></tooltip>
+				<bind id="SQL_HASH_VALUE">
+					<prompt><![CDATA[SQL_HASH_VALUE]]></prompt>
+					<tooltip><![CDATA[SQL_HASH_VALUE]]></tooltip>
 					<value><![CDATA[NULL_VALUE]]></value>
 					<bracket><![CDATA[null]]></bracket>
 				</bind>
@@ -198,14 +204,14 @@
 				<table font="null" size="10" style="NORMAL" color="-16777216" userowshading="false" oddrowshading="-1" evenrowshading="-1" showborders="true" spacingbefore="12" spacingafter="12" horizontalalign="LEFT" />
 				<header enable="false" generatedate="false">
 					<data>
-					null															</data>
+					
+					
+					
+					null																														</data>
 				</header>
 				<footer enable="false" generatedate="false">
 					<data value="null" />
 				</footer>
-				<security enable="false" useopenpassword="false" openpassword="null" encryption="EXCLUDE_METADATA">
-					<permission enable="false" permissionpassword="null" allowcopying="true" allowprinting="true" allowupdating="false" allowaccessdevices="false" />
-				</security>
 				<pagesetup papersize="LETTER" orientation="1" measurement="in" margintop="1.0" marginbottom="1.0" marginleft="1.0" marginright="1.0" />
 			</pdf>
 	</display>
@@ -213,11 +219,11 @@
 		<name><![CDATA[Explain Plan]]></name>
 		<description><![CDATA[]]></description>
 		<tooltip><![CDATA[]]></tooltip>
-		<drillclass><![CDATA[null]]></drillclass>
+		<drillclass><![CDATA[]]></drillclass>
 		<CustomValues>
-			<TYPE>horizontal</TYPE>
+			<TYPE><![CDATA[horizontal]]></TYPE>
 		</CustomValues>
-		<query>
+		<query minversion="10">
 			<sql><![CDATA[-- Displays SQL plans from all cluster nodes when on RAC.
 -- Captured while still in memory. Metrics below are for ALL executions of each child cursor.
 -- If STATISTICS_LEVEL was set to ALL at the time of the hard-parse then A-Rows column is populated.
@@ -227,6 +233,27 @@ SELECT RPAD('Inst: '||v.inst_id, 9)||' '||RPAD('Child: '||v.child_number, 11) in
             , 'inst_id = '||v.inst_id||' AND sql_id = '''||v.sql_id||''' AND child_number = '||v.child_number)) t
  WHERE v.sql_id = NVL( :SQL_ID, 'NULL!' )
    AND v.loaded_versions > 0]]></sql>
+		</query>
+		<query maxversion="9.3">
+			<sql><![CDATA[SELECT child_number, id , lpad (' ', depth) || operation operation , options , object_name , optimizer , cost
+  FROM V$SQL_PLAN 
+ WHERE hash_value = :SQL_HASH_VALUE
+   AND address = :SQL_ADDRESS
+ ORDER BY child_number, id]]></sql>
+			<binds>
+				<bind id="SQL_HASH_VALUE">
+					<prompt><![CDATA[SQL_HASH_VALUE]]></prompt>
+					<tooltip><![CDATA[SQL_HASH_VALUE]]></tooltip>
+					<value><![CDATA[NULL_VALUE]]></value>
+					<bracket><![CDATA[null]]></bracket>
+				</bind>
+				<bind id="SQL_ADDRESS">
+					<prompt><![CDATA[SQL_ADDRESS]]></prompt>
+					<tooltip><![CDATA[SQL_ADDRESS]]></tooltip>
+					<value><![CDATA[NULL_VALUE]]></value>
+					<bracket><![CDATA[null]]></bracket>
+				</bind>
+			</binds>
 		</query>
 			<pdf version="VERSION_1_7" compression="CONTENT">
 				<docproperty title="" author="" subject="" keywords="" />
@@ -239,14 +266,14 @@ SELECT RPAD('Inst: '||v.inst_id, 9)||' '||RPAD('Child: '||v.child_number, 11) in
 				<table font="Times New Roman" size="10" style="NORMAL" color="-16777216" userowshading="false" oddrowshading="-1" evenrowshading="-1" showborders="true" spacingbefore="12" spacingafter="12" horizontalalign="LEFT" />
 				<header enable="false" generatedate="false">
 					<data>
-					null																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																</data>
+					
+					
+					
+					null																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																															</data>
 				</header>
 				<footer enable="false" generatedate="false">
 					<data value="null" />
 				</footer>
-				<security enable="false" useopenpassword="false" openpassword="" encryption="EXCLUDE_METADATA">
-					<permission enable="false" permissionpassword="" allowcopying="true" allowprinting="true" allowupdating="false" allowaccessdevices="true" />
-				</security>
 				<pagesetup papersize="LETTER" orientation="1" measurement="in" margintop="1.0" marginbottom="1.0" marginleft="1.0" marginright="1.0" />
 			</pdf>
 	</display>
@@ -254,7 +281,7 @@ SELECT RPAD('Inst: '||v.inst_id, 9)||' '||RPAD('Child: '||v.child_number, 11) in
 		<name><![CDATA[SQL-Monitor (Text)]]></name>
 		<description><![CDATA[]]></description>
 		<tooltip><![CDATA[]]></tooltip>
-		<drillclass><![CDATA[null]]></drillclass>
+		<drillclass><![CDATA[]]></drillclass>
 		<CustomValues>
 		</CustomValues>
 		<query>
@@ -275,14 +302,14 @@ SELECT RPAD('Inst: '||v.inst_id, 9)||' '||RPAD('Child: '||v.child_number, 11) in
 				<table font="Times New Roman" size="10" style="NORMAL" color="-16777216" userowshading="false" oddrowshading="-1" evenrowshading="-1" showborders="true" spacingbefore="12" spacingafter="12" horizontalalign="LEFT" />
 				<header enable="false" generatedate="false">
 					<data>
-					null																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																												</data>
+					
+					
+					
+					null																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																											</data>
 				</header>
 				<footer enable="false" generatedate="false">
 					<data value="null" />
 				</footer>
-				<security enable="false" useopenpassword="false" openpassword="" encryption="EXCLUDE_METADATA">
-					<permission enable="false" permissionpassword="" allowcopying="true" allowprinting="true" allowupdating="false" allowaccessdevices="true" />
-				</security>
 				<pagesetup papersize="LETTER" orientation="1" measurement="in" margintop="1.0" marginbottom="1.0" marginleft="1.0" marginright="1.0" />
 			</pdf>
 	</display>
@@ -290,7 +317,7 @@ SELECT RPAD('Inst: '||v.inst_id, 9)||' '||RPAD('Child: '||v.child_number, 11) in
 		<name><![CDATA[SQL-Monitor (HTML)]]></name>
 		<description><![CDATA[]]></description>
 		<tooltip><![CDATA[]]></tooltip>
-		<drillclass><![CDATA[null]]></drillclass>
+		<drillclass><![CDATA[]]></drillclass>
 		<CustomValues>
 		</CustomValues>
 		<query>
@@ -322,14 +349,14 @@ END;]]></sql>
 				<table font="Times New Roman" size="10" style="NORMAL" color="-16777216" userowshading="false" oddrowshading="-1" evenrowshading="-1" showborders="true" spacingbefore="12" spacingafter="12" horizontalalign="LEFT" />
 				<header enable="false" generatedate="false">
 					<data>
-					null																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																	</data>
+					
+					
+					
+					null																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																</data>
 				</header>
 				<footer enable="false" generatedate="false">
 					<data value="null" />
 				</footer>
-				<security enable="false" useopenpassword="false" openpassword="" encryption="EXCLUDE_METADATA">
-					<permission enable="false" permissionpassword="" allowcopying="true" allowprinting="true" allowupdating="false" allowaccessdevices="true" />
-				</security>
 				<pagesetup papersize="LETTER" orientation="1" measurement="in" margintop="1.0" marginbottom="1.0" marginleft="1.0" marginright="1.0" />
 			</pdf>
 	</display>
@@ -337,9 +364,9 @@ END;]]></sql>
 		<name><![CDATA[SQL-Monitor (Flash)]]></name>
 		<description><![CDATA[]]></description>
 		<tooltip><![CDATA[]]></tooltip>
-		<drillclass><![CDATA[null]]></drillclass>
+		<drillclass><![CDATA[]]></drillclass>
 		<CustomValues>
-			<TYPE>horizontal</TYPE>
+			<TYPE><![CDATA[horizontal]]></TYPE>
 		</CustomValues>
 		<query>
 			<sql><![CDATA[SELECT CASE WHEN :SQL_ID = '[NULL]' THEN TO_CLOB( 'SQL_ID IS NULL' )
@@ -359,16 +386,16 @@ END;]]></sql>
 				<table font="Times New Roman" size="10" style="NORMAL" color="-16777216" userowshading="false" oddrowshading="-1" evenrowshading="-1" showborders="true" spacingbefore="12" spacingafter="12" horizontalalign="LEFT" />
 				<header enable="false" generatedate="false">
 					<data>
-					null																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																														</data>
+					
+					
+					
+					null																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																													</data>
 				</header>
 				<footer enable="false" generatedate="false">
 					<data value="null" />
 				</footer>
-				<security enable="false" useopenpassword="false" openpassword="" encryption="EXCLUDE_METADATA">
-					<permission enable="false" permissionpassword="" allowcopying="true" allowprinting="true" allowupdating="false" allowaccessdevices="true" />
-				</security>
 				<pagesetup papersize="LETTER" orientation="1" measurement="in" margintop="1.0" marginbottom="1.0" marginleft="1.0" marginright="1.0" />
 			</pdf>
 	</display>
-<item  reload="false"  reloadparent="false" removeFromParent="false" className="oracle.dbtools.raptor.report.addin.DrillReportAction" classArgs="e9ca7147-0139-1000-8039-0a09996c5632" toolbar="false" ><title>asgf</title></item></display>
+</display>
 </displays>
