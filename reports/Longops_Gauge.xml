@@ -8,14 +8,13 @@
 	<CustomValues>
 		<TYPE><![CDATA[horizontal]]></TYPE>
 	</CustomValues>
-	<query minversion="10.2">
+	<query minversion="10.2" maxversion="11.1.9">
 		<sql><![CDATA[SELECT 'SQLDEV:GAUGE:0:100:0:100:'
        || DECODE( sofar, NULL, 100,
           DECODE( totalwork, 0, 100, NULL, sofar, ROUND(sofar/totalwork*100,0))) as progress
      , username, elapsed_seconds "Elapsed/s", time_remaining "Remaining/s", message
      , sid, serial#, NVL( sql_id, '[NULL]' ) AS sql_id
      , to_char(last_update_time, 'yyyy-mm-dd hh24:mi:ss') last_update_time
-     , sql_exec_start, sql_plan_line_id, sql_exec_id
   FROM gv$session_longops
  WHERE 1=1
 --   AND sofar <> totalwork         -- if you want to see active operations only
@@ -52,6 +51,20 @@
  ORDER BY SIGN( sofar - NVL( totalwork, 0 )), last_update_time DESC
  --target, sid]]></sql>
 	</query>
+	<query minversion="11.2">
+		<sql><![CDATA[SELECT 'SQLDEV:GAUGE:0:100:0:100:'
+       || DECODE( sofar, NULL, 100,
+          DECODE( totalwork, 0, 100, NULL, sofar, ROUND(sofar/totalwork*100,0))) as progress
+     , username, elapsed_seconds "Elapsed/s", time_remaining "Remaining/s", message
+     , sid, serial#, NVL( sql_id, '[NULL]' ) AS sql_id
+     , to_char(last_update_time, 'yyyy-mm-dd hh24:mi:ss') last_update_time
+     , sql_exec_start, sql_plan_line_id, sql_exec_id
+  FROM gv$session_longops
+ WHERE 1=1
+--   AND sofar <> totalwork         -- if you want to see active operations only
+ ORDER BY SIGN( sofar - NVL( totalwork, 0 )), last_update_time DESC
+ --target, sid]]></sql>
+	</query>
 		<pdf version="VERSION_1_7" compression="CONTENT">
 			<docproperty title="" author="" subject="" keywords="" />
 			<cell toppadding="2" bottompadding="2" leftpadding="2" rightpadding="2" horizontalalign="LEFT" verticalalign="TOP" wrap="true" />
@@ -66,7 +79,7 @@
 				
 				
 				
-				null																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																				</data>
+				null																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																</data>
 			</header>
 			<footer enable="false" generatedate="false">
 				<data value="null" />
@@ -115,7 +128,10 @@
 					
 					
 					
-					null																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																		</data>
+					
+					
+					
+					null																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																	</data>
 				</header>
 				<footer enable="false" generatedate="false">
 					<data value="null" />
@@ -163,7 +179,10 @@
 					
 					
 					
-					null																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																		</data>
+					
+					
+					
+					null																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																	</data>
 				</header>
 				<footer enable="false" generatedate="false">
 					<data value="null" />
@@ -184,14 +203,6 @@
 		</query>
 		<query maxversion="10.1.9">
 			<sql><![CDATA[select * from gv$sql where HASH_VALUE = :SQL_HASH_VALUE]]></sql>
-			<binds>
-				<bind id="SQL_HASH_VALUE">
-					<prompt><![CDATA[SQL_HASH_VALUE]]></prompt>
-					<tooltip><![CDATA[SQL_HASH_VALUE]]></tooltip>
-					<value><![CDATA[NULL_VALUE]]></value>
-					<bracket><![CDATA[null]]></bracket>
-				</bind>
-			</binds>
 		</query>
 			<pdf version="VERSION_1_7" compression="CONTENT">
 				<docproperty title="null" author="null" subject="null" keywords="null" />
@@ -207,7 +218,10 @@
 					
 					
 					
-					null																														</data>
+					
+					
+					
+					null																																													</data>
 				</header>
 				<footer enable="false" generatedate="false">
 					<data value="null" />
@@ -240,20 +254,6 @@ SELECT RPAD('Inst: '||v.inst_id, 9)||' '||RPAD('Child: '||v.child_number, 11) in
  WHERE hash_value = :SQL_HASH_VALUE
    AND address = :SQL_ADDRESS
  ORDER BY child_number, id]]></sql>
-			<binds>
-				<bind id="SQL_HASH_VALUE">
-					<prompt><![CDATA[SQL_HASH_VALUE]]></prompt>
-					<tooltip><![CDATA[SQL_HASH_VALUE]]></tooltip>
-					<value><![CDATA[NULL_VALUE]]></value>
-					<bracket><![CDATA[null]]></bracket>
-				</bind>
-				<bind id="SQL_ADDRESS">
-					<prompt><![CDATA[SQL_ADDRESS]]></prompt>
-					<tooltip><![CDATA[SQL_ADDRESS]]></tooltip>
-					<value><![CDATA[NULL_VALUE]]></value>
-					<bracket><![CDATA[null]]></bracket>
-				</bind>
-			</binds>
 		</query>
 			<pdf version="VERSION_1_7" compression="CONTENT">
 				<docproperty title="" author="" subject="" keywords="" />
@@ -269,7 +269,7 @@ SELECT RPAD('Inst: '||v.inst_id, 9)||' '||RPAD('Child: '||v.child_number, 11) in
 					
 					
 					
-					null																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																															</data>
+					null																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																														</data>
 				</header>
 				<footer enable="false" generatedate="false">
 					<data value="null" />
@@ -305,7 +305,7 @@ SELECT RPAD('Inst: '||v.inst_id, 9)||' '||RPAD('Child: '||v.child_number, 11) in
 					
 					
 					
-					null																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																											</data>
+					null																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																										</data>
 				</header>
 				<footer enable="false" generatedate="false">
 					<data value="null" />
@@ -352,7 +352,7 @@ END;]]></sql>
 					
 					
 					
-					null																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																</data>
+					null																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																															</data>
 				</header>
 				<footer enable="false" generatedate="false">
 					<data value="null" />
@@ -389,7 +389,7 @@ END;]]></sql>
 					
 					
 					
-					null																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																													</data>
+					null																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																												</data>
 				</header>
 				<footer enable="false" generatedate="false">
 					<data value="null" />

@@ -4,7 +4,7 @@
 	<name><![CDATA[Log Switch Heat Map]]></name>
 	<description><![CDATA[]]></description>
 	<tooltip><![CDATA[]]></tooltip>
-	<drillclass><![CDATA[null]]></drillclass>
+	<drillclass><![CDATA[]]></drillclass>
 	<CustomValues>
 	</CustomValues>
 	<query>
@@ -21,6 +21,9 @@
 -- that is my excuse for all of the ugly inline CSS. For now :) 
 
 DECLARE
+  -- How many days of log history to show?
+  myHist CONSTANT NUMBER := 31;
+  ----------------------------------------
   myMax NUMBER;
   myDBName VARCHAR2(16);
 
@@ -54,7 +57,7 @@ BEGIN
   SELECT ROUND(MAX(COUNT(*)))
     INTO myMax
     FROM v$log_history 
-  WHERE trunc(FIRST_TIME) >= trunc(sysdate - 31)
+  WHERE trunc(FIRST_TIME) >= trunc(sysdate - myHist)
   GROUP BY TO_CHAR(first_time,'YYYY-MM-DD HH24');
   
   SELECT NAME INTO myDBName FROM V$DATABASE;
@@ -118,7 +121,7 @@ BEGIN
     sum(DECODE(to_char(first_time, 'HH24'), '22', 1, 0)) AS "22",
     sum(DECODE(to_char(first_time, 'HH24'), '23', 1, 0)) AS "23"
     FROM v$log_history
-    WHERE trunc(FIRST_TIME) >= trunc(sysdate - 31)
+    WHERE trunc(FIRST_TIME) >= trunc(sysdate - myHist)
     GROUP BY trunc(first_time)
     ORDER BY TRUNC(FIRST_TIME) DESC
   )
@@ -173,14 +176,11 @@ END;]]></sql>
 				
 				
 				
-				null																																																																																																																																												</data>
+				null																																																																																																																																																																</data>
 			</header>
 			<footer enable="false" generatedate="false">
 				<data value="null" />
 			</footer>
-			<security enable="false" useopenpassword="false" openpassword="null" encryption="EXCLUDE_METADATA">
-				<permission enable="false" permissionpassword="null" allowcopying="true" allowprinting="true" allowupdating="false" allowaccessdevices="false" />
-			</security>
 			<pagesetup papersize="LETTER" orientation="1" measurement="in" margintop="1.0" marginbottom="1.0" marginleft="1.0" marginright="1.0" />
 		</pdf>
 </display>
