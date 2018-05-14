@@ -1,0 +1,25 @@
+<items>
+<folder type="TABLE">
+<name>UserDefined ContextMenus</name>
+<item TYPE="TABLE" reloadparent="true">
+<title>Create SYNONYM</title>
+<prompt type="check">
+<label>PUBLIC</label>
+<value>PUBLIC</value>
+</prompt>
+<prompt>
+<label>NEW SYNONYM NAME</label>
+</prompt>
+<sql>
+<![CDATA[CREATE #0# SYNONYM #1# for "#OBJECT_OWNER#"."#OBJECT_NAME#"]]>
+</sql>
+<help>
+This action create a SYNONYM (optionally public) for the selected table.</help>
+<confirmation>
+<title>Confirmation</title>
+<prompt>SYNONYM "#1#" for "#OBJECT_NAME#" has been created.</prompt>
+</confirmation>
+</item>
+</folder>
+</items>
+</prompt>

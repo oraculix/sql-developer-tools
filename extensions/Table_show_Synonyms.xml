@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<items>
+  <item type="editor" node="TableNode" vertical="false">
+    <title><![CDATA[SYNONYMS]]></title>
+    <!-- add name for now - "should" have automagically used title -->
+    <name><![CDATA[SYNONYMS]]></name>
+    <query>
+      <sql><![CDATA[SELECT 'SQLDEV:LINK:'
+||ao.owner
+||':SYNONYM:'
+||ao.SYNONYM_name
+||':oracle.dbtools.raptor.controls.grid.DefaultDrillLink' SYNONYM_NAME,
+ao.owner
+FROM dba_synonyms ao
+WHERE TABLE_OWNER = :OBJECT_OWNER
+AND table_name = :OBJECT_NAME
+AND owner <> 'PUBLIC'
+UNION ALL
+SELECT 'SQLDEV:LINK:'
+||ao.owner
+||':SYNONYM:'
+||ao.SYNONYM_name
+||':oracle.dbtools.raptor.controls.grid.DefaultDrillLink' SYNONYM_NAME,
+ao.owner
+FROM dba_synonyms ao
+WHERE TABLE_OWNER = :OBJECT_OWNER
+AND table_name = :OBJECT_NAME
+AND owner = 'PUBLIC'
+order by 1 ]]></sql>
+    </query>
+  </item>
+</items>
