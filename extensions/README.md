@@ -14,4 +14,6 @@ Installation (English)
 
 Directory
 ----------------------
+- Table_create_Synonyms.xml: Creates a Synonym for the chosen table.
+- Table_create_Synonyms.xml: Shows all Synonyms for the chosen table.
 - View_Errors.xml: "Errors" Tab for Views. See http://www.thatjeffsmith.com/archive/2012/07/how-to-view-errors-for-views-in-oracle-sql-developer/
