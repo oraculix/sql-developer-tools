@@ -18,6 +18,7 @@ Bedeutung der beiliegenden Reports:
 -----------------------------------
 - Autotasks: Anzeige der installierten Autotasks mit Details (z.B. DBMS-Stats)
 - AWR-Zeitreihe_Load_11g: Visualisierung der Metrik "Average Active Sessions" aus AWR. Details zu Wait Classes, AWR- und ADDM Reports.
+- DBMS_STATS_Report: Bericht über die letzten Aktivitäten von DBMS_STATS
 - Longops_Gauge: Graphische Anzeige der v$session_longops mit Detailinfos zu Sessions, Wait Events und SQL
 - Scheduler_Jobs: Jobs, Run Log, Programs, Windows etc.
   Die gibt es zwar größtenteils auch schon in den Standard-Reports, aber ein paar Details fehlen dort oder sind auf den Navigator und Berichte verteilt.

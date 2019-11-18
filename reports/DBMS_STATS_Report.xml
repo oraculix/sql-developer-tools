@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<displays>
+<display id="1fd7c673-016d-1000-8001-c0a8ceb9af04" type="" style="plsql-dbms_output" enable="true">
+	<name><![CDATA[DBMS_STATS Report]]></name>
+	<description><![CDATA[]]></description>
+	<tooltip><![CDATA[]]></tooltip>
+	<drillclass><![CDATA[]]></drillclass>
+	<CustomValues>
+	</CustomValues>
+	<query>
+		<sql><![CDATA[DECLARE  
+  l_offset     INT := 1;
+  l_theclob    CLOB;
+BEGIN
+  dbms_output.enable(1000000);
+  select SYS.DBMS_STATS.REPORT_STATS_OPERATIONS(
+         since => systimestamp - 1
+       , until => systimestamp
+       , detail_level => 'ALL'
+       , format => 'HTML' ) as report
+    into l_theclob
+    from dual;
+  loop  
+        exit when l_offset > dbms_lob.getlength(l_theclob);  
+        dbms_output.put_line( dbms_lob.substr( l_theclob, 255, l_offset ) );  
+        l_offset := l_offset + 255;  
+  end loop;  
+END;]]></sql>
+	</query>
+		<pdf version="VERSION_1_7" compression="CONTENT">
+			<docproperty title="null" author="null" subject="null" keywords="null" />
+			<cell toppadding="2" bottompadding="2" leftpadding="2" rightpadding="2" horizontalalign="LEFT" verticalalign="TOP" wrap="true" />
+			<column>
+				<heading font="null" size="10" style="NORMAL" color="-16777216" rowshading="-1" labeling="FIRST_PAGE" />
+				<footing font="null" size="10" style="NORMAL" color="-16777216" rowshading="-1" labeling="NONE" />
+				<blob blob="NONE" zip="false" />
+			</column>
+			<table font="null" size="10" style="NORMAL" color="-16777216" userowshading="false" oddrowshading="-1" evenrowshading="-1" showborders="true" spacingbefore="12" spacingafter="12" horizontalalign="LEFT" />
+			<header enable="false" generatedate="false">
+				<data>
+				
+				
+				null												</data>
+			</header>
+			<footer enable="false" generatedate="false">
+				<data value="null" />
+			</footer>
+			<security enable="false" useopenpassword="false" openpassword="null" encryption="EXCLUDE_METADATA">
+				<permission enable="false" permissionpassword="null" allowcopying="true" allowprinting="true" allowupdating="false" allowaccessdevices="false" />
+			</security>
+			<pagesetup papersize="LETTER" orientation="1" measurement="in" margintop="1.0" marginbottom="1.0" marginleft="1.0" marginright="1.0" />
+		</pdf>
+</display>
+</displays>

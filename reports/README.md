@@ -15,6 +15,7 @@ Directory
 ----------------------
 - Autotasks: Display Autotasks with Detail (e.g., DBMS-Stats Gathering Tasks)
 - AWR-Zeitreihe_Load_11g: "Average Active Sessions" visualization from AWR. With metric detail, AWR, and ADDM reports.
+- DBMS_STATS_Report: HTML report on recent runs of DBMS_STATS
 - Log_Switch_Heat_Map: Colored overview of log switches per hour.
 - Longops_Gauge: Long running SQL from v$session_longops with drill-down into session waits, SQL plan and monitoring
 - Scheduler_Jobs: Jobs, Run Log, Programs, Windows etc. All in one place, unlike the standard reports.
