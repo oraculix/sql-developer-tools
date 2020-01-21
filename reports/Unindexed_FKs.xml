@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<displays>
+<display id="c898b946-016f-1000-8001-c0a828a8b122" type="" style="Table" enable="true">
+	<name><![CDATA[Unindexed FKs]]></name>
+	<description><![CDATA[Foreign Keys with no supporting Index (includes parent AND child tables)
+See: https://docs.oracle.com/en/database/oracle/oracle-database/12.2/cncpt/data-concurrency-and-consistency.html#GUID-261F98F8-F7B4-49A9-9BE8-11F2B1F4609B]]></description>
+	<tooltip><![CDATA[Foreign Keys with no supporting Index (includes parent AND child tables)]]></tooltip>
+	<drillclass><![CDATA[]]></drillclass>
+	<CustomValues>
+		<TYPE><![CDATA[horizontal]]></TYPE>
+	</CustomValues>
+	<query>
+		<sql><![CDATA[SELECT "OWNER", 
+       'SQLDEV:LINK:'
+       ||owner
+       ||':TABLE:'
+       ||table_name
+       ||':oracle.dbtools.raptor.controls.grid.DefaultDrillLink' AS "TABLE_NAME",
+       "CONSTRAINT_NAME", "STATUS", "CONSTRAINT_COLUMNS", "R_OWNER", "R_CONSTRAINT_NAME"
+FROM(
+WITH
+ref_int_constraints AS (
+SELECT /*+ MATERIALIZE NO_MERGE */
+       col.owner,
+       col.constraint_name,
+       col.table_name,
+       con.status,
+       con.r_owner,
+       con.r_constraint_name,
+       MAX(CASE col.position WHEN 01 THEN      col.column_name END)||
+       MAX(CASE col.position WHEN 02 THEN ':'||col.column_name END)||
+       MAX(CASE col.position WHEN 03 THEN ':'||col.column_name END)||
+       MAX(CASE col.position WHEN 04 THEN ':'||col.column_name END)||
+       MAX(CASE col.position WHEN 05 THEN ':'||col.column_name END)||
+       MAX(CASE col.position WHEN 06 THEN ':'||col.column_name END)||
+       MAX(CASE col.position WHEN 07 THEN ':'||col.column_name END)||
+       MAX(CASE col.position WHEN 08 THEN ':'||col.column_name END)||
+       MAX(CASE col.position WHEN 09 THEN ':'||col.column_name END)||
+       MAX(CASE col.position WHEN 10 THEN ':'||col.column_name END)||
+       MAX(CASE col.position WHEN 11 THEN ':'||col.column_name END)||
+       MAX(CASE col.position WHEN 12 THEN ':'||col.column_name END)||
+       MAX(CASE col.position WHEN 13 THEN ':'||col.column_name END)||
+       MAX(CASE col.position WHEN 14 THEN ':'||col.column_name END)||
+       MAX(CASE col.position WHEN 15 THEN ':'||col.column_name END)||
+       MAX(CASE col.position WHEN 16 THEN ':'||col.column_name END)
+       constraint_columns
+  FROM dba_constraints  con,
+       dba_cons_columns col
+ WHERE con.constraint_type = 'R'
+   --AND con.status = 'ENABLED'
+   AND con.owner NOT IN ('ANONYMOUS','APPQOSSYS','CTXSYS','DBSNMP','DIP','EXFSYS','FLOWS_FILES','GSMADMIN_INTERNAL','LBACSYS'
+                        ,'MDSYS','OLAPSYS','ORACLE_OCM','ORDDATA','ORDPLUGINS','ORDSYS','ORDS_METADATA','OUTLN','OWBSYS'
+                        ,'SI_INFORMTN_SCHEMA','SQLTXADMIN','SQLTXPLAIN','SYS','SYSMAN','SYSTEM','TRCANLZR','WMSYS','XDB','XS$NULL')
+   AND con.owner NOT LIKE ('APEX%')
+   AND col.owner = con.owner
+   AND col.constraint_name = con.constraint_name
+   AND col.table_name = con.table_name
+ GROUP BY
+       col.owner,
+       col.constraint_name,
+       col.table_name,
+       con.status,
+       con.r_owner,
+       con.r_constraint_name
+),
+indexed_columns AS (
+SELECT /*+ MATERIALIZE NO_MERGE */
+       col.index_owner,
+       col.index_name,
+       col.table_owner,
+       col.table_name,
+       MAX(CASE col.column_position WHEN 01 THEN      col.column_name END)||
+       MAX(CASE col.column_position WHEN 02 THEN ':'||col.column_name END)||
+       MAX(CASE col.column_position WHEN 03 THEN ':'||col.column_name END)||
+       MAX(CASE col.column_position WHEN 04 THEN ':'||col.column_name END)||
+       MAX(CASE col.column_position WHEN 05 THEN ':'||col.column_name END)||
+       MAX(CASE col.column_position WHEN 06 THEN ':'||col.column_name END)||
+       MAX(CASE col.column_position WHEN 07 THEN ':'||col.column_name END)||
+       MAX(CASE col.column_position WHEN 08 THEN ':'||col.column_name END)||
+       MAX(CASE col.column_position WHEN 09 THEN ':'||col.column_name END)||
+       MAX(CASE col.column_position WHEN 10 THEN ':'||col.column_name END)||
+       MAX(CASE col.column_position WHEN 11 THEN ':'||col.column_name END)||
+       MAX(CASE col.column_position WHEN 12 THEN ':'||col.column_name END)||
+       MAX(CASE col.column_position WHEN 13 THEN ':'||col.column_name END)||
+       MAX(CASE col.column_position WHEN 14 THEN ':'||col.column_name END)||
+       MAX(CASE col.column_position WHEN 15 THEN ':'||col.column_name END)||
+       MAX(CASE col.column_position WHEN 16 THEN ':'||col.column_name END)
+       indexed_columns
+  FROM dba_ind_columns col
+ WHERE col.table_owner NOT IN ('ANONYMOUS','APPQOSSYS','CTXSYS','DBSNMP','DIP','EXFSYS','FLOWS_FILES','GSMADMIN_INTERNAL','LBACSYS'
+                        ,'MDSYS','OLAPSYS','ORACLE_OCM','ORDDATA','ORDPLUGINS','ORDSYS','ORDS_METADATA','OUTLN','OWBSYS'
+                        ,'SI_INFORMTN_SCHEMA','SQLTXADMIN','SQLTXPLAIN','SYS','SYSMAN','SYSTEM','TRCANLZR','WMSYS','XDB','XS$NULL')
+   AND col.table_owner NOT LIKE ('APEX%')
+ GROUP BY
+       col.index_owner,
+       col.index_name,
+       col.table_owner,
+       col.table_name
+)
+SELECT /*+ NO_MERGE */
+       rc.status,
+       rc.owner,
+       rc.table_name,
+       rc.constraint_name,
+       rc.constraint_columns,
+       rc.r_owner,
+       rc.r_constraint_name
+  FROM ref_int_constraints rc,
+       indexed_columns     ic
+ WHERE ic.table_owner(+) = rc.owner
+   AND ic.table_name(+) = rc.table_name
+   AND ic.indexed_columns(+) LIKE rc.constraint_columns||'%'
+   AND ic.table_name IS NULL
+ ORDER BY
+       rc.status DESC,
+       rc.owner,
+       rc.table_name,
+       rc.constraint_name
+)]]></sql>
+	</query>
+		<pdf version="VERSION_1_7" compression="CONTENT">
+			<docproperty title="null" author="null" subject="null" keywords="null" />
+			<cell toppadding="2" bottompadding="2" leftpadding="2" rightpadding="2" horizontalalign="LEFT" verticalalign="TOP" wrap="true" />
+			<column>
+				<heading font="null" size="10" style="NORMAL" color="-16777216" rowshading="-1" labeling="FIRST_PAGE" />
+				<footing font="null" size="10" style="NORMAL" color="-16777216" rowshading="-1" labeling="NONE" />
+				<blob blob="NONE" zip="false" />
+			</column>
+			<table font="null" size="10" style="NORMAL" color="-16777216" userowshading="false" oddrowshading="-1" evenrowshading="-1" showborders="true" spacingbefore="12" spacingafter="12" horizontalalign="LEFT" />
+			<header enable="false" generatedate="false">
+				<data>
+				null				</data>
+			</header>
+			<footer enable="false" generatedate="false">
+				<data value="null" />
+			</footer>
+			<pagesetup papersize="LETTER" orientation="1" measurement="in" margintop="1.0" marginbottom="1.0" marginleft="1.0" marginright="1.0" />
+		</pdf>
+</display>
+</displays>
