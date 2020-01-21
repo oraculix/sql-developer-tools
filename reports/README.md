@@ -26,5 +26,6 @@ Directory
 - Statspack_PIO: "Session Physical Reads" and "Session Physical Writes" visualization from Statspack (read/write I/O to storage).
 - Statspack_SysStat: Visualization of recent historic performance metrics from V$SYSSTAT.
 - Storage_Overview: Quick and simple database size info.
+- Unindexed_FKs: Foreign Keys with no supporting index.
 - Wait_Class_History: DB-Load of the last 60 minutes, grouped by wait class.
 - Wait_Class_History_RAC: DB-Load of the last 60 minutes, by RAC instance; Drill-Down grouped by wait class.

@@ -29,5 +29,6 @@ Bedeutung der beiliegenden Reports:
 - Statspack_PIO: Visualisierung der Metriken "Session Physical Reads" und "Session Physical Writes" (Lese-/Schreibzugriffe auf die Festplatte)
 - Statspack_SysStat: Visualisierung historisierter Metriken aus V$SYSSTAT.
 - Storage_Overview: Einfacher Überblick über die DB-Größe
+- Unindexed_FKs: Foreign Key Constraints ohne Index auf den entsprechenden Spalten.
 - Wait_Class_History: DB-Last der letzten Stunde, nach Wait Classes gruppiert.
 - Wait_Class_History_RAC: DB-Last der letzten Stunde, nach Cluster-Nodes; Drill-Down nach Wait Classes gruppiert.
