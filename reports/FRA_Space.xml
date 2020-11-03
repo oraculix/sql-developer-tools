@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<displays>
+<display id="89f1b417-0175-1000-8001-c0a8a46f0d44" type="" style="Chart" enable="true">
+	<name><![CDATA[FRA]]></name>
+	<description><![CDATA[]]></description>
+	<tooltip><![CDATA[]]></tooltip>
+	<drillclass><![CDATA[]]></drillclass>
+	<CustomValues>
+		<Y1AXIS_SCALE_INCREMENT><![CDATA[20.0]]></Y1AXIS_SCALE_INCREMENT>
+		<DATA_MAP_COLNAMES><![CDATA[\,"Claimed","Reclaimable","Unused"]]></DATA_MAP_COLNAMES>
+		<Y1AXIS_TITLE_ALIGNMENT><![CDATA[CENTER]]></Y1AXIS_TITLE_ALIGNMENT>
+		<STYLE><![CDATA[Default]]></STYLE>
+		<TITLE_ALIGNMENT><![CDATA[LEFT]]></TITLE_ALIGNMENT>
+		<LEGEND_LOCATION><![CDATA[AUTOMATIC]]></LEGEND_LOCATION>
+		<PLOT_SERIES_OPTIONS_COLOR><![CDATA[\,-16737997,-3394816,-6710887,-16751002,-26368]]></PLOT_SERIES_OPTIONS_COLOR>
+		<XAXIS_SCALE_INCREMENT><![CDATA[20.0]]></XAXIS_SCALE_INCREMENT>
+		<LEGEND_ALIGNMENT><![CDATA[LEFT]]></LEGEND_ALIGNMENT>
+		<PLOT_DATALABELS_SLICE_TYPE><![CDATA[PERCENT_VALUE]]></PLOT_DATALABELS_SLICE_TYPE>
+		<PLOT_DATALABELS_SLICE_POSITION><![CDATA[OUTSIDE_SLICE_LINE]]></PLOT_DATALABELS_SLICE_POSITION>
+		<Y2AXIS_TICK_LABEL_ROTATE><![CDATA[HORIZONTAL]]></Y2AXIS_TICK_LABEL_ROTATE>
+		<XAXIS_TITLE_ALIGNMENT><![CDATA[CENTER]]></XAXIS_TITLE_ALIGNMENT>
+		<Y1AXIS_TICK_LABEL_ROTATE><![CDATA[HORIZONTAL]]></Y1AXIS_TICK_LABEL_ROTATE>
+		<XAXIS_TICK_LABEL_ROTATE><![CDATA[HORIZONTAL]]></XAXIS_TICK_LABEL_ROTATE>
+		<Y2AXIS_SCALE_INCREMENT><![CDATA[20.0]]></Y2AXIS_SCALE_INCREMENT>
+		<TYPE><![CDATA[RING]]></TYPE>
+		<Y2AXIS_TITLE_ALIGNMENT><![CDATA[CENTER]]></Y2AXIS_TITLE_ALIGNMENT>
+		<GRID_WIDTH><![CDATA[THINNER]]></GRID_WIDTH>
+		<SUBTITLE_ALIGNMENT><![CDATA[LEFT]]></SUBTITLE_ALIGNMENT>
+		<FOOTNOTE_ALIGNMENT><![CDATA[LEFT]]></FOOTNOTE_ALIGNMENT>
+	</CustomValues>
+	<query>
+		<sql><![CDATA[select NULL "FRA", 'Reclaimable' AS attr, ROUND(space_reclaimable/1024/1024/1024, 2) GB
+  from v$recovery_file_dest def
+union all
+select NULL "FRA", 'Claimed', ROUND((space_used - space_reclaimable)/1024/1024/1024, 2)
+  from v$recovery_file_dest def
+union all
+select NULL "FRA", 'Unused', ROUND((space_limit - space_used)/1024/1024/1024, 2)
+  from v$recovery_file_dest def]]></sql>
+	</query>
+		<pdf version="VERSION_1_7" compression="CONTENT">
+			<docproperty title="null" author="null" subject="null" keywords="null" />
+			<cell toppadding="2" bottompadding="2" leftpadding="2" rightpadding="2" horizontalalign="LEFT" verticalalign="TOP" wrap="true" />
+			<column>
+				<heading font="null" size="10" style="NORMAL" color="-16777216" rowshading="-1" labeling="FIRST_PAGE" />
+				<footing font="null" size="10" style="NORMAL" color="-16777216" rowshading="-1" labeling="NONE" />
+				<blob blob="NONE" zip="false" />
+			</column>
+			<table font="null" size="10" style="NORMAL" color="-16777216" userowshading="false" oddrowshading="-1" evenrowshading="-1" showborders="true" spacingbefore="12" spacingafter="12" horizontalalign="LEFT" />
+			<header enable="false" generatedate="false">
+				<data>
+				null				</data>
+			</header>
+			<footer enable="false" generatedate="false">
+				<data value="null" />
+			</footer>
+			<pagesetup papersize="LETTER" orientation="1" measurement="in" margintop="1.0" marginbottom="1.0" marginleft="1.0" marginright="1.0" />
+		</pdf>
+</display>
+</displays>
