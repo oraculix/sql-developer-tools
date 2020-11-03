@@ -16,9 +16,12 @@ Directory
 - Autotasks: Display Autotasks with Detail (e.g., DBMS-Stats Gathering Tasks)
 - AWR-Zeitreihe_Load_11g: "Average Active Sessions" visualization from AWR. With metric detail, AWR, and ADDM reports.
 - DBMS_STATS_Report: HTML report on recent runs of DBMS_STATS
+- Dbvisit_Replicate_Lag: How far is the replication target behind the master?
+- FRA_Space: Ring chart showing space usage in fast recovery area
 - Log_Switch_Heat_Map: Colored overview of log switches per hour.
 - Longops_Gauge: Long running SQL from v$session_longops with drill-down into session waits, SQL plan and monitoring
 - Scheduler_Jobs: Jobs, Run Log, Programs, Windows etc. All in one place, unlike the standard reports.
+- Scheduler_Programs: Details for scheduler programs
 - Statspack_AAS: "Average Active Sessions" visualization from Statspack. With session, waits, top SQL and top segments.
 - Statspack_AAS_3Level: "Average Active Sessions" visualization from Statspack. Adds a third level to the above report for historic and cached Explain Plan.
 - Statspack_Host_CPU: CPU load visualization from Statspack (Host and DB CPU).
