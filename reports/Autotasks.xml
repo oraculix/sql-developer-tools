@@ -4,13 +4,13 @@
 	<name><![CDATA[Autotasks]]></name>
 	<description><![CDATA[Details on 11g Autotasks (Stats and Advisors)]]></description>
 	<tooltip><![CDATA[]]></tooltip>
-	<drillclass><![CDATA[null]]></drillclass>
+	<drillclass><![CDATA[]]></drillclass>
 	<CustomValues>
-		<TYPE>horizontal</TYPE>
+		<TYPE><![CDATA[horizontal]]></TYPE>
 	</CustomValues>
 	<query>
 		<sql><![CDATA[SELECT *
-  FROM dba_autotask_task]]></sql>
+  FROM dba_autotask_client]]></sql>
 	</query>
 		<pdf version="VERSION_1_7" compression="CONTENT">
 			<docproperty title="" author="" subject="" keywords="" />
@@ -73,23 +73,22 @@
 				
 				
 				
-				null																																																																																																																																																																																																												</data>
+				
+				
+				null																																																																																																																																																																																																																				</data>
 			</header>
 			<footer enable="false" generatedate="false">
 				<data value="null" />
 			</footer>
-			<security enable="false" useopenpassword="false" openpassword="" encryption="EXCLUDE_METADATA">
-				<permission enable="false" permissionpassword="" allowcopying="true" allowprinting="true" allowupdating="false" allowaccessdevices="true" />
-			</security>
 			<pagesetup papersize="LETTER" orientation="1" measurement="in" margintop="1.0" marginbottom="1.0" marginleft="1.0" marginright="1.0" />
 		</pdf>
 	<display id="null" type="" style="Table" enable="true">
 		<name><![CDATA[History]]></name>
 		<description><![CDATA[]]></description>
 		<tooltip><![CDATA[]]></tooltip>
-		<drillclass><![CDATA[null]]></drillclass>
+		<drillclass><![CDATA[]]></drillclass>
 		<CustomValues>
-			<TYPE>horizontal</TYPE>
+			<TYPE><![CDATA[horizontal]]></TYPE>
 		</CustomValues>
 		<query>
 			<sql><![CDATA[select *
@@ -166,14 +165,13 @@
 					
 					
 					
-					null																																																																																																																																																																																																																																																															</data>
+					
+					
+					null																																																																																																																																																																																																																																																																									</data>
 				</header>
 				<footer enable="false" generatedate="false">
 					<data value="null" />
 				</footer>
-				<security enable="false" useopenpassword="false" openpassword="" encryption="EXCLUDE_METADATA">
-					<permission enable="false" permissionpassword="" allowcopying="true" allowprinting="true" allowupdating="false" allowaccessdevices="true" />
-				</security>
 				<pagesetup papersize="LETTER" orientation="1" measurement="in" margintop="1.0" marginbottom="1.0" marginleft="1.0" marginright="1.0" />
 			</pdf>
 	</display>
@@ -181,9 +179,9 @@
 		<name><![CDATA[Job History]]></name>
 		<description><![CDATA[]]></description>
 		<tooltip><![CDATA[]]></tooltip>
-		<drillclass><![CDATA[null]]></drillclass>
+		<drillclass><![CDATA[]]></drillclass>
 		<CustomValues>
-			<TYPE>horizontal</TYPE>
+			<TYPE><![CDATA[horizontal]]></TYPE>
 		</CustomValues>
 		<query>
 			<sql><![CDATA[SELECT *
@@ -252,14 +250,13 @@
 					
 					
 					
-					null																																																																																																																																																																																																																																																															</data>
+					
+					
+					null																																																																																																																																																																																																																																																																									</data>
 				</header>
 				<footer enable="false" generatedate="false">
 					<data value="null" />
 				</footer>
-				<security enable="false" useopenpassword="false" openpassword="" encryption="EXCLUDE_METADATA">
-					<permission enable="false" permissionpassword="" allowcopying="true" allowprinting="true" allowupdating="false" allowaccessdevices="true" />
-				</security>
 				<pagesetup papersize="LETTER" orientation="1" measurement="in" margintop="1.0" marginbottom="1.0" marginleft="1.0" marginright="1.0" />
 			</pdf>
 	</display>
@@ -267,9 +264,9 @@
 		<name><![CDATA[Window History]]></name>
 		<description><![CDATA[]]></description>
 		<tooltip><![CDATA[]]></tooltip>
-		<drillclass><![CDATA[null]]></drillclass>
+		<drillclass><![CDATA[]]></drillclass>
 		<CustomValues>
-			<TYPE>horizontal</TYPE>
+			<TYPE><![CDATA[horizontal]]></TYPE>
 		</CustomValues>
 		<query>
 			<sql><![CDATA[SELECT *
@@ -337,14 +334,13 @@
 					
 					
 					
-					null																																																																																																																																																																																																																																																															</data>
+					
+					
+					null																																																																																																																																																																																																																																																																									</data>
 				</header>
 				<footer enable="false" generatedate="false">
 					<data value="null" />
 				</footer>
-				<security enable="false" useopenpassword="false" openpassword="" encryption="EXCLUDE_METADATA">
-					<permission enable="false" permissionpassword="" allowcopying="true" allowprinting="true" allowupdating="false" allowaccessdevices="true" />
-				</security>
 				<pagesetup papersize="LETTER" orientation="1" measurement="in" margintop="1.0" marginbottom="1.0" marginleft="1.0" marginright="1.0" />
 			</pdf>
 	</display>
@@ -352,17 +348,17 @@
 		<name><![CDATA[Program]]></name>
 		<description><![CDATA[]]></description>
 		<tooltip><![CDATA[]]></tooltip>
-		<drillclass><![CDATA[null]]></drillclass>
+		<drillclass><![CDATA[]]></drillclass>
 		<CustomValues>
-			<TYPE>vertical</TYPE>
+			<TYPE><![CDATA[vertical]]></TYPE>
 		</CustomValues>
 		<query>
 			<sql><![CDATA[SELECT * FROM DBA_SCHEDULER_PROGRAMS
- WHERE UPPER( program_name ) = UPPER( :TASK_NAME )]]></sql>
+ WHERE UPPER( program_name ) IN ( SELECT UPPER( TASK_NAME ) FROM dba_autotask_task WHERE client_name = :CLIENT_NAME )]]></sql>
 			<binds>
-				<bind id="TASK_NAME">
-					<prompt><![CDATA[TASK_NAME]]></prompt>
-					<tooltip><![CDATA[TASK_NAME]]></tooltip>
+				<bind id="CLIENT_NAME">
+					<prompt><![CDATA[CLIENT_NAME]]></prompt>
+					<tooltip><![CDATA[CLIENT_NAME]]></tooltip>
 					<value><![CDATA[NULL_VALUE]]></value>
 					<bracket><![CDATA[null]]></bracket>
 				</bind>
@@ -429,14 +425,53 @@
 					
 					
 					
-					null																																																																																																																																																																																																																																																															</data>
+					
+					
+					null																																																																																																																																																																																																																																																																									</data>
 				</header>
 				<footer enable="false" generatedate="false">
 					<data value="null" />
 				</footer>
-				<security enable="false" useopenpassword="false" openpassword="" encryption="EXCLUDE_METADATA">
-					<permission enable="false" permissionpassword="" allowcopying="true" allowprinting="true" allowupdating="false" allowaccessdevices="true" />
-				</security>
+				<pagesetup papersize="LETTER" orientation="1" measurement="in" margintop="1.0" marginbottom="1.0" marginleft="1.0" marginright="1.0" />
+			</pdf>
+	</display>
+	<display id="null" type="" style="Table" enable="true">
+		<name><![CDATA[Tasks]]></name>
+		<description><![CDATA[]]></description>
+		<tooltip><![CDATA[]]></tooltip>
+		<drillclass><![CDATA[]]></drillclass>
+		<CustomValues>
+			<TYPE><![CDATA[horizontal]]></TYPE>
+		</CustomValues>
+		<query>
+			<sql><![CDATA[SELECT *
+  FROM dba_autotask_task
+ WHERE client_name = :CLIENT_NAME]]></sql>
+			<binds>
+				<bind id="CLIENT_NAME">
+					<prompt><![CDATA[CLIENT_NAME]]></prompt>
+					<tooltip><![CDATA[CLIENT_NAME]]></tooltip>
+					<value><![CDATA[NULL_VALUE]]></value>
+					<bracket><![CDATA[null]]></bracket>
+				</bind>
+			</binds>
+		</query>
+			<pdf version="VERSION_1_7" compression="CONTENT">
+				<docproperty title="null" author="null" subject="null" keywords="null" />
+				<cell toppadding="2" bottompadding="2" leftpadding="2" rightpadding="2" horizontalalign="LEFT" verticalalign="TOP" wrap="true" />
+				<column>
+					<heading font="null" size="10" style="NORMAL" color="-16777216" rowshading="-1" labeling="FIRST_PAGE" />
+					<footing font="null" size="10" style="NORMAL" color="-16777216" rowshading="-1" labeling="NONE" />
+					<blob blob="NONE" zip="false" />
+				</column>
+				<table font="null" size="10" style="NORMAL" color="-16777216" userowshading="false" oddrowshading="-1" evenrowshading="-1" showborders="true" spacingbefore="12" spacingafter="12" horizontalalign="LEFT" />
+				<header enable="false" generatedate="false">
+					<data>
+					null					</data>
+				</header>
+				<footer enable="false" generatedate="false">
+					<data value="null" />
+				</footer>
 				<pagesetup papersize="LETTER" orientation="1" measurement="in" margintop="1.0" marginbottom="1.0" marginleft="1.0" marginright="1.0" />
 			</pdf>
 	</display>
