@@ -151,8 +151,8 @@
 			<sql><![CDATA[SELECT s.username
      , se.event
      , SUM( total_waits ) total_waits
-     , ROUND( SUM( time_waited )/10, 2 ) "Time waited / s"
-     , AVG( average_wait ) avg_wait
+     , ROUND( SUM( time_waited )/100, 2 ) "Time waited / s"
+     , AVG( average_wait )*10 "avg_wait / ms"
      , MAX( se.wait_class ) wait_class
   FROM gv$session_event se
      , gv$session s
@@ -164,6 +164,20 @@
 --   AND s.username IS NOT NULL
  GROUP BY s.username, se.event
  ORDER BY MAX( DECODE( se.wait_class, 'Idle', 1, 0 )), "Time waited / s" DESC]]></sql>
+			<binds>
+				<bind id="SID">
+					<prompt><![CDATA[SID]]></prompt>
+					<tooltip><![CDATA[SID]]></tooltip>
+					<value><![CDATA[NULL_VALUE]]></value>
+					<bracket><![CDATA[null]]></bracket>
+				</bind>
+				<bind id="SERIAL#">
+					<prompt><![CDATA[SERIAL#]]></prompt>
+					<tooltip><![CDATA[SERIAL#]]></tooltip>
+					<value><![CDATA[NULL_VALUE]]></value>
+					<bracket><![CDATA[null]]></bracket>
+				</bind>
+			</binds>
 		</query>
 			<pdf version="VERSION_1_7" compression="CONTENT">
 				<docproperty title="" author="" subject="" keywords="" />
