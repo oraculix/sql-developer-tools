@@ -1354,4 +1354,61 @@ connect by prior l.waiting_session = l.blocking_session
          </code>
       </snippet>
    </group>
+   <group category="RDS" language="PLSQL">
+      <snippet name="Delete files in directory" description="">
+         <code>
+            <![CDATA[-- Delete multiple files from a directory in RDS
+-- using wildcards for selection
+BEGIN
+  FOR c IN( SELECT filename
+    FROM TABLE(rdsadmin.rds_file_util.listdir(p_directory => 'DATA_PUMP_DIR'))
+    WHERE filename LIKE 'export_22102022_%' )
+  LOOP
+     UTL_FILE.FREMOVE(
+       location => 'DATA_PUMP_DIR',
+       filename => c.filename
+    );
+  END LOOP;
+END;
+/
+]]>
+         </code>
+      </snippet>
+      <snippet name="List files in a directory on AWS RDS" description="">
+         <code>
+            <![CDATA[SELECT *
+  FROM TABLE(rdsadmin.rds_file_util.listdir(p_directory => 'DATA_PUMP_DIR'))
+ WHERE filename LIKE '%';]]>
+         </code>
+      </snippet>
+      <snippet name="Copy files from RDS to S3" description="">
+         <code>
+            <![CDATA[SELECT rdsadmin.rdsadmin_s3_tasks.upload_to_s3(
+  p_bucket_name    => 'rdsimportexport-db',
+  p_s3_prefix      => 'calprd02/',
+  p_prefix         => 'export_calprd_20221029', -- this uses an implicit * at the end
+  p_directory_name => 'DATA_PUMP_DIR')
+AS TASK_ID FROM DUAL;
+
+-- Copy the task ID into the next statement
+-- Display progress of the up/download task
+SELECT text FROM table(rdsadmin.rds_file_util.read_text_file('BDUMP','dbtask-1666991500515-627.log'));
+]]>
+         </code>
+      </snippet>
+      <snippet name="Copy files from S3 to RDS" description="">
+         <code>
+            <![CDATA[SELECT rdsadmin.rdsadmin_s3_tasks.download_from_s3(
+  p_bucket_name => 'rdsimportexport-db',
+  p_s3_prefix => 'calprd02/', -- Subfolder or beginning of filename(s)
+  p_directory_name => 'DATA_PUMP_DIR')
+AS TASK_ID FROM DUAL;
+
+-- Copy the task ID into the next statement
+-- Display progress of the up/download task
+SELECT text FROM table(rdsadmin.rds_file_util.read_text_file('BDUMP','dbtask-1666991500515-627.log'));
+]]>
+         </code>
+      </snippet>
+   </group>
 </snippets>
