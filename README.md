@@ -1,3 +1,9 @@
+> [!IMPORTANT]
+> Repository moved to Codeberg!
+> 
+> This repository now lives on https://codeberg.org/oraculix/sql-developer-tools and has been archived here.
+
+
 sql-developer-tools
 ===================
 
